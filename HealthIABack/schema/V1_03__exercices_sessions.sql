@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS exercice_sessions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    age TINYINT,
+    gender INT,
+    weight_kg SMALLINT,
+    height_cm SMALLINT,
+    Max_BPM SMALLINT,
+    Avg_bpm SMALLINT,
+    Resting_BPM SMALLINT,
+    Session_Duration_hours TINYINT,
+    Calories_Burned SMALLINT,
+    Workout_Type INT,
+    Fat_Percentage FLOAT,
+    Water_Intake_liters FLOAT,
+    Workout_Frequency TINYINT,
+    Experience_Level TINYINT,
+    BMI FLOAT,
+    FOREIGN KEY (gender) REFERENCES genders(id),
+    FOREIGN KEY (Workout_Type) REFERENCES workout_types(id)
+)

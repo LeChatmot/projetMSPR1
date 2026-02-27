@@ -3,9 +3,19 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/.idea/queries/Query.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/.idea/queries/Query_1.sql" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/schema/V1_01__ref_food_item.sql" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/schema/V1_02__patient.sql" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/schema/V1_03__nutrition_log.sql" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/schema/V1_05__workout_session.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_01__genders.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_02__workout_types.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_03__exercices_sessions.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_04__daily_food_categories.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_05__meal_types.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_06__daily_foods.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_07__disease_types.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_08__severity_types.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_09__physical_activity_level.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_10__diet_recommandation_types.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_11__allergies.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_12__preferred_cuisine_types.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_13__dietary_restrictions.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/schema/V1_14__diet_recommendations.sql" dialect="MySQL" />
   </component>
 </project>
