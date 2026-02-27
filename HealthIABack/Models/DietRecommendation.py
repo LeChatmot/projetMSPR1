@@ -55,6 +55,34 @@ class DietRecommendation:
         self.adherence_to_diet_plan = adherence_to_diet_plan
         self.dietary_nutrinent_imbalance_score = dietary_nutrinent_imbalance_score
 
+    @staticmethod
+    def to_model(row: dict):
+        if not row:
+            return None
+        return DietRecommendation(
+            id=row['id'],
+            age=row['age'],
+            gender=row['gender'],
+            height_cm=row['height_cm'],
+            current_weight_kg=row['current_weight_kg'],
+            BMI=row['BMI'],
+            disease_type=row['disease_type'],
+            severity=row['severity'],
+            diet_recommandation=row['diet_recommandation'],
+            daily_caloric_target=row['daily_caloric_target'],
+            activity_level=row['activity_level'],
+            created_at=row['created_at'],
+            cholesterol_mg=row['cholesterol_mg'],
+            blood_preassure_mmhg=row['blood_preassure_mmhg'],
+            glucose_mg_dl=row['glucose_mg_dl'],
+            dietary_restrictions=row['dietary_restrictions'],
+            allergie=row['allergie'],
+            preferred_cuisine=row['preferred_cuisine'],
+            weekly_exercice_hours=row['weekly_exercice_hours'],
+            adherence_to_diet_plan=row['adherence_to_diet_plan'],
+            dietary_nutrinent_imbalance_score=row['dietary_nutrinent_imbalance_score'],
+        )
+
     def getId(self):
         return self._id
 

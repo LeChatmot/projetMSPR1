@@ -20,6 +20,7 @@ class BaseRepository:
         'cursorclass': DictCursor,
         'connect_timeout': 10,
         'autocommit': False,
+
     }
 
     def __init__(self):

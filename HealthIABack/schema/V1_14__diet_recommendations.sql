@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS diet_recommendations (
     FOREIGN KEY (disease_type) REFERENCES disease_types(id),
     FOREIGN KEY (severity) REFERENCES severity_types(id),
     FOREIGN KEY (diet_recommandation) REFERENCES diet_recommandation_types(id),
-    FOREIGN KEY (activity_level) REFERENCES physical_activity_level(id),
+    FOREIGN KEY (activity_level) REFERENCES physical_activity_levels(id),
     FOREIGN KEY (dietary_restrictions) REFERENCES dietary_restrictions(id),
     FOREIGN KEY (allergie) REFERENCES allergies(id),
     FOREIGN KEY (preferred_cuisine) REFERENCES preferred_cuisine_types(id)

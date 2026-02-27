@@ -39,6 +39,29 @@ class ExerciseSession:
         self.experienceLevel = experienceLevel
         self.bmi = bmi
 
+    @staticmethod
+    def to_model(row: dict):
+        if not row:
+            return None
+        return ExerciseSession(
+            id=row['id'],
+            age=row['age'],
+            gender=row['gender'],
+            weightKg=row['weightKg'],
+            heightCm=row['heightCm'],
+            maxBPM=row['maxBPM'],
+            avgBPM=row['avgBPM'],
+            restingBPM=row['restingBPM'],
+            sessionDurationHours=row['sessionDurationHours'],
+            caloriesBurned=row['caloriesBurned'],
+            workoutType=row['workoutType'],
+            fatPercentage=row['fatPercentage'],
+            waterIntakeLiters=row['waterIntakeLiters'],
+            workoutFrequency=row['workoutFrequency'],
+            experienceLevel=row['experienceLevel'],
+            bmi=row['bmi'],
+        )
+
     def getId(self):
         return self.id
 
