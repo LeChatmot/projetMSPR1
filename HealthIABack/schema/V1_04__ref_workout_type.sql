@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS ref_workout_type (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) UNIQUE
+)
