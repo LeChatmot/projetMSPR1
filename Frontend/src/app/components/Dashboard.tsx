@@ -1,44 +1,76 @@
-import { Users, Flame, Clock, AlertTriangle } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { calculateKPIs, mockWeightEvolution, getSportDistribution } from '../data/mockData';
+import { AlertTriangle, Clock, Flame, Users } from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { useDashboard } from "../hooks/useDashboard";
 
 export function Dashboard() {
-  const kpis = calculateKPIs();
-  const sportDistribution = getSportDistribution();
+  const { kpis, weightEvolution, sportDistribution, loading, error } =
+    useDashboard();
+
+  // Gestion des états de chargement et erreur
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-600">Chargement du dashboard...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-red-600">Erreur: {error}</div>
+      </div>
+    );
+  }
+
+  if (!kpis) {
+    return null;
+  }
 
   const kpiCards = [
     {
-      title: 'Total Patients',
+      title: "Total Patients",
       value: kpis.totalPatients,
       icon: Users,
-      color: 'blue',
-      bgColor: 'bg-blue-50',
-      iconColor: 'text-blue-600'
+      color: "blue",
+      bgColor: "bg-blue-50",
+      iconColor: "text-blue-600",
     },
     {
-      title: 'Calories Brûlées (Moy.)',
+      title: "Calories Brûlées (Moy.)",
       value: `${kpis.avgCaloriesBurned} kcal`,
       icon: Flame,
-      color: 'orange',
-      bgColor: 'bg-orange-50',
-      iconColor: 'text-orange-600'
+      color: "orange",
+      bgColor: "bg-orange-50",
+      iconColor: "text-orange-600",
     },
     {
-      title: 'Durée Moy. Séance',
+      title: "Durée Moy. Séance",
       value: `${kpis.avgSessionDuration} min`,
       icon: Clock,
-      color: 'green',
-      bgColor: 'bg-green-50',
-      iconColor: 'text-green-600'
+      color: "green",
+      bgColor: "bg-green-50",
+      iconColor: "text-green-600",
     },
     {
-      title: 'Alertes Santé',
+      title: "Alertes Santé",
       value: kpis.healthAlerts,
       icon: AlertTriangle,
-      color: 'red',
-      bgColor: 'bg-red-50',
-      iconColor: 'text-red-600'
-    }
+      color: "red",
+      bgColor: "bg-red-50",
+      iconColor: "text-red-600",
+    },
   ];
 
   return (
@@ -46,7 +78,9 @@ export function Dashboard() {
       {/* Page Header */}
       <div>
         <h1 className="text-gray-900 mb-2">Dashboard de Santé & Fitness</h1>
-        <p className="text-gray-600">Vue d'ensemble des données patients, sport et nutrition</p>
+        <p className="text-gray-600">
+          Vue d'ensemble des données patients, sport et nutrition
+        </p>
       </div>
 
       {/* KPI Cards */}
@@ -54,7 +88,10 @@ export function Dashboard() {
         {kpiCards.map((kpi, index) => {
           const Icon = kpi.icon;
           return (
-            <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+            <div
+              key={index}
+              className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+            >
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">{kpi.title}</p>
@@ -73,36 +110,38 @@ export function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Weight Evolution Chart */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="text-gray-900 mb-4">Évolution du Poids Moyen (6 derniers mois)</h3>
+          <h3 className="text-gray-900 mb-4">
+            Évolution du Poids Moyen (6 derniers mois)
+          </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={mockWeightEvolution}>
+            <LineChart data={weightEvolution}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis 
-                dataKey="month" 
-                tick={{ fill: '#6b7280', fontSize: 12 }}
+              <XAxis
+                dataKey="month"
+                tick={{ fill: "#6b7280", fontSize: 12 }}
                 stroke="#9ca3af"
               />
-              <YAxis 
-                tick={{ fill: '#6b7280', fontSize: 12 }}
+              <YAxis
+                tick={{ fill: "#6b7280", fontSize: 12 }}
                 stroke="#9ca3af"
                 domain={[68, 76]}
               />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'white', 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "white",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                 }}
               />
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="averageWeight" 
-                stroke="#3b82f6" 
+              <Line
+                type="monotone"
+                dataKey="averageWeight"
+                stroke="#3b82f6"
                 strokeWidth={3}
                 name="Poids Moyen (kg)"
-                dot={{ fill: '#3b82f6', r: 5 }}
+                dot={{ fill: "#3b82f6", r: 5 }}
                 activeDot={{ r: 7 }}
               />
             </LineChart>
@@ -115,27 +154,27 @@ export function Dashboard() {
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={sportDistribution}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis 
-                dataKey="type" 
-                tick={{ fill: '#6b7280', fontSize: 12 }}
+              <XAxis
+                dataKey="type"
+                tick={{ fill: "#6b7280", fontSize: 12 }}
                 stroke="#9ca3af"
               />
-              <YAxis 
-                tick={{ fill: '#6b7280', fontSize: 12 }}
+              <YAxis
+                tick={{ fill: "#6b7280", fontSize: 12 }}
                 stroke="#9ca3af"
               />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'white', 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "white",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                 }}
               />
               <Legend />
-              <Bar 
-                dataKey="sessions" 
-                fill="#10b981" 
+              <Bar
+                dataKey="sessions"
+                fill="#10b981"
                 name="Nombre de Sessions"
                 radius={[8, 8, 0, 0]}
               />
@@ -150,8 +189,13 @@ export function Dashboard() {
           <div>
             <h3 className="text-white mb-2">Statistiques Globales</h3>
             <p className="text-blue-100">
-              Le système agrège actuellement des données de {kpis.totalPatients} patients avec une moyenne de {Math.round(mockWeightEvolution[mockWeightEvolution.length - 1].averageWeight)} kg. 
-              Les patients ont brûlé en moyenne {kpis.avgCaloriesBurned} calories par séance de sport.
+              Le système agrège actuellement des données de {kpis.totalPatients}{" "}
+              patients avec une moyenne de{" "}
+              {Math.round(
+                weightEvolution[weightEvolution.length - 1].averageWeight,
+              )}{" "}
+              kg. Les patients ont brûlé en moyenne {kpis.avgCaloriesBurned}{" "}
+              calories par séance de sport.
             </p>
           </div>
           <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4">
