@@ -33,9 +33,12 @@ export function usePatients(): UsePatientsReturn {
 
     try {
       // Essayer d'abord via le service (backend + fallback mock)
-      const data = await patientService.getPatients();
-      setPatients(data);
-      setStats(calculatePatientStats());
+      const [patientsData, statsData] = await Promise.all([
+        patientService.getPatients(),
+        patientService.getPatientStats(), // TODO: Créer cet endpoint (ex: GET /api/patients/stats)
+      ]);
+      setPatients(patientsData);
+      setStats(statsData);
     } catch (err) {
       // En cas d'erreur, utiliser les mock data
       console.warn("⚠️ Utilisation des données mock pour les patients");
@@ -47,7 +50,7 @@ export function usePatients(): UsePatientsReturn {
   };
 
   useEffect(() => {
-    fetchPatients();
+    void fetchPatients();
   }, []);
 
   return {

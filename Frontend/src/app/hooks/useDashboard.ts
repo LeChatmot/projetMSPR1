@@ -9,6 +9,7 @@ import {
   getSportDistribution,
   mockWeightEvolution,
 } from "../data/mockData";
+import { apiCall } from "../services/api";
 import type {
   DashboardKPIs,
   SportDistribution,
@@ -43,20 +44,31 @@ export function useDashboard(): UseDashboardReturn {
     setError(null);
 
     try {
-      // En mode développement, on utilise les mock data
-      // Plus tard, ceci sera remplacé par des appels API réels
+      // Tentative de récupération via l'API
+      // On utilise Promise.all pour paralléliser les appels si les endpoints existent
+      const [apiKpis, apiDistribution, apiWeight] = await Promise.all([
+        apiCall<DashboardKPIs>("/dashboard/kpis"),
+        apiCall<SportDistribution[]>("/dashboard/sport-distribution"),
+        apiCall<WeightEvolution[]>("/dashboard/weight-evolution"),
+      ]);
+
+      setKpis(apiKpis);
+      setSportDistribution(apiDistribution);
+      setWeightEvolution(apiWeight);
+    } catch (err) {
+      // Fallback vers les mock data en cas d'erreur ou backend indisponible
+      console.warn("⚠️ Utilisation des données mock pour le dashboard");
       setKpis(calculateKPIs());
       setSportDistribution(getSportDistribution());
       setWeightEvolution(mockWeightEvolution);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur inconnue");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDashboardData();
+    // On utilise `void` pour indiquer qu'on ignore volontairement la promesse retournée, ce qui est requis par useEffect.
+    void fetchDashboardData();
   }, []);
 
   return {

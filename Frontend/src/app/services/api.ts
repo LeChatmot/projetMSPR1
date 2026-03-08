@@ -12,34 +12,6 @@ const API_CONFIG = {
   retries: 1,
 };
 
-// État de la connexion backend
-let backendAvailable: boolean | null = null;
-
-/**
- * Vérifie si le backend est disponible
- */
-async function checkBackendHealth(): Promise<boolean> {
-  if (backendAvailable !== null) return backendAvailable;
-
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
-
-    const response = await fetch(`${API_CONFIG.baseURL}/health`, {
-      method: "GET",
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-    backendAvailable = response.ok;
-    return backendAvailable;
-  } catch (error) {
-    console.warn("⚠️ Backend non disponible, mode mock activé");
-    backendAvailable = false;
-    return false;
-  }
-}
-
 /**
  * Effectue un appel API avec gestion des erreurs et fallback mock
  */
@@ -48,62 +20,39 @@ export async function apiCall<T>(
   options: RequestInit = {},
   mockFallback?: () => Promise<T>,
 ): Promise<T> {
-  const isBackendUp = await checkBackendHealth();
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
 
-  // Si backend disponible, faire l'appel réel
-  if (isBackendUp) {
-    try {
-      const response = await fetch(`${API_CONFIG.baseURL}${endpoint}`, {
-        ...options,
-        headers: {
-          "Content-Type": "application/json",
-          ...options.headers,
-        },
-      });
+    const response = await fetch(`${API_CONFIG.baseURL}${endpoint}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+      signal: controller.signal,
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
+    clearTimeout(timeoutId);
 
-      const result: ApiResponse<T> = await response.json();
-      return result.data;
-    } catch (error) {
-      console.error(`❌ Erreur API ${endpoint}:`, error);
-
-      // Si fallback mock disponible, l'utiliser
-      if (mockFallback) {
-        console.warn("🔄 Fallback vers mock data");
-        return mockFallback();
-      }
-      throw error;
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
     }
+
+    const result: ApiResponse<T> = await response.json();
+    if (!result.success) {
+      throw new Error(result.message || "L'API a retourné une erreur");
+    }
+    return result.data;
+  } catch (error) {
+    console.error(`❌ Erreur API sur ${endpoint}:`, error);
+
+    if (mockFallback) {
+      console.warn(`🔄 Fallback vers les données mock pour ${endpoint}`);
+      return mockFallback();
+    }
+
+    // Si pas de fallback, on relance l'erreur pour que le hook puisse l'afficher
+    throw error;
   }
-
-  // Mode mock : utiliser le fallback
-  if (mockFallback) {
-    return mockFallback();
-  }
-
-  throw new Error(`Aucune donnée disponible pour ${endpoint}`);
-}
-
-/**
- * Réinitialise l'état du backend (utile pour les tests)
- */
-export function resetBackendCheck(): void {
-  backendAvailable = null;
-}
-
-/**
- * Force le mode mock (utile pour le développement)
- */
-export function forceMockMode(): void {
-  backendAvailable = false;
-}
-
-/**
- * Force le mode API (utile pour tester le backend)
- */
-export function forceApiMode(): void {
-  backendAvailable = true;
 }

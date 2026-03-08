@@ -127,6 +127,8 @@ export const mockWeightEvolution: WeightEvolution[] = [
 // ==================== DIET PLANS ====================
 export const mockDietPlans: DietPlan[] = [
   {
+    id: 1,
+    targetAudience: "Perte de poids",
     name: "Low Carb",
     description:
       "Riche en protéines et matières grasses saines, faible en glucides.",
@@ -139,6 +141,8 @@ export const mockDietPlans: DietPlan[] = [
     color: "bg-green-100",
   },
   {
+    id: 2,
+    targetAudience: "Tous publics",
     name: "Balanced",
     description: "Équilibre entre protéines, glucides et lipides.",
     meals: {
@@ -150,6 +154,8 @@ export const mockDietPlans: DietPlan[] = [
     color: "bg-blue-100",
   },
   {
+    id: 3,
+    targetAudience: "Santé cardiovasculaire",
     name: "Mediterranean",
     description:
       "Inspiré du régime méditerranéen, riche en huile d'olive et poisson.",

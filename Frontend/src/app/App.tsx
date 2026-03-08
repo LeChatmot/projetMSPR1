@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AdminNutritionPage } from "./components/AdminNutritionPage";
 import { Dashboard } from "./components/Dashboard";
 import { DataManagement } from "./components/DataManagement";
 import { Header } from "./components/Header";
@@ -21,6 +22,8 @@ export default function App() {
         return <NutritionPage />;
       case "sport":
         return <SportPage />;
+      case "admin-nutrition":
+        return <AdminNutritionPage />;
       case "settings":
         return <SettingsPage />;
       case "data":

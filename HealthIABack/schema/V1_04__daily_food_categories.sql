@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS daily_food_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL
+)

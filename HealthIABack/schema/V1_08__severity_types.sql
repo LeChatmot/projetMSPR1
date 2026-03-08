@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS severity_types (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name varchar(50) UNIQUE NOT NULL
+)

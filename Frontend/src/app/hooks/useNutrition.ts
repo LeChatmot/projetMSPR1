@@ -41,13 +41,14 @@ export function useNutrition(): UseNutritionReturn {
 
     try {
       // Essayer d'abord via le service (backend + fallback mock)
-      const [distribution, nutritionStats] = await Promise.all([
+      const [distribution, nutritionStats, plans] = await Promise.all([
         nutritionService.getDietDistribution(),
         nutritionService.getNutritionStats(),
+        nutritionService.getDietPlans(),
       ]);
       setDietDistribution(distribution);
       setStats(nutritionStats);
-      setDietPlans(mockDietPlans);
+      setDietPlans(plans);
     } catch (err) {
       // En cas d'erreur, utiliser les mock data
       console.warn("⚠️ Utilisation des données mock pour la nutrition");
@@ -60,7 +61,8 @@ export function useNutrition(): UseNutritionReturn {
   };
 
   useEffect(() => {
-    fetchNutritionData();
+    // On utilise `void` pour indiquer qu'on ignore volontairement la promesse retournée, ce qui est requis par useEffect.
+    void fetchNutritionData();
   }, []);
 
   return {

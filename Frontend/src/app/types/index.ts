@@ -1,41 +1,21 @@
 /**
- * Types centralisés pour l'application
- * Définissent les contrats de données entre frontend et backend
+ * Ce fichier centralise toutes les interfaces TypeScript du projet.
  */
 
-// ==================== PATIENTS ====================
-export interface Patient {
-  id: string;
-  age: number;
-  gender: "M" | "F";
-  riskDisease: string;
-  dietRecommendation: string;
-  weight: number;
-  importDate: string;
+// --- API Standard ---
+export interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message: string;
+  timestamp: string;
 }
 
-export interface PatientStats {
+// --- Dashboard ---
+export interface DashboardKPIs {
   totalPatients: number;
-  patientsWithRisk: number;
-  averageAge: number;
-  averageWeight: number;
-}
-
-// ==================== SPORT ====================
-export interface SportSession {
-  id?: string;
-  type: string;
-  duration: number;
-  caloriesBurned: number;
-  date: string;
-}
-
-export interface SportStats {
-  totalSessions: number;
-  totalCalories: number;
-  totalDuration: number;
-  averageDuration: number;
-  averageCalories: number;
+  avgCaloriesBurned: number;
+  avgSessionDuration: number;
+  healthAlerts: number;
 }
 
 export interface SportDistribution {
@@ -43,20 +23,53 @@ export interface SportDistribution {
   sessions: number;
 }
 
-export interface SportTypeInfo {
-  type: string;
-  name: string;
-  description: string;
-  intensity: "Faible" | "Modérée" | "Haute" | "Très Haute";
-  icon: string;
-  color: string;
+export interface WeightEvolution {
+  month: string;
+  averageWeight: number;
 }
 
-// ==================== NUTRITION ====================
-export interface DietDistribution {
+// --- Admin & Nutrition ---
+export interface DietRecommendation {
+  id: number;
+  age: number;
+  gender: number;
+  height_cm: number;
+  current_weight_kg: number;
+  bmi: number;
+  disease_type: number;
+  severity: number;
+  diet_recommendation: number;
+  daily_caloric_target: number;
+  activity_level: number;
+  created_at: string;
+  cholesterol_mg: number;
+  blood_pressure_mmhg: number;
+  glucose_mg_dl: number;
+  dietary_restrictions: number;
+  allergy: number;
+  preferred_cuisine: number;
+  weekly_exercise_hours: number;
+  adherence_to_diet_plan: number;
+  dietary_nutrient_imbalance_score: number;
+  // Champs joints pour l'affichage
+  gender_name: string;
+  disease_name: string;
+  allergy_name: string;
+  diet_name: string;
+}
+
+export interface DietPlan {
+  id: number;
   name: string;
-  value: number;
-  color: string;
+  description: string;
+  targetAudience: string;
+  meals?: {
+    breakfast: string;
+    lunch: string;
+    dinner: string;
+  };
+  icon?: string;
+  color?: string;
 }
 
 export interface NutritionStats {
@@ -66,42 +79,46 @@ export interface NutritionStats {
   availableRecipes: number;
 }
 
-export interface DietPlan {
-  name: string;
-  description: string;
-  meals: {
-    breakfast: string;
-    lunch: string;
-    dinner: string;
-  };
-  icon: string;
-  color: string;
+// --- Patients ---
+export interface Patient {
+  id: string;
+  name?: string;
+  age: number;
+  gender: "Homme" | "Femme" | "Autre" | "M" | "F";
+  weight: number; // in kg
+  height?: number; // in cm
+  riskDisease?: string; // Maladie/risque (ex: "None", "Hypertension", "Diabetes")
+  dietRecommendation?: string; // Régime recommandé
+  importDate?: string; // Date d'import optionnelle
 }
 
-// ==================== DASHBOARD ====================
-export interface DashboardKPIs {
+export interface PatientStats {
   totalPatients: number;
-  avgCaloriesBurned: number;
-  avgSessionDuration: number;
-  healthAlerts: number;
-}
-
-export interface WeightEvolution {
-  month: string;
+  patientsWithRisk: number;
+  averageAge: number;
   averageWeight: number;
 }
 
-// ==================== API RESPONSES ====================
-export interface ApiResponse<T> {
-  data: T;
-  success: boolean;
-  message?: string;
-  timestamp: string;
+// --- Nutrition (Dashboard) ---
+export interface DietDistribution {
+  name: string;
+  value: number;
+  color: string;
 }
 
-export interface ApiError {
-  success: false;
-  message: string;
-  code: string;
-  timestamp: string;
+// --- Sport ---
+export interface SportSession {
+  id?: string;
+  date: string;
+  type: string;
+  duration: number; // in minutes
+  caloriesBurned: number;
+}
+
+export interface SportStats {
+  totalSessions: number;
+  totalCalories: number;
+  totalDuration: number;
+  averageDuration: number;
+  averageCalories: number;
 }
