@@ -40,10 +40,14 @@ export function useSport(): UseSportReturn {
 
     try {
       // Essayer d'abord via le service (backend + fallback mock)
-      const data = await sportService.getSessions();
-      setSessions(data);
-      setStats(calculateSportStats());
-      setDistribution(getSportDistribution());
+      const [sessionsData, statsData, distributionData] = await Promise.all([
+        sportService.getSessions(),
+        sportService.getStats(),
+        sportService.getDistribution(),
+      ]);
+      setSessions(sessionsData);
+      setStats(statsData);
+      setDistribution(distributionData);
     } catch (err) {
       // En cas d'erreur, utiliser les mock data
       console.warn("⚠️ Utilisation des données mock pour le sport");
@@ -56,7 +60,7 @@ export function useSport(): UseSportReturn {
   };
 
   useEffect(() => {
-    fetchSportData();
+    void fetchSportData();
   }, []);
 
   return {

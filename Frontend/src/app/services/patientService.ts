@@ -3,8 +3,8 @@
  * Gère les appels API vers le backend avec fallback vers les mocks
  */
 
-import { mockPatients } from "../data/mockData";
-import type { Patient } from "../types";
+import { calculatePatientStats, mockPatients } from "../data/mockData";
+import type { Patient, PatientStats } from "../types";
 import { apiCall } from "./api";
 
 export const patientService = {
@@ -74,6 +74,16 @@ export const patientService = {
     return apiCall<void>(`/patients/${id}`, { method: "DELETE" }, async () => {
       await new Promise((resolve) => setTimeout(resolve, 500));
       // Succès silencieu
+    });
+  },
+
+  /**
+   * Récupère les statistiques des patients
+   */
+  async getPatientStats(): Promise<PatientStats> {
+    return apiCall<PatientStats>("/patients/stats", {}, async () => {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return calculatePatientStats();
     });
   },
 };

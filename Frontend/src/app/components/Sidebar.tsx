@@ -17,6 +17,7 @@ const menuItems = [
   { id: "patients", label: "Patients", icon: Users },
   { id: "nutrition", label: "Nutrition", icon: Utensils },
   { id: "sport", label: "Sport", icon: Dumbbell },
+  { id: "admin-nutrition", label: "Admin Nutrition", icon: Utensils },
   { id: "settings", label: "Paramètres", icon: Settings },
   { id: "data", label: "Données ETL", icon: Database },
 ];

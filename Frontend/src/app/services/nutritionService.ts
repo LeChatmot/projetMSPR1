@@ -1,72 +1,59 @@
 /**
- * Service pour la gestion de la nutrition
- * Gère les appels API vers le backend avec fallback vers les mocks
+ * Service pour toutes les opérations liées à la nutrition.
  */
-
 import {
-  calculateNutritionStats,
-  getDietDistribution,
+  getDietDistribution as mockDietDistribution,
   mockDietPlans,
+  calculateNutritionStats as mockNutritionStats,
 } from "../data/mockData";
-import type { DietDistribution, DietPlan, NutritionStats } from "../types";
+import type {
+  DietDistribution,
+  DietPlan,
+  DietRecommendation,
+  NutritionStats,
+} from "../types";
 import { apiCall } from "./api";
 
 export const nutritionService = {
   /**
-   * Récupère la distribution des régimes
+   * Récupère la liste des recommandations pour le panel Admin.
+   * Pas de fallback mock ici, car une page admin doit refléter la réalité ou une erreur.
    */
-  async getDietDistribution(): Promise<DietDistribution[]> {
-    return apiCall<DietDistribution[]>(
-      "/nutrition/diet-distribution",
-      {},
-      async () => {
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        return getDietDistribution();
-      },
+  getRecommendations: (): Promise<DietRecommendation[]> => {
+    return apiCall("/nutrition/recommendations");
+  },
+
+  /**
+   * Supprime une recommandation spécifique.
+   */
+  deleteRecommendation: (id: number): Promise<{ id: number }> => {
+    return apiCall(`/nutrition/recommendations/${id}`, { method: "DELETE" });
+  },
+
+  /**
+   * Récupère la distribution des régimes pour le dashboard public.
+   */
+  getDietDistribution: (): Promise<DietDistribution[]> => {
+    return apiCall("/nutrition/distribution", {}, () =>
+      Promise.resolve(mockDietDistribution()),
     );
   },
 
   /**
-   * Récupère les stats nutrition
+   * Récupère les statistiques de nutrition pour le dashboard public.
    */
-  async getNutritionStats(): Promise<NutritionStats> {
-    return apiCall<NutritionStats>("/nutrition/stats", {}, async () => {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      return calculateNutritionStats();
-    });
+  getNutritionStats: (): Promise<NutritionStats> => {
+    return apiCall("/nutrition/stats", {}, () =>
+      Promise.resolve(mockNutritionStats()),
+    );
   },
 
   /**
-   * Récupère les plans alimentaires
+   * Récupère les plans de régime pour le dashboard public.
    */
-  async getDietPlans(): Promise<DietPlan[]> {
-    return apiCall<DietPlan[]>("/nutrition/diet-plans", {}, async () => {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      return mockDietPlans;
-    });
-  },
-
-  /**
-   * Crée un nouveau plan alimentaire
-   */
-  async createDietPlan(
-    plan: Omit<DietPlan, "icon" | "color">,
-  ): Promise<DietPlan> {
-    return apiCall<DietPlan>(
-      "/nutrition/diet-plans",
-      {
-        method: "POST",
-        body: JSON.stringify(plan),
-      },
-      async () => {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const newPlan: DietPlan = {
-          ...plan,
-          icon: "🥗",
-          color: "bg-gray-100",
-        };
-        return newPlan;
-      },
+  getDietPlans: (): Promise<DietPlan[]> => {
+    return apiCall("/nutrition/plans", {}, () =>
+      Promise.resolve(mockDietPlans),
     );
   },
 };
