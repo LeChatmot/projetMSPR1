@@ -1,4 +1,4 @@
-from Models.ExerciceSession import ExerciseSession
+from Models.ExerciceSession import ExerciceSession
 from Repositories.BaseRepository import BaseRepository
 
 
@@ -9,7 +9,7 @@ class ExerciceSessionsRepository(BaseRepository):
     def __init__(self):
         super().__init__()
 
-    def create(self, e: ExerciseSession) -> ExerciseSession:
+    def create(self, e: ExerciceSession) -> ExerciceSession:
         last_id = self._execute(
             f"""INSERT INTO {self.TABLE}
             (age, gender, weight_kg, height_cm, max_bpm, avg_bpm, resting_bpm,
@@ -23,15 +23,15 @@ class ExerciceSessionsRepository(BaseRepository):
         e.id = last_id
         return e
 
-    def getById(self, id: int) -> ExerciseSession | None:
+    def getById(self, id: int) -> ExerciceSession | None:
         row = self._fetch_one(f"SELECT * FROM {self.TABLE} WHERE id = %s", (id,))
         return self._to_model(row)
 
-    def getAll(self) -> list[ExerciseSession]:
+    def getAll(self) -> list[ExerciceSession]:
         rows = self._fetch_all(f"SELECT * FROM {self.TABLE}")
         return [self._to_model(row) for row in rows]
 
-    def update(self, e: ExerciseSession) -> ExerciseSession:
+    def update(self, e: ExerciceSession) -> ExerciceSession:
         self._execute(
             f"""UPDATE {self.TABLE} SET
             age = %s, gender = %s, weight_kg = %s, height_cm = %s, max_bpm = %s,
@@ -96,12 +96,12 @@ class ExerciceSessionsRepository(BaseRepository):
         
         return kpis
 
-    def _to_model(self, row: dict) -> ExerciseSession | None:
+    def _to_model(self, row: dict) -> ExerciceSession | None:
         """Convertit un dictionnaire de la DB en objet ExerciseSession."""
         if not row:
             return None
         
-        session = ExerciseSession()
+        session = ExerciceSession()
         session.id = row.get('id')
         session.age = row.get('age')
         session.gender = row.get('gender')

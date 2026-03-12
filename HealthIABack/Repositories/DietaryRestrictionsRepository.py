@@ -1,7 +1,7 @@
 from Repositories.IdNameGenericRepository import IdNameGenericRepository
 
 
-class DieterayRestrictionsRepository(IdNameGenericRepository):
+class DietaryRestrictionsRepository(IdNameGenericRepository):
 
     TABLE = 'dietary_restrictions'
 

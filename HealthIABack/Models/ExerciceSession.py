@@ -2,7 +2,7 @@ from Models.Gender import Gender
 from Models.WorkoutType import WorkoutType
 
 
-class ExerciseSession:
+class ExerciceSession:
 
     def __init__(self,
                  id: int = None,
@@ -43,7 +43,7 @@ class ExerciseSession:
     def to_model(row: dict):
         if not row:
             return None
-        return ExerciseSession(
+        return ExerciceSession(
             id=row['id'],
             age=row['age'],
             gender=row['gender'],

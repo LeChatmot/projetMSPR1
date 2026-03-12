@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.append(os.path.expanduser("~/airflow"))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../HealthIABack'))
 
 from airflow import DAG
 from airflow.decorators import task
@@ -29,6 +29,9 @@ from Models.PreferredCuisineType import PreferredCuisineType
 from Models.DietRecommandationType import DietRecommandationType
 from Models.DietRecommandation import DietRecommandation
 
+# Remonte depuis le fichier DAG jusqu'au dossier Datasets
+DATASETS_PATH = os.path.join(os.path.dirname(__file__), '../../Datasets')
+
 with DAG(
     dag_id="diet_recommandation_pipeline",
     start_date=datetime(2026, 2, 14),
@@ -39,9 +42,9 @@ with DAG(
     @task
     def extract():
 
-        df_diet = pd.read_csv("/home/maxime/airflow/data/diet_recommendations_dataset.csv", on_bad_lines='skip')
+        df_diet = pd.read_csv(os.path.join(DATASETS_PATH, 'diet_recommendations_dataset.csv'), on_bad_lines='skip')
 
-        output_path = "/home/maxime/airflow/data/diet_recommendations.csv"
+        output_path = os.path.join(DATASETS_PATH, 'diet_recommendations.csv')
 
         df_diet.to_csv(output_path, index=False)
 
@@ -58,7 +61,7 @@ with DAG(
 
         df_diet['Allergies'] = df_diet['Allergies'].fillna('Unknown')
 
-        output_path = "/home/maxime/airflow/data/diet_clean.csv"
+        output_path = os.path.join(DATASETS_PATH, 'diet_clean.csv')
 
         df_diet.to_csv(output_path, index=False)
 

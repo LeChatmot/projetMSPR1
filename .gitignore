@@ -36,3 +36,7 @@ Frontend/coverage/
 # Temporary files
 *.tmp
 *.temp
+
+__pycache__/
+*.pyc
+Datasets/*.csv
