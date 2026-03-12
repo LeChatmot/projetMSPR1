@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.append(os.path.expanduser("~/airflow"))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../HealthIABack'))
 
 from airflow import DAG
 from airflow.decorators import task
@@ -17,6 +17,9 @@ from Models.DailyFoodCategory import DailyFoodCategory
 from Models.MealType import MealType
 from Models.DailyFood import DailyFood
 
+# Remonte depuis le fichier DAG jusqu'au dossier Datasets
+DATASETS_PATH = os.path.join(os.path.dirname(__file__), '../../Datasets')
+
 with DAG(
     dag_id="daily_food_pipeline",
     start_date=datetime(2026, 2, 14),
@@ -27,9 +30,9 @@ with DAG(
     @task
     def extract():
 
-        df_daily_food = pd.read_csv("/home/maxime/airflow/data/daily_food_nutrition_dataset.csv", on_bad_lines='skip')
+        df_daily_food = pd.read_csv(os.path.join(DATASETS_PATH, 'daily_food_nutrition_dataset.csv'), on_bad_lines='skip')
 
-        output_path = "/home/maxime/airflow/data/daily_foods.csv"
+        output_path = os.path.join(DATASETS_PATH, 'daily_foods.csv')
 
         df_daily_food.to_csv(output_path, index=False)
 
@@ -42,7 +45,7 @@ with DAG(
 
         df_daily_food['Calories (kcal)'] = df_daily_food['Calories (kcal)'].astype(int)
 
-        output_path = "/home/maxime/airflow/data/daily_food_clean.csv"
+        output_path = os.path.join(DATASETS_PATH, 'daily_food_clean.csv')
 
         df_daily_food.to_csv(output_path, index=False)
 

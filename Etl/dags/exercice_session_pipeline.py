@@ -3,7 +3,7 @@ import sys
 import os
 
 # Détermine le chemin pour trouver les repositories et les models
-sys.path.append(os.path.expanduser("~/airflow"))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../HealthIABack'))
 
 # des imports
 from airflow import DAG
@@ -13,17 +13,17 @@ import os
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.types import String, Integer, Float, DateTime
-from Repositories.PatientRepository import PatientRepository
+#from Repositories.PatientRepository import PatientRepository
 from Repositories.GendersRepository import GendersRepository
 from Repositories.WorkoutTypesRepository import WorkoutTypesRepository
 from Repositories.ExerciceSessionsRepository import ExerciceSessionsRepository
-from Models.Patient import Patient
+#from Models.Patient import Patient
 from Models.Gender import Gender
 from Models.WorkoutType import WorkoutType
 from Models.ExerciceSession import ExerciceSession
 
 with DAG(
-    dag_id="premier_test_pipeline",
+    dag_id="exercice_session_pipeline",
     start_date=datetime(2026, 2, 14),
     schedule=None,
     catchup=False,
@@ -35,10 +35,10 @@ with DAG(
 
         # lit le fichier gym_members_exercise_tracking_synthetic_data.csv et évite toutes mauvaises lignes
         df_members_synthetic = pd.read_csv("/home/maxime/airflow/data/gym_members_exercise_tracking_synthetic_data.csv", on_bad_lines='skip')
-        
+
         # lit le fichier gym_members_exercise_tracking.csv et évite toutes mauvaises lignes
         df_members_tracking = pd.read_csv("/home/maxime/airflow/data/gym_members_exercise_tracking.csv", on_bad_lines='skip')
-        
+
         # concatene le contenu des deux fichiers différents en 1 seul contenu en fusionnant les informations similaires
         df_members = pd.concat([df_members_tracking, df_members_synthetic])
 
@@ -125,7 +125,7 @@ with DAG(
 
         df_members = pd.read_csv(file_path)
 
-        patient_repo = PatientRepository()
+        #patient_repo = PatientRepository()
         genders_repo = GendersRepository()
         workoutTypes_repo = WorkoutTypesRepository()
         exerciceSessions_repo = ExerciceSessionsRepository()
@@ -175,7 +175,7 @@ with DAG(
 
             exerciceSessions_repo.create(exerciceSession)
 
-        patient_repo.close()
+        #patient_repo.close()
         genders_repo.close()
         workoutTypes_repo.close()
         exerciceSessions_repo.close()

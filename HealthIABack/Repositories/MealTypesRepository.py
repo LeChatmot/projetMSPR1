@@ -3,7 +3,7 @@ from Repositories.IdNameGenericRepository import IdNameGenericRepository
 
 class MealTypesRepository(IdNameGenericRepository):
 
-    TABLE = 'meal_type'
+    TABLE = 'meal_types'
 
     def __init__(self):
         super().__init__()

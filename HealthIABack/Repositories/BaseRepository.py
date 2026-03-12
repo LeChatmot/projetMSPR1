@@ -13,9 +13,9 @@ class BaseRepository:
 
     def _get_connection(self) -> pymysql.connections.Connection:
         db_config = {
-            'user': os.getenv('DB_USER', 'root'),
-            'password': os.getenv('DB_PASSWORD', ''),
-            'host': os.getenv('DB_HOST', 'localhost'),
+            'user': os.getenv('DB_USER', 'airflow3'),
+            'password': os.getenv('DB_PASSWORD', '123456'),
+            'host': os.getenv('DB_HOST', '172.25.160.1'),
             'port': int(os.getenv('DB_PORT', 3306)),
             'db': os.getenv('DB_NAME', 'health_ia_db'),
             'charset': 'utf8mb4',
