@@ -1,5 +1,9 @@
 Flask
 Flask-Cors
+uvicorn
 PyMySQL
 python-dotenv
 gunicorn
+pyway
+apache-airflow
+pandas
