@@ -1,7 +1,7 @@
-FROM apache/airflow:2.8.1
+FROM apache/airflow:2.9.0
 
-USER root
+USER airflow
 
-RUN pip install mysql-connector-python pandas
+RUN pip install pandas mysql-connector-python
 
 USER airflow

@@ -5,7 +5,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 from Repositories.ExerciceSessionsRepository import ExerciceSessionsRepository
-from Repositories.DietRecommendationsRepository import DietRecommendationsRepository
+from Repositories.DietRecommandationsRepository import DietRecommandationsRepository
 from Repositories.DietRecommandationTypesRepository import DietRecommandationTypesRepository
 
 # Charge les variables d'environnement depuis le fichier .env

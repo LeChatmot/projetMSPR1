@@ -4,51 +4,51 @@ services:
 
   mysql:
     image: mysql:8
-    container_name: mysql_db
-    restart: always
+    container_name: healthia_mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: health_ia_db
-      MYSQL_USER: airflow
-      MYSQL_PASSWORD: airflow
+      MYSQL_USER: healthia
+      MYSQL_PASSWORD: 123456
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 10
 
   backend:
     build: ./HealthIABack
-    container_name: python_backend
+    container_name: healthia_backend
     depends_on:
       - mysql
     ports:
       - "8000:8000"
     environment:
       DB_HOST: mysql
-      DB_USER: airflow
-      DB_PASSWORD: airflow
+      DB_USER: healthia
+      DB_PASSWORD: 123456
       DB_NAME: health_ia_db
+
+  airflow:
+    build: ./Etl
+    container_name: healthia_airflow
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./Etl/dags:/opt/airflow/dags
+      - ./Datasets:/opt/airflow/datasets
+    command: standalone
 
   frontend:
     build: ./Frontend
-    container_name: vite_frontend
+    container_name: healthia_frontend
     ports:
       - "5173:5173"
     depends_on:
       - backend
-
-  airflow:
-    build: ./airflow
-    container_name: airflow
-    depends_on:
-      - mysql
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./airflow/dags:/opt/airflow/dags
-    environment:
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: mysql+mysqlconnector://airflow:airflow@mysql/health_ia_db
 
 volumes:
   mysql_data:
