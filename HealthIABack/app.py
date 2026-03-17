@@ -16,7 +16,7 @@ app = Flask(__name__)
 
 # Configuration de CORS pour autoriser les requêtes depuis le frontend
 # Permet à http://localhost:5173 de communiquer avec http://localhost:5000
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
+CORS(app)
 
 
 def create_api_response(data, success=True, message=""):

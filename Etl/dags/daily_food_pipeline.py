@@ -18,7 +18,7 @@ from Models.MealType import MealType
 from Models.DailyFood import DailyFood
 
 # Remonte depuis le fichier DAG jusqu'au dossier Datasets
-DATASETS_PATH = os.path.join(os.path.dirname(__file__), '../../Datasets')
+DATASETS_PATH = '/opt/airflow/Datasets/'
 
 with DAG(
     dag_id="daily_food_pipeline",

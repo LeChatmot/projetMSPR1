@@ -37,7 +37,7 @@ class DietRecommandation:
         self.gender = gender
         self.height_cm = height_cm
         self.current_weight_kg = current_weight_kg
-        self.BMI = BMI
+        self.bmi = BMI
         self.disease_type = disease_type
         self.severity = severity
         self.diet_recommandation = diet_recommandation
@@ -45,14 +45,14 @@ class DietRecommandation:
         self.activity_level = activity_level
         self.created_at = created_at
         self.cholesterol_mg = cholesterol_mg
-        self.blood_preassure_mmhg = blood_preassure_mmhg
+        self.blood_pressure_mmhg = blood_preassure_mmhg
         self.glucose_mg_dl = glucose_mg_dl
         self.dietary_restrictions = dietary_restrictions
-        self.allergie = allergie
+        self.allergy = allergie
         self.preferred_cuisine = preferred_cuisine
-        self.weekly_exercice_hours = weekly_exercice_hours
+        self.weekly_exercise_hours = weekly_exercice_hours
         self.adherence_to_diet_plan = adherence_to_diet_plan
-        self.dietary_nutrinent_imbalance_score = dietary_nutrinent_imbalance_score
+        self.dietary_nutrient_imbalance_score = dietary_nutrinent_imbalance_score
 
     @staticmethod
     def to_model(row: dict):
@@ -64,7 +64,7 @@ class DietRecommandation:
             gender=row['gender'],
             height_cm=row['height_cm'],
             current_weight_kg=row['current_weight_kg'],
-            BMI=row['BMI'],
+            BMI=row['bmi'],
             disease_type=row['disease_type'],
             severity=row['severity'],
             diet_recommandation=row['diet_recommandation'],
@@ -72,14 +72,14 @@ class DietRecommandation:
             activity_level=row['activity_level'],
             created_at=row['created_at'],
             cholesterol_mg=row['cholesterol_mg'],
-            blood_preassure_mmhg=row['blood_preassure_mmhg'],
+            blood_pressure_mmhg=row['blood_pressure_mmhg'],
             glucose_mg_dl=row['glucose_mg_dl'],
             dietary_restrictions=row['dietary_restrictions'],
-            allergie=row['allergie'],
+            allergie=row['allergy'],
             preferred_cuisine=row['preferred_cuisine'],
-            weekly_exercice_hours=row['weekly_exercice_hours'],
+            weekly_exercice_hours=row['weekly_exercise_hours'],
             adherence_to_diet_plan=row['adherence_to_diet_plan'],
-            dietary_nutrinent_imbalance_score=row['dietary_nutrinent_imbalance_score'],
+            dietary_nutrinent_imbalance_score=row['dietary_nutrient_imbalance_score '],
         )
 
     def getId(self):

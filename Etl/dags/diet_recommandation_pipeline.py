@@ -30,7 +30,7 @@ from Models.DietRecommandationType import DietRecommandationType
 from Models.DietRecommandation import DietRecommandation
 
 # Remonte depuis le fichier DAG jusqu'au dossier Datasets
-DATASETS_PATH = os.path.join(os.path.dirname(__file__), '../../Datasets')
+DATASETS_PATH = os.path.join(os.path.dirname(__file__), '../Datasets')
 
 with DAG(
     dag_id="diet_recommandation_pipeline",

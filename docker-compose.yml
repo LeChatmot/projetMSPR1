@@ -1,7 +1,5 @@
 version: "3.9"
-
 services:
-
   mysql:
     image: mysql:8
     container_name: healthia_mysql
@@ -23,9 +21,10 @@ services:
     build: ./HealthIABack
     container_name: healthia_backend
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     ports:
-      - "8000:8000"
+      - "5000:5000"
     environment:
       DB_HOST: mysql
       DB_USER: healthia
@@ -33,13 +32,17 @@ services:
       DB_NAME: health_ia_db
 
   airflow:
-    build: ./Etl
+    build:
+      context: .
+      dockerfile: Etl/Dockerfile
     container_name: healthia_airflow
     ports:
       - "8080:8080"
     volumes:
       - ./Etl/dags:/opt/airflow/dags
-      - ./Datasets:/opt/airflow/datasets
+      - ./Datasets:/opt/airflow/Datasets
+      - ./HealthIABack/Repositories:/opt/airflow/dags/Repositories
+      - ./HealthIABack/Models:/opt/airflow/dags/Models
     command: standalone
 
   frontend:

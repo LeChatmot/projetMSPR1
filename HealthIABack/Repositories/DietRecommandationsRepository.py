@@ -3,7 +3,7 @@ from Repositories.BaseRepository import BaseRepository
 
 class DietRecommandationsRepository(BaseRepository):
 
-    TABLE = 'diet_recommandations'
+    TABLE = 'diet_recommendations'
 
     def __init__(self):
         super().__init__()
@@ -11,17 +11,17 @@ class DietRecommandationsRepository(BaseRepository):
     def create(self, d: DietRecommandation) -> DietRecommandation:
         last_id = self._execute(
             f"""INSERT INTO {self.TABLE}
-            (age, gender, height_cm, current_weight_kg, BMI, disease_type, severity,
-            diet_recommandation, daily_caloric_target, activity_level, cholesterol_mg,
-            blood_preassure_mmhg, glucose_mg_dl, dietary_restrictions, allergie,
-            preferred_cuisine, weekly_exercice_hours, adherence_to_diet_plan,
-            dietary_nutrinent_imbalance_score)
+            (age, gender, height_cm, current_weight_kg, bmi, disease_type, severity,
+            diet_recommendation, daily_caloric_target, activity_level, cholesterol_mg,
+            blood_pressure_mmhg, glucose_mg_dl, dietary_restrictions, allergy,
+            preferred_cuisine, weekly_exercise_hours, adherence_to_diet_plan,
+            dietary_nutrient_imbalance_score)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (d.age, d.gender, d.height_cm, d.current_weight_kg, d.BMI, d.disease_type, d.severity,
+            (d.age, d.gender, d.height_cm, d.current_weight_kg, d.bmi, d.disease_type, d.severity,
              d.diet_recommandation, d.daily_caloric_target, d.activity_level, d.cholesterol_mg,
-             d.blood_preassure_mmhg, d.glucose_mg_dl, d.dietary_restrictions, d.allergie,
-             d.preferred_cuisine, d.weekly_exercice_hours, d.adherence_to_diet_plan,
-             d.dietary_nutrinent_imbalance_score)
+             d.blood_pressure_mmhg, d.glucose_mg_dl, d.dietary_restrictions, d.allergy,
+             d.preferred_cuisine, d.weekly_exercise_hours, d.adherence_to_diet_plan,
+             d.dietary_nutrient_imbalance_score)
         )
         d.id = last_id
         return d
