@@ -10,9 +10,10 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && apt-get install -y netcat-openbsd
 
 COPY . .
+COPY schema /app/resources
 
 RUN chmod +x start.sh
 
 EXPOSE 8000
 
-CMD ["./start.sh"]
+CMD ["sh","./start.sh"]

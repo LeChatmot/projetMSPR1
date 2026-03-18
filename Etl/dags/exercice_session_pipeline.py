@@ -22,6 +22,8 @@ from Models.Gender import Gender
 from Models.WorkoutType import WorkoutType
 from Models.ExerciceSession import ExerciceSession
 
+DATASETS_PATH = "/opt/airflow/Datasets/"
+
 with DAG(
     dag_id="exercice_session_pipeline",
     start_date=datetime(2026, 2, 14),
@@ -34,16 +36,22 @@ with DAG(
     def extract():
 
         # lit le fichier gym_members_exercise_tracking_synthetic_data.csv et évite toutes mauvaises lignes
-        df_members_synthetic = pd.read_csv("/home/maxime/airflow/data/gym_members_exercise_tracking_synthetic_data.csv", on_bad_lines='skip')
+        df_members_synthetic = pd.read_csv(
+            os.path.join(DATASETS_PATH, "gym_members_exercise_tracking_synthetic_data.csv"),
+            on_bad_lines='skip'
+        )
 
         # lit le fichier gym_members_exercise_tracking.csv et évite toutes mauvaises lignes
-        df_members_tracking = pd.read_csv("/home/maxime/airflow/data/gym_members_exercise_tracking.csv", on_bad_lines='skip')
+        df_members_tracking = pd.read_csv(
+            os.path.join(DATASETS_PATH, "gym_members_exercise_tracking.csv"),
+            on_bad_lines='skip'
+        )
 
         # concatene le contenu des deux fichiers différents en 1 seul contenu en fusionnant les informations similaires
         df_members = pd.concat([df_members_tracking, df_members_synthetic])
 
         # stocke le fichier avec le chemin dans la variable output_path
-        output_path = "/home/maxime/airflow/data/members_exercise.csv"
+        output_path = os.path.join(DATASETS_PATH, "members_exercise.csv")
 
         # export dans un autre fichier contenu dans le output_path
         df_members.to_csv(output_path, index=False)
@@ -113,7 +121,7 @@ with DAG(
         mean_BMI = round(df_members['BMI'].mean(), 2)
         df_members['BMI'] = df_members['BMI'].fillna(mean_BMI)
 
-        output_path = "/home/maxime/airflow/data/members_clean.csv"
+        output_path = os.path.join(DATASETS_PATH, "members_clean.csv")
 
         df_members.to_csv(output_path, index=False)
 
