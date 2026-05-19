@@ -1,31 +1,30 @@
 pipeline {
     agent any
+
+    environment {
+        SONAR_TOKEN = credentials('sonar-token')
+    }
+
     stages {
-        stage('Test') {
+        stage('Checkout') {
             steps {
-                echo 'Hello from Jenkins & Sonnar'
-            }
-        }
-        stage('SCM') {
-            steps{
                 checkout scm
             }
         }
+
         stage('SonarQube Analysis') {
-            steps{
-                step{
-                    def scannerHome = tool 'SonarScanner';
-                }
-                step{
-                    withSonarQubeEnv() {
-                        sh "${scannerHome}/bin/sonar-scanner"
+            steps {
+                script {
+                    withSonarQubeEnv('SonarServer') {
+                        sh 'sonar-scanner -Dsonar.projectKey=healthIACoach -Dsonar.sources=.'
                     }
                 }
             }
         }
+
         stage('Quality Gate') {
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
+                timeout(time: 1, unit: 'HOURS') {
                     waitForQualityGate abortPipeline: true
                 }
             }
