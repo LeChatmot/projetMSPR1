@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 # Charge les variables d'environnement depuis le fichier .env
 load_dotenv()
 
-from Models.ExerciceSession import ExerciseSession
-from Models.DietRecommendation import DietRecommendation
+from Models.ExerciceSession import ExerciceSession
+from Models.DietRecommandation import DietRecommandation
 from Repositories.ExerciceSessionsRepository import ExerciceSessionsRepository
 from Repositories.BaseRepository import BaseRepository
-from Repositories.DietRecommendationsRepository import DietRecommendationsRepository
+from Repositories.DietRecommandationsRepository import DietRecommandationsRepository
 from Repositories.GenericReferenceRepository import GenericReferenceRepository
 
 def safe_int(value, default=0):
@@ -75,7 +75,7 @@ def import_exercise_sessions(csv_path):
             
             for row in reader:
                 # Création de l'objet modèle
-                session = ExerciseSession()
+                session = ExerciceSession()
                 
                 # Mapping des colonnes CSV vers l'objet (Adaptez les clés selon vos CSV !)
                 # Utilisation des fonctions safe_ pour éviter les crashs sur les données vides
@@ -144,7 +144,7 @@ def import_diet_recommendations(csv_path):
 
     count = 0
     try:
-        repo = DietRecommendationsRepository()
+        repo = DietRecommandationsRepository()
         # Chargement des caches
         caches = {key: {r['name']: r['id'] for r in repo_ref.getAll()} for key, repo_ref in refs.items()}
 
@@ -154,7 +154,7 @@ def import_diet_recommendations(csv_path):
         with open(csv_path, mode='r', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                d = DietRecommendation()
+                d = DietRecommandation()
                 
                 # Mapping simple
                 d.age = safe_int(row.get('Age'))
@@ -194,15 +194,16 @@ def import_diet_recommendations(csv_path):
         print("   -> Tâche 'import_diet_recommendations' terminée.")
 
 if __name__ == "__main__":
-    # Construction du chemin vers le dossier Datasets (qui est au même niveau que HealthIABack)
-    base_dir = os.path.dirname(os.path.dirname(__file__))
-    
-    csv_file = os.path.join(base_dir, "Datasets", "gym_members_exercise_tracking_synthetic_data.csv")
-    diet_csv_file = os.path.join(base_dir, "Datasets", "diet_recommendations_dataset.csv")
-    
-    # Si le chemin relatif échoue, on tente le chemin absolu fourni
-    if not os.path.exists(csv_file):
-        csv_file = r"C:\Users\GreGY\Documents\TP Bachelor\projetMSPR1-main\Datasets\gym_members_exercise_tracking_synthetic_data.csv"
+    # Configuration des chemins pour Docker Airflow et Local
+    if os.path.exists("/opt/airflow/Datasets"):
+        # Chemin absolu dans le conteneur Docker Airflow
+        csv_file = "/opt/airflow/Datasets/gym_members_exercise_tracking_synthetic_data.csv"
+        diet_csv_file = "/opt/airflow/Datasets/diet_recommendations_dataset.csv"
+    else:
+        # Fallback pour exécution locale
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        csv_file = os.path.join(base_dir, "Datasets", "gym_members_exercise_tracking_synthetic_data.csv")
+        diet_csv_file = os.path.join(base_dir, "Datasets", "diet_recommendations_dataset.csv")
     
     # Lancement des imports
     import_exercise_sessions(csv_file)

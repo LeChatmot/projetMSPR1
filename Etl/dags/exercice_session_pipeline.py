@@ -9,6 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../../HealthIABack'))
 from airflow import DAG
 from airflow.decorators import task
 from datetime import datetime
+import csv
 import os
 import pandas as pd
 from sqlalchemy import create_engine
@@ -17,10 +18,13 @@ from sqlalchemy.types import String, Integer, Float, DateTime
 from Repositories.GendersRepository import GendersRepository
 from Repositories.WorkoutTypesRepository import WorkoutTypesRepository
 from Repositories.ExerciceSessionsRepository import ExerciceSessionsRepository
+from Repositories.DietRecommandationsRepository import DietRecommandationsRepository
+from Repositories.GenericReferenceRepository import GenericReferenceRepository
 #from Models.Patient import Patient
 from Models.Gender import Gender
 from Models.WorkoutType import WorkoutType
 from Models.ExerciceSession import ExerciceSession
+from Models.DietRecommandation import DietRecommandation
 
 DATASETS_PATH = "/opt/airflow/Datasets/"
 
@@ -163,23 +167,22 @@ with DAG(
             gender_id = gender_dict[gender_name]
             workout_type_id = workout_type_dict[workoutType_name]
 
-            exerciceSession = ExerciceSession(
-                age=row["Age"],
-                gender=gender_id,
-                weightKg=row["Weight (kg)"],
-                heightCm=row["Height (m)"],
-                maxBPM=row["Max_BPM"],
-                avgBPM=row["Avg_BPM"],
-                restingBPM=row["Resting_BPM"],
-                sessionDurationHours=row["Session_Duration (hours)"],
-                caloriesBurned=row["Calories_Burned"],
-                workoutType=workout_type_id,
-                fatPercentage=row["Fat_Percentage"],
-                waterIntakeLiters=row["Water_Intake (liters)"],
-                workoutFrequency=row["Workout_Frequency (days/week)"],
-                experienceLevel=row["Experience_Level"],
-                bmi=row["BMI"]
-            )
+            exerciceSession = ExerciceSession()
+            exerciceSession.age = row["Age"]
+            exerciceSession.gender = gender_id
+            exerciceSession.weightKg = row["Weight (kg)"]
+            exerciceSession.heightCm = row["Height (m)"] * 100 # Conversion m en cm
+            exerciceSession.maxBPM = row["Max_BPM"]
+            exerciceSession.avgBPM = row["Avg_BPM"]
+            exerciceSession.restingBPM = row["Resting_BPM"]
+            exerciceSession.sessionDurationHours = row["Session_Duration (hours)"]
+            exerciceSession.caloriesBurned = row["Calories_Burned"]
+            exerciceSession.workoutType = workout_type_id
+            exerciceSession.fatPercentage = row["Fat_Percentage"]
+            exerciceSession.waterIntakeLiters = row["Water_Intake (liters)"]
+            exerciceSession.workoutFrequency = row["Workout_Frequency (days/week)"]
+            exerciceSession.experienceLevel = row["Experience_Level"]
+            exerciceSession.bmi = row["BMI"]
 
             exerciceSessions_repo.create(exerciceSession)
 
@@ -188,6 +191,87 @@ with DAG(
         workoutTypes_repo.close()
         exerciceSessions_repo.close()
 
+    @task
+    def load_nutrition():
+        # Fonctions utilitaires pour sécuriser les données
+        def safe_int(value, default=0):
+            try:
+                if not value or str(value).strip() == '': return default
+                return int(float(value))
+            except: return default
+
+        def safe_float(value, default=0.0):
+            try:
+                if not value or str(value).strip() == '': return default
+                return float(value)
+            except: return default
+
+        def get_or_create_id(repo, cache, name):
+            if not name: return None
+            clean_name = str(name).strip()
+            if clean_name in cache: return cache[clean_name]
+            new_id = repo.create(clean_name)
+            cache[clean_name] = new_id
+            return new_id
+
+        file_path = os.path.join(DATASETS_PATH, "diet_recommendations_dataset.csv")
+        
+        if not os.path.exists(file_path):
+            print(f"❌ Fichier Nutrition introuvable : {file_path}")
+            return
+
+        # Initialisation des repositories
+        repo = DietRecommandationsRepository()
+        refs = {
+            'gender': GenericReferenceRepository('genders'),
+            'disease': GenericReferenceRepository('disease_types'),
+            'severity': GenericReferenceRepository('severity_types'),
+            'diet_type': GenericReferenceRepository('diet_recommandation_types'),
+            'activity': GenericReferenceRepository('physical_activity_levels'),
+            'restriction': GenericReferenceRepository('dietary_restrictions'),
+            'allergy': GenericReferenceRepository('allergies'),
+            'cuisine': GenericReferenceRepository('preferred_cuisine_types'),
+        }
+        
+        # Chargement des caches
+        caches = {key: {r['name']: r['id'] for r in repo_ref.getAll()} for key, repo_ref in refs.items()}
+        
+        # Vidage et Import
+        repo.truncate()
+        
+        with open(file_path, mode='r', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                d = DietRecommandation()
+                d.age = safe_int(row.get('Age'))
+                d.height_cm = safe_int(row.get('Height (cm)')) or safe_int(row.get('Height'))
+                d.current_weight_kg = safe_float(row.get('Weight (kg)')) or safe_float(row.get('Weight'))
+                d.bmi = safe_float(row.get('BMI'))
+                d.daily_caloric_target = safe_int(row.get('Daily Caloric Target'))
+                d.cholesterol_mg = safe_float(row.get('Cholesterol (mg)'))
+                d.blood_pressure_mmhg = safe_int(row.get('Blood Pressure (mmHg)'))
+                d.glucose_mg_dl = safe_float(row.get('Glucose (mg/dL)'))
+                d.weekly_exercise_hours = safe_float(row.get('Weekly Exercise Hours'))
+                d.adherence_to_diet_plan = safe_float(row.get('Adherence to Diet Plan (%)'))
+                d.dietary_nutrient_imbalance_score = safe_float(row.get('Dietary Nutrient Imbalance Score'))
+
+                d.gender = get_or_create_id(refs['gender'], caches['gender'], row.get('Gender'))
+                d.disease_type = get_or_create_id(refs['disease'], caches['disease'], row.get('Disease'))
+                d.severity = get_or_create_id(refs['severity'], caches['severity'], row.get('Severity'))
+                d.diet_recommendation = get_or_create_id(refs['diet_type'], caches['diet_type'], row.get('Diet Recommendation'))
+                d.activity_level = get_or_create_id(refs['activity'], caches['activity'], row.get('Activity Level'))
+                d.dietary_restrictions = get_or_create_id(refs['restriction'], caches['restriction'], row.get('Dietary Restriction'))
+                d.allergy = get_or_create_id(refs['allergy'], caches['allergy'], row.get('Allergy'))
+                d.preferred_cuisine = get_or_create_id(refs['cuisine'], caches['cuisine'], row.get('Preferred Cuisine'))
+
+                repo.create(d)
+        
+        # Fermeture des connexions
+        repo.close()
+        for r in refs.values():
+            r.close()
+
     data = extract()
     cleaned = transform(data)
     load(cleaned)
+    load_nutrition()
