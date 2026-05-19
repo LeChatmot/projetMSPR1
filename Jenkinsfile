@@ -14,15 +14,11 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarServer') {
-                    withSonarQubeScanner() {
-                        sh 'sonar-scanner \
-                            -Dsonar.projectKey=healthIACoach \
-                            -Dsonar.sources=. \
-                            -Dsonar.host.url=http://localhost:9000 \
-                            -Dsonar.login=${SONAR_TOKEN}'
-                    }
-                }
+                sh 'sonar-scanner \
+                    -Dsonar.projectKey=healthIACoach \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=http://localhost:9000 \
+                    -Dsonar.login=${SONAR_TOKEN}'
             }
         }
 
