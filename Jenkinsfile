@@ -6,15 +6,15 @@ pipeline {
                 echo 'Hello from Jenkins & Sonnar'
             }
         }
+        stage('SCM') {
+            checkout scm
+        }
         stage('SonarQube Analysis') {
-                steps {
-                    withSonarQubeEnv('SonarQube') {
-                        sh "${tool 'SonarQube Scanner'}/bin/sonar-scanner \
-                            -Dsonar.projectKey=mon-projet \
-                            -Dsonar.sources=."
-                    }
-                }
+            def scannerHome = tool 'SonarScanner';
+            withSonarQubeEnv() {
+              sh "${scannerHome}/bin/sonar-scanner"
             }
+        }
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
