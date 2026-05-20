@@ -18,7 +18,7 @@ class DietRecommandationsRepository(BaseRepository):
             dietary_nutrient_imbalance_score)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
             (d.age, d.gender, d.height_cm, d.current_weight_kg, d.bmi, d.disease_type, d.severity,
-             d.diet_recommendation, d.daily_caloric_target, d.activity_level, d.cholesterol_mg,
+             d.diet_recommandation, d.daily_caloric_target, d.activity_level, d.cholesterol_mg,
              d.blood_pressure_mmhg, d.glucose_mg_dl, d.dietary_restrictions, d.allergy,
              d.preferred_cuisine, d.weekly_exercise_hours, d.adherence_to_diet_plan,
              d.dietary_nutrient_imbalance_score)
