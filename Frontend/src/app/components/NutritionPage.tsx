@@ -128,9 +128,9 @@ export function NutritionPage() {
               <h4 className="text-gray-900 mb-2">{plan.name}</h4>
               <p className="text-sm text-gray-600 mb-3">{plan.description}</p>
               <ul className="text-sm text-gray-700 space-y-1">
-                <li>• Petit-déj: {plan.meals.breakfast}</li>
-                <li>• Déjeuner: {plan.meals.lunch}</li>
-                <li>• Dîner: {plan.meals.dinner}</li>
+                <li>• Petit-déj: {plan.meals?.breakfast ?? "Non défini"}</li>
+                <li>• Déjeuner: {plan.meals?.lunch ?? "Non défini"}</li>
+                <li>• Dîner: {plan.meals?.dinner ?? "Non défini"}</li>
               </ul>
             </div>
           ))}

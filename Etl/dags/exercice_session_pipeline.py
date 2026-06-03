@@ -258,7 +258,7 @@ with DAG(
                 d.gender = get_or_create_id(refs['gender'], caches['gender'], row.get('Gender'))
                 d.disease_type = get_or_create_id(refs['disease'], caches['disease'], row.get('Disease'))
                 d.severity = get_or_create_id(refs['severity'], caches['severity'], row.get('Severity'))
-                d.diet_recommendation = get_or_create_id(refs['diet_type'], caches['diet_type'], row.get('Diet Recommendation'))
+                d.diet_recommandation = get_or_create_id(refs['diet_type'], caches['diet_type'], row.get('Diet Recommendation'))
                 d.activity_level = get_or_create_id(refs['activity'], caches['activity'], row.get('Activity Level'))
                 d.dietary_restrictions = get_or_create_id(refs['restriction'], caches['restriction'], row.get('Dietary Restriction'))
                 d.allergy = get_or_create_id(refs['allergy'], caches['allergy'], row.get('Allergy'))
