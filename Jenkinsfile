@@ -1,24 +1,21 @@
 pipeline {
     agent any
+
+    tools {
+        sonarScanner 'SonarScanner' // Name from Global Tool Config
+    }
+
     stages {
-        stage('Test') {
+        stage('Checkout') {
             steps {
-                echo 'Hello from Jenkins & Sonnar'
+                git 'https://github.com/LeChatmot/projetMSPR1.git'
             }
         }
+
         stage('SonarQube Analysis') {
-                steps {
-                    withSonarQubeEnv('SonarQube') {
-                        sh "${tool 'SonarQube Scanner'}/bin/sonar-scanner \
-                            -Dsonar.projectKey=mon-projet \
-                            -Dsonar.sources=."
-                    }
-                }
-            }
-        stage('Quality Gate') {
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                withSonarQubeEnv('SonarQube') {
+                    sh 'sonar-scanner'
                 }
             }
         }
