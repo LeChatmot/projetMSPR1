@@ -233,21 +233,18 @@ with DAG(
 
             # crée une instance de la classe ExerciceSession en utilisant les valeurs des différentes colonnes de la ligne courante, ainsi que les identifiants de genre et de type d'entraînement récupérés précédemment, et stocke cette instance dans la variable
             exerciceSession = ExerciceSession(
-                age=row["Age"],
-                gender=gender_id,
-                weightKg=row["Weight (kg)"],
-                heightCm=row["Height (m)"],
-                maxBPM=row["Max_BPM"],
-                avgBPM=row["Avg_BPM"],
-                restingBPM=row["Resting_BPM"],
-                sessionDurationHours=row["Session_Duration (hours)"],
-                caloriesBurned=row["Calories_Burned"],
-                workoutType=workout_type_id,
-                fatPercentage=row["Fat_Percentage"],
-                waterIntakeLiters=row["Water_Intake (liters)"],
-                workoutFrequency=row["Workout_Frequency (days/week)"],
-                experienceLevel=row["Experience_Level"],
-                bmi=row["BMI"]
+                weight_kg=row["Weight (kg)"],
+                height_cm=row["Height (m)"],
+                max_bpm=row["Max_BPM"],
+                avg_bpm=row["Avg_BPM"],
+                resting_bpm=row["Resting_BPM"],
+                session_duration_hours=row["Session_Duration (hours)"],
+                calories_burned=row["Calories_Burned"],
+                workout_type=workout_type_id,
+                fat_percentage=row["Fat_Percentage"],
+                water_intake_liters=row["Water_Intake (liters)"],
+                workout_frequency=row["Workout_Frequency (days/week)"],
+                experience_level=row["Experience_Level"],
             )
 
             # insère l'instance de la classe ExerciceSession dans la base de données en utilisant la méthode create du repository des sessions d'exercice

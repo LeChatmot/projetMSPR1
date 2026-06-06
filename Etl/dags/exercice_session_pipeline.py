@@ -131,6 +131,9 @@ with DAG(
     @task
     def load(file_path):
 
+        print("DB HOST:", os.getenv("DB_HOST"))
+        print("DB NAME:", os.getenv("DB_NAME"))
+
         df_members = pd.read_csv(file_path)
 
         #patient_repo = PatientRepository()
@@ -139,14 +142,15 @@ with DAG(
         exerciceSessions_repo = ExerciceSessionsRepository()
 
         all_genders = genders_repo.getAll()
-        gender_dict = {g['name']: g['id'] for g in all_genders}
+        gender_dict = {g['name']: g['id_genders'] for g in all_genders}
         gender_names = [g['name'] for g in all_genders]
 
         all_workout_types = workoutTypes_repo.getAll()
-        workout_type_dict = {w['name']: w['id'] for w in all_workout_types}
+        workout_type_dict = {w['name']: w['id_workout_types'] for w in all_workout_types}
         workout_type_names = [w['name'] for w in all_workout_types]
 
         for _, row in df_members.iterrows():
+
             gender_name = row["Gender"]
             workoutType_name = row["Workout_Type"]
 
@@ -166,18 +170,18 @@ with DAG(
             exerciceSession = ExerciceSession(
                 age=row["Age"],
                 gender=gender_id,
-                weightKg=row["Weight (kg)"],
-                heightCm=row["Height (m)"],
-                maxBPM=row["Max_BPM"],
-                avgBPM=row["Avg_BPM"],
-                restingBPM=row["Resting_BPM"],
-                sessionDurationHours=row["Session_Duration (hours)"],
-                caloriesBurned=row["Calories_Burned"],
-                workoutType=workout_type_id,
-                fatPercentage=row["Fat_Percentage"],
-                waterIntakeLiters=row["Water_Intake (liters)"],
-                workoutFrequency=row["Workout_Frequency (days/week)"],
-                experienceLevel=row["Experience_Level"],
+                weight_kg=row["Weight (kg)"],
+                height_cm=row["Height (m)"],
+                max_bpm=row["Max_BPM"],
+                avg_bpm=row["Avg_BPM"],
+                resting_bpm=row["Resting_BPM"],
+                session_duration_hours=row["Session_Duration (hours)"],
+                calories_burned=row["Calories_Burned"],
+                workout_type=workout_type_id,
+                fat_percentage=row["Fat_Percentage"],
+                water_intake_liters=row["Water_Intake (liters)"],
+                workout_frequency=row["Workout_Frequency (days/week)"],
+                experience_level=row["Experience_Level"],
                 bmi=row["BMI"]
             )
 

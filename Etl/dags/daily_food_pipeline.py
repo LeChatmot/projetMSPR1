@@ -81,7 +81,7 @@ with DAG(
         all_daily_food_categories = dailyFoodCategories_repo.getAll()
 
         # crée des dictionnaires de mapping pour les catégories de nourriture quotidienne et les types de repas, associant les noms aux identifiants correspondants dans la base de données
-        daily_food_categorie_dict = {d['name']: d['id'] for d in all_daily_food_categories}
+        daily_food_categorie_dict = {d['name']: d['id_daily_foods_categories'] for d in all_daily_food_categories}
 
         # crée des listes pour stocker les noms de catégories de nourriture quotidienne et de types de repas existants dans la base de données, afin d'éviter les doublons lors de l'insertion des nouvelles données
         daily_food_categorie_names = [d['name'] for d in all_daily_food_categories]
@@ -90,7 +90,7 @@ with DAG(
         all_meal_types = mealTypes_repo.getAll()
 
         # crée un dictionnaire de mapping pour les types de repas, associant les noms aux identifiants correspondants dans la base de données
-        meal_type_dict = {m['name']: m['id'] for m in all_meal_types}
+        meal_type_dict = {m['name']: m['id_meal_types'] for m in all_meal_types}
 
         # crée une liste pour stocker les noms de types de repas existants dans la base de données, afin d'éviter les doublons lors de l'insertion des nouvelles données
         meal_type_names = [m['name'] for m in all_meal_types]

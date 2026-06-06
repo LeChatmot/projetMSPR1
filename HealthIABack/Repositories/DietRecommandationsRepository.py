@@ -1,9 +1,11 @@
 from Models.DietRecommandation import DietRecommandation
 from Repositories.BaseRepository import BaseRepository
 
+
 class DietRecommandationsRepository(BaseRepository):
 
     TABLE = 'diet_recommendations'
+    ID_FIELD = 'id_diet_recommandations'
 
     def __init__(self):
         super().__init__()
@@ -27,8 +29,8 @@ class DietRecommandationsRepository(BaseRepository):
         return d
 
     def getAll(self) -> list[dict]:
-        # On fait des JOIN pour récupérer les noms (ex: 'Arachides') au lieu des IDs (ex: 1)
-        # C'est utile pour l'affichage Admin
+        # Retourne list[dict] et non list[DietRecommandation] car les JOINs ajoutent
+        # des champs supplémentaires (gender_name, disease_name...) absents du Model
         query = f"""
             SELECT dr.*, 
                    g.name as gender_name,
@@ -46,7 +48,7 @@ class DietRecommandationsRepository(BaseRepository):
 
     def delete(self, id: int) -> bool:
         """Fonctionnalité Admin : Supprimer une recommandation"""
-        self._execute(f"DELETE FROM {self.TABLE} WHERE id = %s", (id,))
+        self._execute(f"DELETE FROM {self.TABLE} WHERE {self.ID_FIELD} = %s", (id,))
         return True
 
     def truncate(self) -> None:
@@ -58,7 +60,7 @@ class DietRecommandationsRepository(BaseRepository):
         query = f"""
             SELECT
                 drt.name AS name,
-                COUNT(dr.id) AS value
+                COUNT(dr.{self.ID_FIELD}) AS value
             FROM {self.TABLE} dr
             JOIN diet_recommandation_types drt ON dr.diet_recommendation = drt.id
             GROUP BY drt.name
@@ -77,7 +79,7 @@ class DietRecommandationsRepository(BaseRepository):
         stats = self._fetch_one(query)
         if not stats or stats.get('totalDietTypes') is None:
             return {'totalDietTypes': 0, 'activePlans': 0, 'averageCaloriesPerDay': 0, 'availableRecipes': 0}
-        
+
         stats['activePlans'] = stats.get('totalDietTypes', 0)
         stats['availableRecipes'] = (stats.get('totalDietTypes', 0) or 0) * 3
         return stats
