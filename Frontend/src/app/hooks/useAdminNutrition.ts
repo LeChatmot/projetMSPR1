@@ -20,7 +20,7 @@ export function useAdminNutrition(): UseAdminNutritionReturn {
     setLoading(true);
     setError(null);
     try {
-      const data = await nutritionService.getRecommendations();
+      const data = await nutritionService.getDietRecommendations();
       setRecommendations(data);
     } catch (err) {
       setError(
@@ -38,7 +38,7 @@ export function useAdminNutrition(): UseAdminNutritionReturn {
       setRecommendations((prev) => prev.filter((rec) => rec.id !== id));
 
       try {
-        await nutritionService.deleteRecommendation(id);
+        await nutritionService.deleteDietRecommendation(id);
       } catch (err) {
         setError(
           `Échec de la suppression (ID: ${id}). Restauration de l'état.`,

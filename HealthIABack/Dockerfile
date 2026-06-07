@@ -14,6 +14,6 @@ COPY schema /app/resources
 
 RUN chmod +x start.sh
 
-EXPOSE 8000
+EXPOSE 5000
 
 CMD ["sh","./start.sh"]

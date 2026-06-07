@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 # Charge les variables d'environnement depuis le fichier .env
 load_dotenv()
 
-from Models.ExerciceSession import ExerciseSession
-from Models.DietRecommendation import DietRecommendation
+from Models.ExerciceSession import ExerciceSession
+from Models.DietRecommandation import DietRecommandation
 from Repositories.ExerciceSessionsRepository import ExerciceSessionsRepository
 from Repositories.BaseRepository import BaseRepository
-from Repositories.DietRecommendationsRepository import DietRecommendationsRepository
+from Repositories.DietRecommandationsRepository import DietRecommandationsRepository
 from Repositories.GenericReferenceRepository import GenericReferenceRepository
 
 def safe_int(value, default=0):
@@ -63,19 +63,20 @@ def import_exercise_sessions(csv_path):
         gender_repo = GenericReferenceRepository('genders')
         workout_repo = GenericReferenceRepository('workout_types')
 
-        # Pré-chargement des caches pour éviter de requêter la DB à chaque ligne
+        print("🗑️  Vidage des tables existantes...")
+        repo.truncate()           # exercice_sessions d'abord (supprime les FK)
+        workout_repo.truncate()   # workout_types ensuite (données corrompues nettoyées)
+
+        # Pré-chargement des caches APRÈS vidage pour repartir d'un état propre
         genders_cache = {item['name']: item['id'] for item in gender_repo.getAll()}
         workouts_cache = {item['name']: item['id'] for item in workout_repo.getAll()}
-
-        print("🗑️  Vidage de la table existante...")
-        repo.truncate()
 
         with open(csv_path, mode='r', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             
             for row in reader:
                 # Création de l'objet modèle
-                session = ExerciseSession()
+                session = ExerciceSession()
                 
                 # Mapping des colonnes CSV vers l'objet (Adaptez les clés selon vos CSV !)
                 # Utilisation des fonctions safe_ pour éviter les crashs sur les données vides
@@ -94,7 +95,9 @@ def import_exercise_sessions(csv_path):
                 session.caloriesBurned = safe_float(row.get('Calories_Burned'))
                 
                 # Gestion intelligente des Foreign Keys (Texte -> ID)
+                # Nettoyage des caractères d'échappement littéraux (\t, \n) présents dans le CSV
                 workout_str = row.get('Workout_Type', 'Cardio') or 'Cardio'
+                workout_str = workout_str.replace('\\t', '').replace('\\n', '').replace('\t', '').replace('\n', '').strip()
                 session.workoutType = get_or_create_id(workout_repo, workouts_cache, workout_str)
                 
                 session.fatPercentage = safe_float(row.get('Fat_Percentage'))
@@ -144,7 +147,7 @@ def import_diet_recommendations(csv_path):
 
     count = 0
     try:
-        repo = DietRecommendationsRepository()
+        repo = DietRecommandationsRepository()
         # Chargement des caches
         caches = {key: {r['name']: r['id'] for r in repo_ref.getAll()} for key, repo_ref in refs.items()}
 
@@ -154,30 +157,30 @@ def import_diet_recommendations(csv_path):
         with open(csv_path, mode='r', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                d = DietRecommendation()
+                d = DietRecommandation()
                 
-                # Mapping simple
+                # Mapping simple (noms de colonnes réels du CSV)
                 d.age = safe_int(row.get('Age'))
-                d.height_cm = safe_int(row.get('Height (cm)')) or safe_int(row.get('Height'))
-                d.current_weight_kg = safe_float(row.get('Weight (kg)')) or safe_float(row.get('Weight'))
+                d.height_cm = safe_int(row.get('Height_cm'))
+                d.current_weight_kg = safe_float(row.get('Weight_kg'))
                 d.bmi = safe_float(row.get('BMI'))
-                d.daily_caloric_target = safe_int(row.get('Daily Caloric Target'))
-                d.cholesterol_mg = safe_float(row.get('Cholesterol (mg)'))
-                d.blood_pressure_mmhg = safe_int(row.get('Blood Pressure (mmHg)')) # Suppose format simple
-                d.glucose_mg_dl = safe_float(row.get('Glucose (mg/dL)'))
-                d.weekly_exercise_hours = safe_float(row.get('Weekly Exercise Hours'))
-                d.adherence_to_diet_plan = safe_float(row.get('Adherence to Diet Plan (%)'))
-                d.dietary_nutrient_imbalance_score = safe_float(row.get('Dietary Nutrient Imbalance Score'))
+                d.daily_caloric_target = safe_int(row.get('Daily_Caloric_Intake'))
+                d.cholesterol_mg = safe_float(row.get('Cholesterol_mg/dL'))
+                d.blood_pressure_mmhg = safe_int(row.get('Blood_Pressure_mmHg'))
+                d.glucose_mg_dl = safe_float(row.get('Glucose_mg/dL'))
+                d.weekly_exercise_hours = safe_float(row.get('Weekly_Exercise_Hours'))
+                d.adherence_to_diet_plan = safe_float(row.get('Adherence_to_Diet_Plan'))
+                d.dietary_nutrient_imbalance_score = safe_float(row.get('Dietary_Nutrient_Imbalance_Score'))
 
                 # Mapping avec gestion des Clés Étrangères (FK)
                 d.gender = get_or_create_id(refs['gender'], caches['gender'], row.get('Gender'))
-                d.disease_type = get_or_create_id(refs['disease'], caches['disease'], row.get('Disease'))
+                d.disease_type = get_or_create_id(refs['disease'], caches['disease'], row.get('Disease_Type'))
                 d.severity = get_or_create_id(refs['severity'], caches['severity'], row.get('Severity'))
-                d.diet_recommendation = get_or_create_id(refs['diet_type'], caches['diet_type'], row.get('Diet Recommendation'))
-                d.activity_level = get_or_create_id(refs['activity'], caches['activity'], row.get('Activity Level'))
-                d.dietary_restrictions = get_or_create_id(refs['restriction'], caches['restriction'], row.get('Dietary Restriction'))
-                d.allergy = get_or_create_id(refs['allergy'], caches['allergy'], row.get('Allergy'))
-                d.preferred_cuisine = get_or_create_id(refs['cuisine'], caches['cuisine'], row.get('Preferred Cuisine'))
+                d.diet_recommandation = get_or_create_id(refs['diet_type'], caches['diet_type'], row.get('Diet_Recommendation'))
+                d.activity_level = get_or_create_id(refs['activity'], caches['activity'], row.get('Physical_Activity_Level'))
+                d.dietary_restrictions = get_or_create_id(refs['restriction'], caches['restriction'], row.get('Dietary_Restrictions'))
+                d.allergy = get_or_create_id(refs['allergy'], caches['allergy'], row.get('Allergies'))
+                d.preferred_cuisine = get_or_create_id(refs['cuisine'], caches['cuisine'], row.get('Preferred_Cuisine'))
 
                 repo.create(d)
                 count += 1
