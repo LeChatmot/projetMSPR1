@@ -46,9 +46,9 @@ export function useNutrition(): UseNutritionReturn {
         nutritionService.getNutritionStats(),
         nutritionService.getDietPlans(),
       ]);
-      setDietDistribution(distribution);
-      setStats(nutritionStats);
-      setDietPlans(plans);
+      setDietDistribution(distribution.length > 0 ? distribution : getDietDistribution());
+      setStats(nutritionStats.totalDietTypes > 0 ? nutritionStats : calculateNutritionStats());
+      setDietPlans(plans.length > 0 ? plans : mockDietPlans);
     } catch (err) {
       // En cas d'erreur, utiliser les mock data
       console.warn("⚠️ Utilisation des données mock pour la nutrition");

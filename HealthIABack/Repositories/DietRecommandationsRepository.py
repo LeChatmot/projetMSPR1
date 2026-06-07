@@ -1,9 +1,11 @@
 from Models.DietRecommandation import DietRecommandation
 from Repositories.BaseRepository import BaseRepository
 
+
 class DietRecommandationsRepository(BaseRepository):
 
     TABLE = 'diet_recommendations'
+    ID_FIELD = 'id_diet_recommandations'
 
     def __init__(self):
         super().__init__()
@@ -26,27 +28,65 @@ class DietRecommandationsRepository(BaseRepository):
         d.id = last_id
         return d
 
+    JOINED_QUERY = """
+        SELECT dr.*,
+               g.name    AS gender_name,
+               dt.name   AS disease_name,
+               st.name   AS severity_name,
+               a.name    AS allergy_name,
+               drt.name  AS diet_name,
+               pal.name  AS activity_name,
+               drestr.name AS restriction_name,
+               pct.name  AS cuisine_name
+        FROM {table} dr
+        LEFT JOIN genders g                  ON dr.gender               = g.id
+        LEFT JOIN disease_types dt           ON dr.disease_type         = dt.id
+        LEFT JOIN severity_types st          ON dr.severity             = st.id
+        LEFT JOIN allergies a                ON dr.allergy              = a.id
+        LEFT JOIN diet_recommandation_types drt ON dr.diet_recommendation = drt.id
+        LEFT JOIN physical_activity_levels pal  ON dr.activity_level    = pal.id
+        LEFT JOIN dietary_restrictions drestr   ON dr.dietary_restrictions = drestr.id
+        LEFT JOIN preferred_cuisine_types pct   ON dr.preferred_cuisine = pct.id
+    """
+
     def getAll(self) -> list[dict]:
-        # On fait des JOIN pour récupérer les noms (ex: 'Arachides') au lieu des IDs (ex: 1)
-        # C'est utile pour l'affichage Admin
-        query = f"""
-            SELECT dr.*, 
-                   g.name as gender_name,
-                   dt.name as disease_name,
-                   a.name as allergy_name,
-                   drt.name as diet_name
-            FROM {self.TABLE} dr
-            LEFT JOIN genders g ON dr.gender = g.id
-            LEFT JOIN disease_types dt ON dr.disease_type = dt.id
-            LEFT JOIN allergies a ON dr.allergy = a.id
-            LEFT JOIN diet_recommandation_types drt ON dr.diet_recommendation = drt.id
-            LIMIT 100
-        """
+        query = self.JOINED_QUERY.format(table=self.TABLE) + " LIMIT 100"
         return self._fetch_all(query)
+
+    def count(self) -> int:
+        row = self._fetch_one(f"SELECT COUNT(*) AS total FROM {self.TABLE}")
+        return int(row["total"]) if row else 0
+
+    def getPage(self, page: int, per_page: int) -> list[dict]:
+        offset = (page - 1) * per_page
+        query = self.JOINED_QUERY.format(table=self.TABLE) + " LIMIT %s OFFSET %s"
+        return self._fetch_all(query, (per_page, offset))
+
+    def getById(self, id: int) -> dict | None:
+        query = self.JOINED_QUERY.format(table=self.TABLE) + " WHERE dr.id = %s"
+        return self._fetch_one(query, (id,))
+
+    def update(self, id: int, d) -> None:
+        self._execute(
+            f"""UPDATE {self.TABLE} SET
+                age=%s, gender=%s, height_cm=%s, current_weight_kg=%s, bmi=%s,
+                disease_type=%s, severity=%s, diet_recommendation=%s,
+                daily_caloric_target=%s, activity_level=%s, cholesterol_mg=%s,
+                blood_pressure_mmhg=%s, glucose_mg_dl=%s, dietary_restrictions=%s,
+                allergy=%s, preferred_cuisine=%s, weekly_exercise_hours=%s,
+                adherence_to_diet_plan=%s, dietary_nutrient_imbalance_score=%s
+                WHERE id=%s""",
+            (d.age, d.gender, d.height_cm, d.current_weight_kg, d.bmi,
+             d.disease_type, d.severity, d.diet_recommandation,
+             d.daily_caloric_target, d.activity_level, d.cholesterol_mg,
+             d.blood_pressure_mmhg, d.glucose_mg_dl, d.dietary_restrictions,
+             d.allergy, d.preferred_cuisine, d.weekly_exercise_hours,
+             d.adherence_to_diet_plan, d.dietary_nutrient_imbalance_score, id),
+        )
 
     def delete(self, id: int) -> bool:
         """Fonctionnalité Admin : Supprimer une recommandation"""
-        self._execute(f"DELETE FROM {self.TABLE} WHERE id = %s", (id,))
+        self._execute(f"DELETE FROM {self.TABLE} WHERE {self.ID_FIELD} = %s", (id,))
         return True
 
     def truncate(self) -> None:
@@ -58,7 +98,7 @@ class DietRecommandationsRepository(BaseRepository):
         query = f"""
             SELECT
                 drt.name AS name,
-                COUNT(dr.id) AS value
+                COUNT(dr.{self.ID_FIELD}) AS value
             FROM {self.TABLE} dr
             JOIN diet_recommandation_types drt ON dr.diet_recommendation = drt.id
             GROUP BY drt.name
@@ -77,7 +117,7 @@ class DietRecommandationsRepository(BaseRepository):
         stats = self._fetch_one(query)
         if not stats or stats.get('totalDietTypes') is None:
             return {'totalDietTypes': 0, 'activePlans': 0, 'averageCaloriesPerDay': 0, 'availableRecipes': 0}
-        
+
         stats['activePlans'] = stats.get('totalDietTypes', 0)
         stats['availableRecipes'] = (stats.get('totalDietTypes', 0) or 0) * 3
         return stats

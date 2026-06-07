@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   mysql:
     image: mysql:8
@@ -9,9 +8,10 @@ services:
       MYSQL_USER: healthia
       MYSQL_PASSWORD: 123456
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
@@ -25,17 +25,24 @@ services:
         condition: service_healthy
     ports:
       - "5000:5000"
+    volumes:
+      - ./schema:/app/schema
     environment:
       DB_HOST: mysql
       DB_USER: healthia
       DB_PASSWORD: 123456
       DB_NAME: health_ia_db
+    volumes:
+      - ./Datasets:/Datasets # Monte le dossier Datasets dans le conteneur
 
   airflow:
     build:
       context: .
       dockerfile: Etl/Dockerfile
     container_name: healthia_airflow
+    depends_on:
+      mysql:
+        condition: service_healthy
     ports:
       - "8080:8080"
     volumes:
@@ -43,6 +50,11 @@ services:
       - ./Datasets:/opt/airflow/Datasets
       - ./HealthIABack/Repositories:/opt/airflow/dags/Repositories
       - ./HealthIABack/Models:/opt/airflow/dags/Models
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=healthia
+      - DB_PASSWORD=123456
+      - DB_NAME=health_ia_db
     command: standalone
 
   frontend:

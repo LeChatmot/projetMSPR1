@@ -4,6 +4,7 @@ from Repositories.IdNameGenericRepository import IdNameGenericRepository
 class DiseaseTypesRepository(IdNameGenericRepository):
 
     TABLE = 'disease_types'
+    ID_FIELD = 'id_disease_types'
 
     def __init__(self):
         super().__init__()

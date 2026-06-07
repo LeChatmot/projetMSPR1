@@ -3,5 +3,4 @@ from Models.IdNameTableGeneric import IdNameTableGeneric
 
 class DailyFoodCategory(IdNameTableGeneric):
 
-    def __init__(self, id: int = None, name: str = None):
-        super().__init__(id, name)
+    id_field = "id_daily_foods_categories"

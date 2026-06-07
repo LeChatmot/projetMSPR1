@@ -1,26 +1,28 @@
 from Models.MealType import MealType
 from Models.DailyFoodCategory import DailyFoodCategory
+from Models.IdNameTableGeneric import IdNameTableGeneric
 
 
-class DailyFood:
+class DailyFood(IdNameTableGeneric):
+
+    id_field = "id_daily_foods"
 
     def __init__(self,
-                 id: int= None,
-                 name : str= None,
-                 category: DailyFoodCategory= None,
-                 calories_kcal : int = None,
+                 id: int = None,
+                 name: str = None,
+                 category: DailyFoodCategory = None,
+                 calories_kcal: int = None,
                  protein_g: float = None,
-                 carbs_g: float= None,
-                 fat_g: float= None,
-                 fiber_g: float= None,
-                 sugar_g: float= None,
+                 carbs_g: float = None,
+                 fat_g: float = None,
+                 fiber_g: float = None,
+                 sugar_g: float = None,
                  sodium: int = None,
-                 cholesterol: int= None,
-                 meal_type: MealType= None,
-                 water_intake_ml: int= None,
-    ):
-        self.id = id
-        self.name = name
+                 cholesterol: int = None,
+                 meal_type: MealType = None,
+                 water_intake_ml: int = None,
+                 ):
+        super().__init__(id, name)
         self.category = category
         self.calories_kcal = calories_kcal
         self.protein_g = protein_g
@@ -33,100 +35,88 @@ class DailyFood:
         self.meal_type = meal_type
         self.water_intake_ml = water_intake_ml
 
-    @staticmethod
-    def to_model(row: dict):
-        if not row:
+    @classmethod
+    def from_dict(cls, data: dict):
+        if not data:
             return None
-        return DailyFood(
-            id=row['id'],
-            name=row['name'],
-            category=row['category'],
-            calories_kcal=row['calories_kcal'],
-            protein_g=row['protein_g'],
-            carbs_g=row['carbs_g'],
-            fat_g=row['fat_g'],
-            fiber_g=row['fiber_g'],
-            sugar_g=row['sugar_g'],
-            sodium=row['sodium'],
-            cholesterol=row['cholesterol'],
-            meal_type=row['meal_type'],
-            water_intake_ml=row['water_intake_ml'],
+        return cls(
+            id=data[cls.id_field],
+            name=data['name'],
+            category=data.get('category'),
+            calories_kcal=data.get('calories_kcal'),
+            protein_g=data.get('protein_g'),
+            carbs_g=data.get('carbs_g'),
+            fat_g=data.get('fat_g'),
+            fiber_g=data.get('fiber_g'),
+            sugar_g=data.get('sugar_g'),
+            sodium=data.get('sodium'),
+            cholesterol=data.get('cholesterol'),
+            meal_type=data.get('meal_type'),
+            water_intake_ml=data.get('water_intake_ml'),
         )
 
-    def getId(self):
-        return self._id
-
-    def setId(self, value):
-        self._id = value
-
-    def getName(self):
-        return self._name
-
-    def setName(self, value):
-        self._name = value
-
     def getCategory(self):
-        return self._category
+        return self.category
 
     def setCategory(self, value):
-        self._category = value
+        self.category = value
 
     def getCaloriesKcal(self):
-        return self._calories_kcal
+        return self.calories_kcal
 
     def setCaloriesKcal(self, value):
-        self._calories_kcal = value
+        self.calories_kcal = value
 
     def getProteinG(self):
-        return self._protein_g
+        return self.protein_g
 
     def setProteinG(self, value):
-        self._protein_g = value
+        self.protein_g = value
 
     def getCarbsG(self):
-        return self._carbs_g
+        return self.carbs_g
 
     def setCarbsG(self, value):
-        self._carbs_g = value
+        self.carbs_g = value
 
     def getFatG(self):
-        return self._fat_g
+        return self.fat_g
 
     def setFatG(self, value):
-        self._fat_g = value
+        self.fat_g = value
 
     def getFiberG(self):
-        return self._fiber_g
+        return self.fiber_g
 
     def setFiberG(self, value):
-        self._fiber_g = value
+        self.fiber_g = value
 
     def getSugarG(self):
-        return self._sugar_g
+        return self.sugar_g
 
     def setSugarG(self, value):
-        self._sugar_g = value
+        self.sugar_g = value
 
     def getSodium(self):
-        return self._sodium
+        return self.sodium
 
     def setSodium(self, value):
-        self._sodium = value
+        self.sodium = value
 
     def getCholesterol(self):
-        return self._cholesterol
+        return self.cholesterol
 
     def setCholesterol(self, value):
-        self._cholesterol = value
+        self.cholesterol = value
 
     def getMealType(self):
-        return self._meal_type
+        return self.meal_type
 
     def setMealType(self, value):
-        self._meal_type = value
+        self.meal_type = value
 
     def getWaterIntakeMl(self):
-        return self._water_intake_ml
+        return self.water_intake_ml
 
     def setWaterIntakeMl(self, value):
-        self._water_intake_ml = value
+        self.water_intake_ml = value
