@@ -6,12 +6,12 @@ pipeline {
     }
 
     stages {
-        stage('SonarQube Analysis') {
+         stage('SonarQube Analysis') {
             steps {
                 dir('JenkinsJobs/SonarQube') {
-                    build job: 'SonarQube',
-                        parameters: [string(name: 'BRANCH_NAME', value: env.BRANCH_NAME)],
-                        wait: true
+                    script {
+                        load 'JenkinsFile'
+                    }
                 }
             }
         }
@@ -19,9 +19,9 @@ pipeline {
         stage('Run Unit Tests') {
             steps {
                 dir('JenkinsJobs/Tests') {
-                    build job: 'Tests',
-                        parameters: [string(name: 'BRANCH_NAME', value: env.BRANCH_NAME)],
-                        wait: true
+                    script {
+                        load 'JenkinsFile'
+                    }
                 }
             }
         }
@@ -32,12 +32,13 @@ pipeline {
             }
             steps {
                 dir('JenkinsJobs/Deploy') {
-                    build job: 'Deploy',
-                        parameters: [string(name: 'BRANCH_NAME', value: 'main')],
-                        wait: true
+                    script {
+                        load 'JenkinsFile'
+                    }
                 }
             }
         }
+    }
     }
 
     post {
