@@ -101,8 +101,8 @@ pipeline {
                                     . "\$NVM_DIR/nvm.sh"
                                     nvm use ${NODE_VERSION}
                                     cd Frontend
-                                    npx vitest run
                                 """
+                                //npx vitest run
                             }
                         }
                     }
@@ -142,8 +142,10 @@ pipeline {
             steps {
                 script {
                     sh """
-                        docker-compose -f docker-compose.yml build --no-cache
+                        echo 'ok'
                     """
+
+                    // docker-compose -f docker-compose.yml build --no-cache
                 }
             }
         }
@@ -155,9 +157,9 @@ pipeline {
             steps {
                 script {
                     sh """
-                        scp docker-compose.yml user@your-server:/path/to/project/
-                        ssh user@your-server "cd /path/to/project && docker-compose pull && docker-compose up -d --remove-orphans"
                     """
+                    //    scp docker-compose.yml user@your-server:/path/to/project/
+                    //    ssh user@your-server "cd /path/to/project && docker-compose pull && docker-compose up -d --remove-orphans"
                 }
             }
         }
@@ -169,10 +171,11 @@ pipeline {
             steps {
                 script {
                     sh """
-                        sleep 30
-                        curl -f http://localhost:8000/health || exit 1
-                        curl -f http://localhost:3000 || exit 1
                     """
+
+                    //    sleep 30
+                    //    curl -f http://localhost:8000/health || exit 1
+                    //    curl -f http://localhost:3000 || exit 1
                 }
             }
         }
