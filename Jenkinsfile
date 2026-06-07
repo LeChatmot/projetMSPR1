@@ -53,26 +53,23 @@ pipeline {
         // ========== TESTS PYTHON ==========
         stage('Setup Python environnement') {
             steps {
-                script {
-                    sh """
-                        python3 -m venv ${PYTHON_VENV}
-                        . ${PYTHON_VENV}/bin/activate
-                        pip install --upgrade pip
-                        pip install -r HealthIABack/requirements.txt
-                    """
-                }
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r HealthIABack/requirements.txt
+                    pip install pytest pytest-cov
+                '''
             }
         }
 
         stage('Run Python Tests') {
             steps {
-                script {
-                    sh """
-                        . ${PYTHON_VENV}/bin/activate
-                        cd HealthIABack
-                        pytest --cov=./ --cov-report=xml:coverage.xml -v
-                    """
-                }
+                sh '''
+                    . venv/bin/activate
+                    cd HealthIABack
+                    pytest --cov=./ --cov-report=xml:coverage.xml -v
+                '''
             }
         }
 

@@ -8,3 +8,5 @@ pyway
 apache-airflow
 pandas
 mysql-connector-python
+pytest
+pytest-cov
