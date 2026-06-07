@@ -4,14 +4,14 @@ pipeline {
     stages {
         stage('SonarQube Analysis') {
             steps {
-                build job: 'HealthIA-Multibranch/JenkinsJobs/SonarQube/Jenkinsfile',
+                build job: './JenkinsJobs/SonarQube/Jenkinsfile',
                     parameters: [string(name: 'BRANCH_NAME', value: env.BRANCH_NAME)]
             }
         }
 
         stage('Run Unit Tests') {
             steps {
-                build job: 'HealthIA-Multibranch/JenkinsJobs/Tests/Jenkinsfile',
+                build job: './JenkinsJobs/Tests/Jenkinsfile',
                     parameters: [string(name: 'BRANCH_NAME', value: env.BRANCH_NAME)]
             }
         }
@@ -21,7 +21,7 @@ pipeline {
                 branch 'main'
             }
             steps {
-                build job: 'HealthIA-Multibranch/JenkinsJobs/SonarQube/Jenkinsfile',
+                build job: './JenkinsJobs/SonarQube/Jenkinsfile',
                     parameters: [string(name: 'BRANCH_NAME', value: 'main')]
             }
         }
