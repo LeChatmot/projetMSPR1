@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         GITHUB_TOKEN = credentials('GITHUB_TOKEN')
+        SONAR_TOKEN = credentials('SONAR_TOKEN')
     }
 
     stages {
@@ -10,7 +11,8 @@ pipeline {
             steps {
                 dir('JenkinsJobs/SonarQube') {
                     script {
-                        load 'JenkinsFile'
+                        def sonarQubeScript = load 'JenkinsFile'
+                        sonarQubeScript.runSonarAnalysis()
                     }
                 }
             }
@@ -20,7 +22,8 @@ pipeline {
             steps {
                 dir('JenkinsJobs/Tests') {
                     script {
-                        load 'JenkinsFile'
+                        def testsScript = load 'JenkinsFile'
+                        testsScript.runTests()
                     }
                 }
             }
@@ -33,7 +36,8 @@ pipeline {
             steps {
                 dir('JenkinsJobs/Deploy') {
                     script {
-                        load 'JenkinsFile'
+                        def deployScript = load 'JenkinsFile'
+                        deployScript.runDeploy()
                     }
                 }
             }
