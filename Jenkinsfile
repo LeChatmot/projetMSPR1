@@ -101,7 +101,7 @@ pipeline {
                                     . "\$NVM_DIR/nvm.sh"
                                     nvm use ${NODE_VERSION}
                                     cd Frontend
-                                    npm test -- --coverage --watchAll=false
+                                    npx vitest run
                                 """
                             }
                         }
