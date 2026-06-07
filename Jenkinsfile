@@ -20,10 +20,11 @@ pipeline {
                     withSonarQubeEnv('SonarQube') {
                         sh """
                             sonar-scanner \
-                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                            -Dsonar.projectKey=${env.SONAR_PROJECT_KEY} \
                             -Dsonar.sources=. \
-                            -Dsonar.host.url=${SONAR_HOST_URL} \
-                            -Dsonar.login=${SONAR_TOKEN}
+                            -Dsonar.host.url=${env.SONAR_HOST_URL} \
+                            -Dsonar.token=${env.SONAR_TOKEN} \
+                            -Dsonar.exclusions=**/node_modules/**,**/__pycache__/**,**/*.sql,**/migrations/**,**/coverage/**,**/dist/**,test-report.xml
                         """
                     }
                 }
