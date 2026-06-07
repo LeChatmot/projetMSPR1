@@ -53,7 +53,7 @@ pipeline {
         stage('Unit Tests'){
             steps{
                 parallel{
-                    stages('Backend'){
+                    stage('Backend'){
                         steps{
                             stage('Setup Python environnement') {
                                 steps {
@@ -78,7 +78,7 @@ pipeline {
                             }
                         }
                     }
-                    stages('Frontend'){
+                    stage('Frontend'){
                         steps{
                             stage('Setup Node environnement') {
                                 steps {
