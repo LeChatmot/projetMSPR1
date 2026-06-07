@@ -3,5 +3,4 @@ from Models.IdNameTableGeneric import IdNameTableGeneric
 
 class DietRecommandationType(IdNameTableGeneric):
 
-    def __init__(self, id: int = None, name: str = None):
-        super().__init__(id, name)
+    id_field = "id_diet_recommandation_types"

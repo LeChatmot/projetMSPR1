@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS medias (
+    id_medias INT AUTO_INCREMENT PRIMARY KEY,
+    lien_pj VARCHAR(255) NOT NULL
+)

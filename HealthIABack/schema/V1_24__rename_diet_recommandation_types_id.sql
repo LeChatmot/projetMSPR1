@@ -1,0 +1,9 @@
+ALTER TABLE diet_recommendations 
+DROP FOREIGN KEY diet_recommendations_ibfk_4;
+
+ALTER TABLE diet_recommandation_types 
+RENAME COLUMN id TO id_diet_recommandation_types;
+
+ALTER TABLE diet_recommendations 
+ADD CONSTRAINT fk_diet_recommendations_diet_recommandation_type
+FOREIGN KEY (diet_recommendation) REFERENCES diet_recommandation_types(id_diet_recommandation_types);

@@ -1,156 +1,156 @@
 from Models.Gender import Gender
 from Models.WorkoutType import WorkoutType
+from Models.IdNameTableGeneric import IdNameTableGeneric
 
 
-class ExerciceSession:
+class ExerciceSession(IdNameTableGeneric):
+
+    id_field = "id_exercice_sessions"
 
     def __init__(self,
                  id: int = None,
                  age: int = None,
                  gender: Gender = None,
-                 weightKg: int = None,
-                 heightCm: int = None,
-                 maxBPM: int = None,
-                 avgBPM: int = None,
-                 restingBPM: int = None,
-                 sessionDurationHours: int = None,
-                 caloriesBurned: int = None,
-                 workoutType: WorkoutType = None,
-                 fatPercentage: float = None,
-                 waterIntakeLiters: float = None,
-                 workoutFrequency: int = None,
-                 experienceLevel: int = None,
+                 weight_kg: int = None,
+                 height_cm: int = None,
+                 max_bpm: int = None,
+                 avg_bpm: int = None,
+                 resting_bpm: int = None,
+                 session_duration_hours: float = None,
+                 calories_burned: int = None,
+                 workout_type: WorkoutType = None,
+                 fat_percentage: float = None,
+                 water_intake_liters: float = None,
+                 workout_frequency: int = None,
+                 experience_level: int = None,
                  bmi: float = None,
-    ):
-        self.id = id
+                 ):
+        super().__init__(id, None)
         self.age = age
         self.gender = gender
-        self.weightKg = weightKg
-        self.heightCm = heightCm
-        self.maxBPM = maxBPM
-        self.avgBPM = avgBPM
-        self.restingBPM = restingBPM
-        self.sessionDurationHours = sessionDurationHours
-        self.caloriesBurned = caloriesBurned
-        self.workoutType = workoutType
-        self.fatPercentage = fatPercentage
-        self.waterIntakeLiters = waterIntakeLiters
-        self.workoutFrequency = workoutFrequency
-        self.experienceLevel = experienceLevel
+        self.weight_kg = weight_kg
+        self.height_cm = height_cm
+        self.max_bpm = max_bpm
+        self.avg_bpm = avg_bpm
+        self.resting_bpm = resting_bpm
+        self.session_duration_hours = session_duration_hours
+        self.calories_burned = calories_burned
+        self.workout_type = workout_type
+        self.fat_percentage = fat_percentage
+        self.water_intake_liters = water_intake_liters
+        self.workout_frequency = workout_frequency
+        self.experience_level = experience_level
         self.bmi = bmi
 
-    @staticmethod
-    def to_model(row: dict):
-        if not row:
+    @classmethod
+    def from_dict(cls, data: dict):
+        if not data:
             return None
-        return ExerciceSession(
-            id=row['id'],
-            age=row['age'],
-            gender=row['gender'],
-            weightKg=row['weightKg'],
-            heightCm=row['heightCm'],
-            maxBPM=row['maxBPM'],
-            avgBPM=row['avgBPM'],
-            restingBPM=row['restingBPM'],
-            sessionDurationHours=row['sessionDurationHours'],
-            caloriesBurned=row['caloriesBurned'],
-            workoutType=row['workoutType'],
-            fatPercentage=row['fatPercentage'],
-            waterIntakeLiters=row['waterIntakeLiters'],
-            workoutFrequency=row['workoutFrequency'],
-            experienceLevel=row['experienceLevel'],
-            bmi=row['bmi'],
+        return cls(
+            id=data.get(cls.id_field),
+            age=data.get('age'),
+            gender=data.get('gender'),
+            weight_kg=data.get('weight_kg'),
+            height_cm=data.get('height_cm'),
+            max_bpm=data.get('max_bpm'),
+            avg_bpm=data.get('avg_bpm'),
+            resting_bpm=data.get('resting_bpm'),
+            session_duration_hours=data.get('session_duration_hours'),
+            calories_burned=data.get('calories_burned'),
+            workout_type=data.get('workout_type'),
+            fat_percentage=data.get('fat_percentage'),
+            water_intake_liters=data.get('water_intake_liters'),
+            workout_frequency=data.get('workout_frequency'),
+            experience_level=data.get('experience_level'),
+            bmi=data.get('bmi'),
         )
-
-    def getId(self):
-        return self.id
 
     def getAge(self):
         return self.age
 
+    def setAge(self, value: int):
+        self.age = value
+
     def getGender(self):
         return self.gender
 
+    def setGender(self, value: Gender):
+        self.gender = value
+
     def getWeightKg(self):
-        return self.weightKg
+        return self.weight_kg
+
+    def setWeightKg(self, value: int):
+        self.weight_kg = value
 
     def getHeightCm(self):
-        return self.heightCm
+        return self.height_cm
 
-    def getMaxBPM(self):
-        return self.maxBPM
+    def setHeightCm(self, value: int):
+        self.height_cm = value
 
-    def getAvgBPM(self):
-        return self.avgBPM
+    def getMaxBpm(self):
+        return self.max_bpm
 
-    def getRestingBPM(self):
-        return self.restingBPM
+    def setMaxBpm(self, value: int):
+        self.max_bpm = value
+
+    def getAvgBpm(self):
+        return self.avg_bpm
+
+    def setAvgBpm(self, value: int):
+        self.avg_bpm = value
+
+    def getRestingBpm(self):
+        return self.resting_bpm
+
+    def setRestingBpm(self, value: int):
+        self.resting_bpm = value
 
     def getSessionDurationHours(self):
-        return self.sessionDurationHours
+        return self.session_duration_hours
+
+    def setSessionDurationHours(self, value: float):
+        self.session_duration_hours = value
 
     def getCaloriesBurned(self):
-        return self.caloriesBurned
+        return self.calories_burned
+
+    def setCaloriesBurned(self, value: int):
+        self.calories_burned = value
 
     def getWorkoutType(self):
-        return self.workoutType
+        return self.workout_type
+
+    def setWorkoutType(self, value: WorkoutType):
+        self.workout_type = value
 
     def getFatPercentage(self):
-        return self.fatPercentage
+        return self.fat_percentage
+
+    def setFatPercentage(self, value: float):
+        self.fat_percentage = value
 
     def getWaterIntakeLiters(self):
-        return self.waterIntakeLiters
+        return self.water_intake_liters
+
+    def setWaterIntakeLiters(self, value: float):
+        self.water_intake_liters = value
 
     def getWorkoutFrequency(self):
-        return self.workoutFrequency
+        return self.workout_frequency
+
+    def setWorkoutFrequency(self, value: int):
+        self.workout_frequency = value
 
     def getExperienceLevel(self):
-        return self.experienceLevel
+        return self.experience_level
 
-    def getBMI(self):
+    def setExperienceLevel(self, value: int):
+        self.experience_level = value
+
+    def getBmi(self):
         return self.bmi
 
-    def setId(self, id: int):
-        self.id = id
-
-    def setAge(self, age: int):
-        self.age = age
-
-    def setGender(self, gender: Gender):
-        self.gender = gender
-
-    def setWeightKg(self, weightKg: int):
-        self.weightKg = weightKg
-
-    def setHeightCm(self, heightCm: int):
-        self.heightCm = heightCm
-
-    def setMaxBPM(self, maxBPM: int):
-        self.maxBPM = maxBPM
-
-    def setAvgBPM(self, avgBPM: int):
-        self.avgBPM = avgBPM
-
-    def setRestingBPM(self, restingBPM: int):
-        self.restingBPM = restingBPM
-
-    def setSessionDurationHours(self, sessionDurationHours: int):
-        self.sessionDurationHours = sessionDurationHours
-
-    def setCaloriesBurned(self, caloriesBurned: int):
-        self.caloriesBurned = caloriesBurned
-
-    def setFatPercentage(self, fatPercentage: float):
-        self.fatPercentage = fatPercentage
-
-    def setWaterIntakeLiters(self, waterIntakeLiters: float):
-        self.waterIntakeLiters = waterIntakeLiters
-
-    def setWorkoutFrequency(self, workoutFrequency: int):
-        self.workoutFrequency = workoutFrequency
-
-    def setExperienceLevel(self, experienceLevel: int):
-        self.experienceLevel = experienceLevel
-
-    def setBMI(self, bmi: float):
-        self.bmi = bmi
+    def setBmi(self, value: float):
+        self.bmi = value
