@@ -50,64 +50,59 @@ pipeline {
             }
         }
 
-        stage('Unit Tests'){
-            steps{
-                parallel{
-                    stage('Backend'){
-                        steps{
-                            stage('Setup Python environnement') {
-                                steps {
-                                    sh '''
-                                        python3 -m venv venv
-                                        . venv/bin/activate
-                                        pip install --upgrade pip
-                                        pip install -r HealthIABack/requirements.txt
-                                        pip install pytest pytest-cov
-                                    '''
-                                }
+        stage('Unit Tests') {
+            parallel {
+                stage('Backend') {
+                    stages {
+                        stage('Setup Python environnement') {
+                            steps {
+                                sh '''
+                                   python3 -m venv venv
+                                   . venv/bin/activate
+                                   pip install --upgrade pip
+                                   pip install -r HealthIABack/requirements.txt
+                                   pip install pytest pytest-cov
+                               '''
                             }
+                        }
 
-                            stage('Run Python Tests') {
-                                steps {
-                                    sh '''
-                                        . venv/bin/activate
-                                        cd HealthIABack
-                                        pytest --cov=./ --cov-report=xml:coverage.xml -v
-                                    '''
-                                }
+                        stage('Run Python Tests') {
+                            steps {
+                                sh '''
+                                   . venv/bin/activate
+                                   cd HealthIABack
+                                   pytest --cov=./ --cov-report=xml:coverage.xml -v
+                               '''
                             }
                         }
                     }
-                    stage('Frontend'){
-                        steps{
-                            stage('Setup Node environnement') {
-                                steps {
-                                    script {
-                                        sh """
-                                            export NVM_DIR="\$HOME/.nvm"
-                                            [ -s "\$NVM_DIR/nvm.sh" ] || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-                                            . "\$NVM_DIR/nvm.sh"
-                                            nvm install ${NODE_VERSION}
-                                            nvm use ${NODE_VERSION}
-                                            cd Frontend
-                                            npm install
-                                        """
-                                    }
-                                }
-                            }
+                }
 
-                            stage('Run Node Tests') {
-                                steps {
-                                    script {
-                                        sh """
-                                            export NVM_DIR="\$HOME/.nvm"
-                                            . "\$NVM_DIR/nvm.sh"
-                                            nvm use ${NODE_VERSION}
-                                            cd Frontend
-                                            npm test -- --coverage --watchAll=false
-                                        """
-                                    }
-                                }
+                stage('Frontend') {
+                    stages {
+                        stage('Setup Node environnement') {
+                            steps {
+                                sh """
+                                   export NVM_DIR="\$HOME/.nvm"
+                                   [ -s "\$NVM_DIR/nvm.sh" ] || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+                                   . "\$NVM_DIR/nvm.sh"
+                                   nvm install ${NODE_VERSION}
+                                   nvm use ${NODE_VERSION}
+                                   cd Frontend
+                                   npm install
+                               """
+                            }
+                        }
+
+                        stage('Run Node Tests') {
+                            steps {
+                                sh """
+                                    export NVM_DIR="\$HOME/.nvm"
+                                    . "\$NVM_DIR/nvm.sh"
+                                    nvm use ${NODE_VERSION}
+                                    cd Frontend
+                                    npm test -- --coverage --watchAll=false
+                                """
                             }
                         }
                     }
