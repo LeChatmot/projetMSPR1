@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         GITHUB_TOKEN = credentials('GITHUB_TOKEN')
-        SONAR_TOKEN = credentials('SONAR_TOKEN')
+        SONAR_TOKEN = credentials('sonarqube-token')
         SONAR_HOST_URL = 'http://192.168.1.81:9000'
         SONAR_PROJECT_KEY = 'Mspr'
         PYTHON_VENV = 'venv'
