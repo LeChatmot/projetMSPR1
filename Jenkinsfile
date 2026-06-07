@@ -1,32 +1,28 @@
 pipeline {
     agent any
 
-    environment {
-        SONAR_TOKEN = credentials('SonarToken')
-    }
-
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
         stage('SonarQube Analysis') {
             steps {
-                sh 'sonar-scanner \
-                    -Dsonar.projectKey=healthIACoach \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=http://localhost:9000 \
-                    -Dsonar.login=${SONAR_TOKEN}'
+                build job: 'HealthIA-Multibranch/JenkinsJobs/SonarQube/Jenkinsfile',
+                    parameters: [string(name: 'BRANCH_NAME', value: env.BRANCH_NAME)]
             }
         }
 
-        stage('Quality Gate') {
+        stage('Run Unit Tests') {
             steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: true
-                }
+                build job: 'HealthIA-Multibranch/JenkinsJobs/Tests/Jenkinsfile',
+                    parameters: [string(name: 'BRANCH_NAME', value: env.BRANCH_NAME)]
+            }
+        }
+
+        stage('Deploy to Staging') {
+            when {
+                branch 'main'
+            }
+            steps {
+                build job: 'HealthIA-Multibranch/JenkinsJobs/SonarQube/Jenkinsfile',
+                    parameters: [string(name: 'BRANCH_NAME', value: 'main')]
             }
         }
     }

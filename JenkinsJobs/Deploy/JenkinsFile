@@ -1,0 +1,109 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_COMPOSE_VERSION = '2.23.0'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: env.BRANCH_NAME,
+                    url: 'https://github.com/LeChatmot/projetMSPR1.git'
+            }
+        }
+
+        stage('Test pipeline'){
+            steps {
+                echo "C'est good"
+            }
+        }
+        /*
+        stage('Install Docker Compose') {
+            steps {
+                sh """
+                    sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                    sudo chmod +x /usr/local/bin/docker-compose
+                    docker-compose --version
+                """
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    sh """
+                        docker-compose -f docker-compose.yml build --no-cache
+                    """
+                }
+            }
+        }
+
+        stage('Deploy to Server') {
+            steps {
+                script {
+                    sh """
+                        scp docker-compose.yml user@your-server:/path/to/project/
+                        ssh user@your-server "cd /path/to/project && docker-compose pull && docker-compose up -d --remove-orphans"
+                    """
+                }
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                script {
+                    sh """
+                        sleep 30 # Attendre que les services démarrent
+                        curl -f http://localhost:8000/health || exit 1
+                        curl -f http://localhost:3000 || exit 1
+                    """
+                }
+            }
+        }
+        */
+    }
+
+    post {
+        success {
+            echo '✅ Déploiement réussi !'
+            sendGithubNotification(
+                status: 'success',
+                message: 'Deployment successful! 🚀\nServices are up and running.'
+            )
+        }
+        failure {
+            echo '❌ Déploiement échoué'
+            sendGithubNotification(
+                status: 'failure',
+                message: 'Deployment failed! ⚠️\nPlease check the server logs.'
+            )
+        }
+    }
+}
+
+def sendGithubNotification(Map config) {
+    script {
+        if (env.CHANGE_ID) {
+            withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
+                def prNumber = env.CHANGE_ID
+                def repo = env.GIT_URL.replace('https://github.com/', '').replace('.git', '')
+                def message = """
+                    **SonarQube Analysis ${config.status.toUpperCase()}** 🔍
+
+                    ${config.message}
+
+                    [View Analysis Details](${env.BUILD_URL})
+                """.stripIndent()
+
+                sh """
+                    curl -X POST \\
+                        -H "Authorization: token \${GITHUB_TOKEN}" \\
+                        -H "Accept: application/vnd.github.v3+json" \\
+                        https://api.github.com/repos/${repo}/issues/${prNumber}/comments \\
+                        -d '{"body": "${message.replace('\n', '\\\\n').replace('"', '\\\\"')}"}'
+                """
+            }
+        }
+    }
+}
