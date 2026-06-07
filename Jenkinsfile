@@ -4,14 +4,14 @@ pipeline {
     stages {
         stage('SonarQube Analysis') {
             steps {
-                build job: './JenkinsJobs/SonarQube/Jenkinsfile',
+                build job: 'JenkinsJobs/SonarQube/JenkinsFile',
                     parameters: [string(name: 'BRANCH_NAME', value: env.BRANCH_NAME)]
             }
         }
 
         stage('Run Unit Tests') {
             steps {
-                build job: './JenkinsJobs/Tests/Jenkinsfile',
+                build job: 'JenkinsJobs/Tests/JenkinsFile',
                     parameters: [string(name: 'BRANCH_NAME', value: env.BRANCH_NAME)]
             }
         }
@@ -21,7 +21,7 @@ pipeline {
                 branch 'main'
             }
             steps {
-                build job: './JenkinsJobs/SonarQube/Jenkinsfile',
+                build job: 'JenkinsJobs/Deploy/JenkinsFile',
                     parameters: [string(name: 'BRANCH_NAME', value: 'main')]
             }
         }
