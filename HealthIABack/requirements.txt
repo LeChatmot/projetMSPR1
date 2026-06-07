@@ -10,3 +10,5 @@ pandas
 mysql-connector-python
 pytest
 pytest-cov
+pytest-mock
+werkzeug
