@@ -19,14 +19,14 @@ export const nutritionService = {
    * Récupère la liste des recommandations pour le panel Admin.
    * Pas de fallback mock ici, car une page admin doit refléter la réalité ou une erreur.
    */
-  getRecommendations: (): Promise<DietRecommendation[]> => {
+  getDietRecommendations: (): Promise<DietRecommendation[]> => {
     return apiCall("/nutrition/recommendations");
   },
 
   /**
    * Supprime une recommandation spécifique.
    */
-  deleteRecommendation: (id: number): Promise<{ id: number }> => {
+  deleteDietRecommendation: (id: number): Promise<{ id: number }> => {
     return apiCall(`/nutrition/recommendations/${id}`, { method: "DELETE" });
   },
 

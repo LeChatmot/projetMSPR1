@@ -4,6 +4,6 @@ USER airflow
 
 RUN pip install pandas mysql-connector-python pymysql
 
-COPY ../Datasets/ /Datasets
+COPY Datasets/ /Datasets
 
 USER airflow

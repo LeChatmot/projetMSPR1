@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   mysql:
     image: mysql:8
@@ -9,7 +8,7 @@ services:
       MYSQL_USER: healthia
       MYSQL_PASSWORD: 123456
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -30,6 +29,8 @@ services:
       DB_USER: healthia
       DB_PASSWORD: 123456
       DB_NAME: health_ia_db
+    volumes:
+      - ./Datasets:/Datasets # Monte le dossier Datasets dans le conteneur
 
   airflow:
     build:
@@ -43,6 +44,11 @@ services:
       - ./Datasets:/opt/airflow/Datasets
       - ./HealthIABack/Repositories:/opt/airflow/dags/Repositories
       - ./HealthIABack/Models:/opt/airflow/dags/Models
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=healthia
+      - DB_PASSWORD=123456
+      - DB_NAME=health_ia_db
     command: standalone
 
   frontend:

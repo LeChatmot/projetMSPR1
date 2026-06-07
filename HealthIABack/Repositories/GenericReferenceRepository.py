@@ -9,5 +9,7 @@ class GenericReferenceRepository(BaseRepository):
         return self._fetch_all(f"SELECT * FROM {self.TABLE}")
 
     def create(self, name: str) -> int:
-        # Insère le nom et retourne l'ID
         return self._execute(f"INSERT INTO {self.TABLE} (name) VALUES (%s)", (name,))
+
+    def truncate(self) -> None:
+        self._execute(f"DELETE FROM {self.TABLE}")

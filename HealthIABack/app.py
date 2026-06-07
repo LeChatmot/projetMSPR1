@@ -100,7 +100,7 @@ def get_weight_evolution():
 def get_diet_recommendations():
     """Récupère la liste des recommandations (Admin)."""
     try:
-        repo = DietRecommendationsRepository()
+        repo = DietRecommandationsRepository()
         data = repo.getAll()
         return create_api_response(data)
     except Exception as e:
@@ -111,7 +111,7 @@ def get_diet_recommendations():
 def delete_diet_recommendation(id):
     """Supprime une recommandation (Admin)."""
     try:
-        repo = DietRecommendationsRepository()
+        repo = DietRecommandationsRepository()
         success = repo.delete(id)
         if success:
             return create_api_response({"id": id}, message="Supprimé avec succès")
@@ -182,17 +182,15 @@ def get_sport_sessions():
     """Retourne les sessions de sport (similaire à la page patients)."""
     try:
         repo = ExerciceSessionsRepository()
-        sessions = repo.getAll()
-        
-        # On adapte le format pour le frontend
+        sessions = repo.get_sessions_with_workout_names(limit=50)
         sessions_data = [
             {
-                "id": f"S{s.id}",
-                "date": "2024-05-20", # Le CSV n'a pas de date, on en met une fausse
-                "type": s.workoutType, # Le repo ne joint pas le nom, on pourrait l'améliorer
-                "duration": round(s.sessionDurationHours * 60),
-                "caloriesBurned": s.caloriesBurned
-            } for s in sessions[:50] # Limité pour la démo
+                "id": f"S{row['id']}",
+                "date": "2024-05-20",
+                "type": row['workout_type_name'],
+                "duration": round(row['session_duration_hours'] * 60),
+                "caloriesBurned": row['calories_burned']
+            } for row in sessions
         ]
         return create_api_response(sessions_data)
     except Exception as e:
@@ -207,8 +205,8 @@ def get_sport_stats():
         kpis = repo.get_kpis()
         stats_data = {
             "totalSessions": kpis.get('totalPatients', 0),
-            "totalCalories": 0, # A calculer si besoin
-            "totalDuration": 0, # A calculer si besoin
+            "totalCalories": round(kpis.get('totalCalories', 0) or 0),
+            "totalDuration": round(kpis.get('totalDuration', 0) or 0),
             "averageDuration": round(kpis.get('avgSessionDuration', 0), 1),
             "averageCalories": round(kpis.get('avgCaloriesBurned', 0), 1)
         }
@@ -236,7 +234,7 @@ def get_sport_distribution_direct():
 def get_nutrition_distribution():
     """Retourne la distribution des régimes pour le dashboard public."""
     try:
-        repo = DietRecommendationsRepository()
+        repo = DietRecommandationsRepository()
         data = repo.get_diet_distribution()
         return create_api_response(data)
     except Exception as e:
@@ -247,7 +245,7 @@ def get_nutrition_distribution():
 def get_nutrition_stats_public():
     """Retourne les statistiques de nutrition pour le dashboard public."""
     try:
-        repo = DietRecommendationsRepository()
+        repo = DietRecommandationsRepository()
         stats = repo.get_nutrition_stats()
         stats_data = {
             "totalDietTypes": stats.get('totalDietTypes', 0),
