@@ -1,34 +1,9 @@
-pipeline {
-    agent any
-
+def runDeploy() {
     environment {
         DOCKER_COMPOSE_VERSION = '2.23.0'
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: env.BRANCH_NAME,
-                    url: 'https://github.com/LeChatmot/projetMSPR1.git'
-            }
-        }
-
-        stage('Test pipeline'){
-            steps {
-                echo "C'est good"
-            }
-        }
-        /*
-        stage('Install Docker Compose') {
-            steps {
-                sh """
-                    sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-                    sudo chmod +x /usr/local/bin/docker-compose
-                    docker-compose --version
-                """
-            }
-        }
-
         stage('Build Docker Images') {
             steps {
                 script {
@@ -61,7 +36,6 @@ pipeline {
                 }
             }
         }
-        */
     }
 
     post {
@@ -89,7 +63,7 @@ def sendGithubNotification(Map config) {
                 def prNumber = env.CHANGE_ID
                 def repo = env.GIT_URL.replace('https://github.com/', '').replace('.git', '')
                 def message = """
-                    **SonarQube Analysis ${config.status.toUpperCase()}** 🔍
+                    **Deployment ${config.status.toUpperCase()}** 🚀
 
                     ${config.message}
 
@@ -107,3 +81,5 @@ def sendGithubNotification(Map config) {
         }
     }
 }
+
+runDeploy()

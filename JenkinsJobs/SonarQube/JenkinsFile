@@ -1,6 +1,4 @@
-pipeline {
-    agent any
-
+def runSonarAnalysis() {
     environment {
         SONAR_PROJECT_KEY = 'Mspr'
         SONAR_HOST_URL = credentials('http://192.168.1.81:9000')
@@ -8,14 +6,6 @@ pipeline {
     }
 
     stages {
-
-        stage('Checkout') {
-            steps {
-                git branch: env.BRANCH_NAME,
-                    url: 'https://github.com/LeChatmot/projetMSPR1.git'
-            }
-        }
-
         stage('Analyse SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -93,3 +83,5 @@ def sendGithubNotification(Map config) {
         }
     }
 }
+
+runSonarAnalysis()

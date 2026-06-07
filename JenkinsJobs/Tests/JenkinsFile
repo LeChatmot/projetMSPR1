@@ -1,72 +1,59 @@
-pipeline {
-    agent any
-
-    environement {
+def runTests() {
+    environment {
         PYTHON_VENV = 'venv'
         NODE_VERSION = '18'
     }
 
     stages {
-
-        stage('Checkout'){
-            steps {
-                git branch: env.BRANCH_NAME,
-                    url: 'https://github.com/LeChatmot/projetMSPR1.git'
-            }
-        }
-
-        stage('UnitTest'){
-            parallel{
-                stage('UnitTest Python Backend'){
-                    stages{
-                        stage('Setup Python environement'){
-                            steps {
-                                script {
-                                    sh """
-                                        python3 -m venv ${PYTHON_VENV}
-                                        source ${PYTHON_VENV}/bin/activate
-                                        pip install --upgrade pip
-                                        pip install -r HealthIABack/requirements.txt
-                                    """
-                                }
-                            }
-                        }
-                        stage('Run Python test'){
-                            steps {
-                                script {
-                                    sh """
-                                        source ${PYTHON_VENV}/bin/activate
-                                        cd HealthIABack
-                                        pytest --cov=./ --cov-report=xml:coverage.xml -v
-                                    """
-                                }
-                            }
+        stage('UnitTest Python Backend') {
+            stages {
+                stage('Setup Python environement') {
+                    steps {
+                        script {
+                            sh """
+                                python3 -m venv ${PYTHON_VENV}
+                                source ${PYTHON_VENV}/bin/activate
+                                pip install --upgrade pip
+                                pip install -r HealthIABack/requirements.txt
+                            """
                         }
                     }
                 }
-                stage('UnitTest Node Frontend'){
-                    stages{
-                        stage('Setup Node environement'){
-                            steps {
-                                script {
-                                    sh """
-                                        nvm install ${NODE_VERSION} || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-                                        nvm use ${NODE_VERSION}
-                                        cd Frontend
-                                        npm install
-                                    """
-                                }
-                            }
+                stage('Run Python test') {
+                    steps {
+                        script {
+                            sh """
+                                source ${PYTHON_VENV}/bin/activate
+                                cd HealthIABack
+                                pytest --cov=./ --cov-report=xml:coverage.xml -v
+                            """
                         }
-                        stage('Run Node test'){
-                            steps {
-                                script {
-                                    sh """
-                                        cd Frontend
-                                        npm test -- --coverage --watchAll=false
-                                    """
-                                }
-                            }
+                    }
+                }
+            }
+        }
+
+        stage('UnitTest Node Frontend') {
+            stages {
+                stage('Setup Node environement') {
+                    steps {
+                        script {
+                            sh """
+                                nvm install ${NODE_VERSION} || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+                                nvm use ${NODE_VERSION}
+                                cd Frontend
+                                npm install
+                            """
+                        }
+                    }
+                }
+                stage('Run Node test') {
+                    steps {
+                        script {
+                            sh """
+                                cd Frontend
+                                npm test -- --coverage --watchAll=false
+                            """
                         }
                     }
                 }
@@ -99,24 +86,24 @@ pipeline {
     }
 
     post {
-            always {
-                sh "rm -rf ${PYTHON_VENV}"
-            }
-            success {
-                echo '✅ Tous les tests sont passés !'
-                sendGithubNotification(
-                    status: 'success',
-                    message: 'All tests passed! ✅\n- Backend: ✅\n- Frontend: ✅'
-                )
-            }
-            failure {
-                echo '❌ Certains tests ont échoué'
-                sendGithubNotification(
-                    status: 'failure',
-                    message: 'Tests failed! ❌\nPlease check the logs for details.'
-                )
-            }
+        always {
+            sh "rm -rf ${PYTHON_VENV}"
         }
+        success {
+            echo '✅ Tous les tests sont passés !'
+            sendGithubNotification(
+                status: 'success',
+                message: 'All tests passed! ✅\n- Backend: ✅\n- Frontend: ✅'
+            )
+        }
+        failure {
+            echo '❌ Certains tests ont échoué'
+            sendGithubNotification(
+                status: 'failure',
+                message: 'Tests failed! ❌\nPlease check the logs for details.'
+            )
+        }
+    }
 }
 
 def sendGithubNotification(Map config) {
@@ -126,7 +113,7 @@ def sendGithubNotification(Map config) {
                 def prNumber = env.CHANGE_ID
                 def repo = env.GIT_URL.replace('https://github.com/', '').replace('.git', '')
                 def message = """
-                    **SonarQube Analysis ${config.status.toUpperCase()}** 🔍
+                    **Tests ${config.status.toUpperCase()}** 🧪
 
                     ${config.message}
 
@@ -144,3 +131,5 @@ def sendGithubNotification(Map config) {
         }
     }
 }
+
+runTests()
