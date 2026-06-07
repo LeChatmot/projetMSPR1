@@ -71,7 +71,7 @@ pipeline {
                                 sh '''
                                    . venv/bin/activate
                                    cd HealthIABack
-                                   pytest --cov=./ --cov-report=xml:coverage.xml -v
+                                   pytest --cov=./ --cov-report=xml:coverage.xml --cov-report=html:htmlcov -v
                                '''
                             }
                         }
@@ -101,8 +101,8 @@ pipeline {
                                     . "\$NVM_DIR/nvm.sh"
                                     nvm use ${NODE_VERSION}
                                     cd Frontend
+                                    npx vitest run --coverage
                                 """
-                                //npx vitest run
                             }
                         }
                     }
@@ -116,7 +116,7 @@ pipeline {
                 script {
                     publishHTML(target: [
                         allowMissing: false,
-                        alwaysLinkToLastBuild: false,
+                        alwaysLinkToLastBuild: true,
                         keepAll: true,
                         reportDir: 'Frontend/coverage/lcov-report',
                         reportFiles: 'index.html',
@@ -124,7 +124,7 @@ pipeline {
                     ])
                     publishHTML(target: [
                         allowMissing: false,
-                        alwaysLinkToLastBuild: false,
+                        alwaysLinkToLastBuild: true,
                         keepAll: true,
                         reportDir: 'HealthIABack/htmlcov',
                         reportFiles: 'index.html',
