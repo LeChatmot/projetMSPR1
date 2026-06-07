@@ -2,6 +2,77 @@
  * Ce fichier centralise toutes les interfaces TypeScript du projet.
  */
 
+// --- Authentification ---
+export interface AuthUser {
+  id: string;          // identifiant local pour le frontend
+  backendId: number;   // id_utilisateurs réel retourné par l'API
+  nom: string;
+  prenom: string;
+  email: string;
+  name: string;        // prenom + " " + nom (calculé)
+  pseudo: string;
+  role: "admin" | "user";
+  avatarColor?: string;
+}
+
+// --- Coach IA ---
+export type MessageRole = "user" | "assistant";
+
+export interface CoachMessage {
+  id: string;
+  role: MessageRole;
+  content: string;
+  timestamp: Date;
+}
+
+// --- Forum Communautaire ---
+export interface ForumPublication {
+  id: number;
+  libelle: string | null;
+  contenu: string;
+  created_at: string;
+  updated_at: string | null;
+  id_utilisateurs: number;
+  auteur_pseudo: string;
+  auteur_nom: string;
+  auteur_prenom: string;
+  nb_commentaires: number;
+}
+
+export interface ForumCommentaire {
+  id: number;
+  contenu: string;
+  created_at: string;
+  id_commentaires_parent: number | null;
+  id_utilisateurs: number;
+  auteur_pseudo: string;
+}
+
+// --- Pagination ---
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
+}
+
+export interface ReferenceItem {
+  id: number;
+  name: string;
+}
+
+export interface ReferenceData {
+  genders: ReferenceItem[];
+  disease_types: ReferenceItem[];
+  severity_types: ReferenceItem[];
+  diet_types: ReferenceItem[];
+  activity_levels: ReferenceItem[];
+  dietary_restrictions: ReferenceItem[];
+  allergies: ReferenceItem[];
+  cuisine_types: ReferenceItem[];
+}
+
 // --- API Standard ---
 export interface ApiResponse<T> {
   data: T;
@@ -54,8 +125,12 @@ export interface DietRecommendation {
   // Champs joints pour l'affichage
   gender_name: string;
   disease_name: string;
+  severity_name: string;
   allergy_name: string;
   diet_name: string;
+  activity_name: string;
+  restriction_name: string;
+  cuisine_name: string;
 }
 
 export interface DietPlan {

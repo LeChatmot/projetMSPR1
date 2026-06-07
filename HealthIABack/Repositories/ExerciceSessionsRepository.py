@@ -81,13 +81,25 @@ class ExerciceSessionsRepository(BaseRepository):
         """Vide la table complètement (remise à zéro des IDs)."""
         self._execute(f"TRUNCATE TABLE {self.TABLE}")
 
+    def get_sessions_with_workout_names(self, limit: int = 50) -> list[dict]:
+        """Retourne les sessions avec le nom du type de sport (pour l'API)."""
+        query = f"""
+            SELECT es.*, wt.name as workout_type_name
+            FROM {self.TABLE} es
+            JOIN workout_types wt ON es.workout_type = wt.id
+            LIMIT %s
+        """
+        return self._fetch_all(query, (limit,))
+
     def get_kpis(self) -> dict:
         """Calcule les KPIs directement en SQL pour plus d'efficacité."""
         query = f"""
             SELECT
                 COUNT({self.ID_FIELD}) as totalPatients,
                 AVG(calories_burned) as avgCaloriesBurned,
-                AVG(session_duration_hours) * 60 as avgSessionDuration
+                AVG(session_duration_hours) * 60 as avgSessionDuration,
+                SUM(calories_burned) as totalCalories,
+                SUM(session_duration_hours) * 60 as totalDuration
             FROM {self.TABLE}
         """
         kpis = self._fetch_one(query)
