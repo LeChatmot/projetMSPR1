@@ -10,6 +10,11 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/tests/setup.ts',
   },
+  coverage: {
+    provider: "v8",
+    reporter: ["lcov", "html"],   // génère lcov-report/index.html
+    reportsDirectory: "./coverage",
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
