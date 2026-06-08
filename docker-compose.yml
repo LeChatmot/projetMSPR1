@@ -27,13 +27,12 @@ services:
       - "5000:5000"
     volumes:
       - ./schema:/app/schema
+      - ./Datasets:/Datasets # Monte le dossier Datasets dans le conteneur
     environment:
       DB_HOST: mysql
       DB_USER: healthia
       DB_PASSWORD: 123456
       DB_NAME: health_ia_db
-    volumes:
-      - ./Datasets:/Datasets # Monte le dossier Datasets dans le conteneur
 
   airflow:
     build:
