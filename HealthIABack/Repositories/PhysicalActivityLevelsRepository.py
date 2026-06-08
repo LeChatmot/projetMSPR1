@@ -4,6 +4,7 @@ from Repositories.IdNameGenericRepository import IdNameGenericRepository
 class PhysicalActivityLevelsRepository(IdNameGenericRepository):
 
     TABLE = 'physical_activity_levels'
+    ID_FIELD = 'id_physical_activity_levels'
 
     def __init__(self):
         super().__init__()

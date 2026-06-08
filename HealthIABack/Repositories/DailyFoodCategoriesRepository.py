@@ -4,6 +4,7 @@ from Repositories.IdNameGenericRepository import IdNameGenericRepository
 class DailyFoodCategoriesRepository(IdNameGenericRepository):
 
     TABLE = 'daily_food_categories'
+    ID_FIELD = 'id_daily_foods_categories'
 
     def __init__(self):
         super().__init__()

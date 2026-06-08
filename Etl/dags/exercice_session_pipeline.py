@@ -135,6 +135,9 @@ with DAG(
     @task
     def load(file_path):
 
+        print("DB HOST:", os.getenv("DB_HOST"))
+        print("DB NAME:", os.getenv("DB_NAME"))
+
         df_members = pd.read_csv(file_path)
 
         #patient_repo = PatientRepository()
@@ -143,14 +146,15 @@ with DAG(
         exerciceSessions_repo = ExerciceSessionsRepository()
 
         all_genders = genders_repo.getAll()
-        gender_dict = {g['name']: g['id'] for g in all_genders}
+        gender_dict = {g['name']: g['id_genders'] for g in all_genders}
         gender_names = [g['name'] for g in all_genders]
 
         all_workout_types = workoutTypes_repo.getAll()
-        workout_type_dict = {w['name']: w['id'] for w in all_workout_types}
+        workout_type_dict = {w['name']: w['id_workout_types'] for w in all_workout_types}
         workout_type_names = [w['name'] for w in all_workout_types]
 
         for _, row in df_members.iterrows():
+
             gender_name = row["Gender"]
             workoutType_name = row["Workout_Type"]
 
@@ -167,22 +171,23 @@ with DAG(
             gender_id = gender_dict[gender_name]
             workout_type_id = workout_type_dict[workoutType_name]
 
-            exerciceSession = ExerciceSession()
-            exerciceSession.age = row["Age"]
-            exerciceSession.gender = gender_id
-            exerciceSession.weightKg = row["Weight (kg)"]
-            exerciceSession.heightCm = row["Height (m)"] * 100 # Conversion m en cm
-            exerciceSession.maxBPM = row["Max_BPM"]
-            exerciceSession.avgBPM = row["Avg_BPM"]
-            exerciceSession.restingBPM = row["Resting_BPM"]
-            exerciceSession.sessionDurationHours = row["Session_Duration (hours)"]
-            exerciceSession.caloriesBurned = row["Calories_Burned"]
-            exerciceSession.workoutType = workout_type_id
-            exerciceSession.fatPercentage = row["Fat_Percentage"]
-            exerciceSession.waterIntakeLiters = row["Water_Intake (liters)"]
-            exerciceSession.workoutFrequency = row["Workout_Frequency (days/week)"]
-            exerciceSession.experienceLevel = row["Experience_Level"]
-            exerciceSession.bmi = row["BMI"]
+            exerciceSession = ExerciceSession(
+                age=row["Age"],
+                gender=gender_id,
+                weight_kg=row["Weight (kg)"],
+                height_cm=row["Height (m)"] * 100 # Conversion m en cm,
+                max_bpm=row["Max_BPM"],
+                avg_bpm=row["Avg_BPM"],
+                resting_bpm=row["Resting_BPM"],
+                session_duration_hours=row["Session_Duration (hours)"],
+                calories_burned=row["Calories_Burned"],
+                workout_type=workout_type_id,
+                fat_percentage=row["Fat_Percentage"],
+                water_intake_liters=row["Water_Intake (liters)"],
+                workout_frequency=row["Workout_Frequency (days/week)"],
+                experience_level=row["Experience_Level"],
+                bmi=row["BMI"]
+            )
 
             exerciceSessions_repo.create(exerciceSession)
 
@@ -215,7 +220,7 @@ with DAG(
             return new_id
 
         file_path = os.path.join(DATASETS_PATH, "diet_recommendations_dataset.csv")
-        
+
         if not os.path.exists(file_path):
             print(f"❌ Fichier Nutrition introuvable : {file_path}")
             return
@@ -232,13 +237,13 @@ with DAG(
             'allergy': GenericReferenceRepository('allergies'),
             'cuisine': GenericReferenceRepository('preferred_cuisine_types'),
         }
-        
+
         # Chargement des caches
         caches = {key: {r['name']: r['id'] for r in repo_ref.getAll()} for key, repo_ref in refs.items()}
-        
+
         # Vidage et Import
         repo.truncate()
-        
+
         with open(file_path, mode='r', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
@@ -265,7 +270,7 @@ with DAG(
                 d.preferred_cuisine = get_or_create_id(refs['cuisine'], caches['cuisine'], row.get('Preferred Cuisine'))
 
                 repo.create(d)
-        
+
         # Fermeture des connexions
         repo.close()
         for r in refs.values():

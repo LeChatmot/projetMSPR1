@@ -102,8 +102,10 @@ with DAG(
         # récupère toutes les entrées existantes dans les tables de la base de données pour éviter les doublons lors de l'insertion des nouvelles données
         all_genders = genders_repo.getAll()
 
+        print(all_genders[:5])
+
         # crée un dictionnaire de mapping des noms d'allergies vers leurs identifiants dans la base de données pour faciliter l'insertion des nouvelles données
-        gender_dict = {g['name']: g['id'] for g in all_genders}
+        gender_dict = {g['name']: g['id_genders'] for g in all_genders}
 
         # crée une liste des noms de genres existants pour éviter les doublons lors de l'insertion des nouvelles données
         gender_names = [g['name'] for g in all_genders]
@@ -112,7 +114,7 @@ with DAG(
         all_allergies = allergies_repo.getAll()
 
         # crée un dictionnaire de mapping des noms d'allergies vers leurs identifiants dans la base de données pour faciliter l'insertion des nouvelles données
-        allergie_dict = {a['name']: a['id'] for a in all_allergies}
+        allergie_dict = {a['name']: a['id_allergies'] for a in all_allergies}
 
         # crée une liste des noms d'allergies existants pour éviter les doublons lors de l'insertion des nouvelles données
         allergie_names = [a['name'] for a in all_allergies]
@@ -121,7 +123,7 @@ with DAG(
         all_dietary_restrictions = dietaryRestrictions_repo.getAll()
 
         # crée un dictionnaire de mapping des noms de restrictions alimentaires vers leurs identifiants dans la base de données pour faciliter l'insertion des nouvelles données
-        dietary_restriction_dict = {dir['name']: dir['id'] for dir in all_dietary_restrictions}
+        dietary_restriction_dict = {dir['name']: dir['id_dietary_restrictions'] for dir in all_dietary_restrictions}
 
         # crée une liste des noms de restrictions alimentaires existants pour éviter les doublons lors de l'insertion des nouvelles données
         dietary_restriction_names = [dir['name'] for dir in all_dietary_restrictions]
@@ -130,7 +132,7 @@ with DAG(
         all_disease_types = diseaseTypes_repo.getAll()
 
         # crée un dictionnaire de mapping des noms de types de maladies vers leurs identifiants dans la base de données pour faciliter l'insertion des nouvelles données
-        disease_type_dict = {dt['name']: dt['id'] for dt in all_disease_types}
+        disease_type_dict = {dt['name']: dt['id_disease_types'] for dt in all_disease_types}
 
         # crée une liste des noms de types de maladies existants pour éviter les doublons lors de l'insertion des nouvelles données
         disease_type_names = [dt['name'] for dt in all_disease_types]
@@ -139,7 +141,7 @@ with DAG(
         all_severity_types = severityTypes_repo.getAll()
 
         # crée un dictionnaire de mapping des noms de types de sévérité vers leurs identifiants dans la base de données pour faciliter l'insertion des nouvelles données
-        severity_type_dict = {s['name']: s['id'] for s in all_severity_types}
+        severity_type_dict = {s['name']: s['id_severity_types'] for s in all_severity_types}
 
         # crée une liste des noms de types de sévérité existants pour éviter les doublons lors de l'insertion des nouvelles données
         severity_type_names = [s['name'] for s in all_severity_types]
@@ -148,7 +150,7 @@ with DAG(
         all_physical_activity_levels = physicalActivityLevels_repo.getAll()
 
         # crée un dictionnaire de mapping des noms de niveaux d'activité physique vers leurs identifiants dans la base de données pour faciliter l'insertion des nouvelles données
-        physical_activity_level_dict = {pa['name']: pa['id'] for pa in all_physical_activity_levels}
+        physical_activity_level_dict = {pa['name']: pa['id_physical_activity_levels'] for pa in all_physical_activity_levels}
 
         # crée une liste des noms de niveaux d'activité physique existants pour éviter les doublons lors de l'insertion des nouvelles données
         physical_activity_level_names = [pa['name'] for pa in all_physical_activity_levels]
@@ -157,7 +159,7 @@ with DAG(
         all_preferred_cuisine_types = preferredCuisineTypes_repo.getAll()
 
         # crée un dictionnaire de mapping des noms de types de cuisine préférés vers leurs identifiants dans la base de données pour faciliter l'insertion des nouvelles données
-        preferred_cuisine_type_dict = {pc['name']: pc['id'] for pc in all_preferred_cuisine_types}
+        preferred_cuisine_type_dict = {pc['name']: pc['id_preferred_cuisine_types'] for pc in all_preferred_cuisine_types}
 
         # crée une liste des noms de types de cuisine préférés existants pour éviter les doublons lors de l'insertion des nouvelles données
         preferred_cuisine_type_names = [pc['name'] for pc in all_preferred_cuisine_types]
@@ -166,7 +168,7 @@ with DAG(
         all_diet_recommandation_types = dietRecommandationTypes_repo.getAll()
 
         # crée un dictionnaire de mapping des noms de types de recommandations diététiques vers leurs identifiants dans la base de données pour faciliter l'insertion des nouvelles données
-        diet_recommandation_type_dict = {dier['name']: dier['id'] for dier in all_diet_recommandation_types}
+        diet_recommandation_type_dict = {dier['name']: dier['id_diet_recommandation_types'] for dier in all_diet_recommandation_types}
 
         # crée une liste des noms de types de recommandations diététiques existants pour éviter les doublons lors de l'insertion des nouvelles données
         diet_recommandation_type_names = [dier['name'] for dier in all_diet_recommandation_types]
@@ -296,21 +298,21 @@ with DAG(
                 gender=gender_id,
                 height_cm=row["Height_cm"],
                 current_weight_kg=row["Weight_kg"],
-                BMI=row["BMI"],
+                bmi=row["BMI"],
                 disease_type=disease_type_id,
                 severity=severity_type_id,
                 diet_recommandation=diet_recommandation_type_id,
                 daily_caloric_target=row["Daily_Caloric_Intake"],
                 activity_level=physical_activity_level_id,
                 cholesterol_mg=row["Cholesterol_mg/dL"],
-                blood_preassure_mmhg=row["Blood_Pressure_mmHg"],
+                blood_pressure_mmhg=row["Blood_Pressure_mmHg"],
                 glucose_mg_dl=row["Glucose_mg/dL"],
                 dietary_restrictions=dietary_restriction_id,
-                allergie=allergie_id,
+                allergy=allergie_id,
                 preferred_cuisine=preferred_cuisine_type_id,
-                weekly_exercice_hours=row["Weekly_Exercise_Hours"],
+                weekly_exercise_hours=row["Weekly_Exercise_Hours"],
                 adherence_to_diet_plan=row["Adherence_to_Diet_Plan"],
-                dietary_nutrinent_imbalance_score=row["Dietary_Nutrient_Imbalance_Score"],
+                dietary_nutrient_imbalance_score=row["Dietary_Nutrient_Imbalance_Score"],
             )
 
             # insère l'instance de la classe DietRecommandation dans la base de données en utilisant la méthode create du repository des recommandations diététiques
