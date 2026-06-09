@@ -142,24 +142,28 @@ pipeline {
             steps {
                 script {
                     sh """
-                        echo 'ok'
+                        set -e
+                        docker-compose -f docker-compose.yml build --no-cache
                     """
-
-                    // docker-compose -f docker-compose.yml build --no-cache
                 }
             }
         }
 
-        stage('Deploy to Server') {
+        stage('Deploy Containers') {
             when {
                 branch 'main'
             }
             steps {
                 script {
                     sh """
+                        set -e
+                        if docker-compose -f docker-compose.yml ps | grep -q "app"; then
+                            docker-compose -f docker-compose.yml up -d --build --force-recreate
+                        else
+                            docker-compose -f docker-compose.yml up -d --build
+                        fi
+                        docker-compose -f docker-compose.yml ps
                     """
-                    //    scp docker-compose.yml user@your-server:/path/to/project/
-                    //    ssh user@your-server "cd /path/to/project && docker-compose pull && docker-compose up -d --remove-orphans"
                 }
             }
         }
@@ -171,11 +175,10 @@ pipeline {
             steps {
                 script {
                     sh """
+                        sleep 30
+                        curl -f http://localhost:8000/api/health || exit 1
+                        curl -f http://localhost:3000 || exit 1
                     """
-
-                    //    sleep 30
-                    //    curl -f http://localhost:8000/health || exit 1
-                    //    curl -f http://localhost:3000 || exit 1
                 }
             }
         }
