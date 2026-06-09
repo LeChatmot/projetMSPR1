@@ -5,6 +5,7 @@ from Repositories.BaseRepository import BaseRepository
 class ExerciceSessionsRepository(BaseRepository):
 
     TABLE = 'exercice_sessions'
+    ID_FIELD = 'id_exercice_sessions'
 
     def __init__(self):
         super().__init__()
@@ -16,20 +17,20 @@ class ExerciceSessionsRepository(BaseRepository):
             session_duration_hours, calories_burned, workout_type, fat_percentage,
             water_intake_liters, workout_frequency, experience_level, bmi)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (e.age, e.gender, e.weightKg, e.heightCm, e.maxBPM, e.avgBPM, e.restingBPM,
-             e.sessionDurationHours, e.caloriesBurned, e.workoutType, e.fatPercentage,
-             e.waterIntakeLiters, e.workoutFrequency, e.experienceLevel, e.bmi)
+            (e.age, e.gender, e.weight_kg, e.height_cm, e.max_bpm, e.avg_bpm, e.resting_bpm,
+             e.session_duration_hours, e.calories_burned, e.workout_type, e.fat_percentage,
+             e.water_intake_liters, e.workout_frequency, e.experience_level, e.bmi)
         )
         e.id = last_id
         return e
 
     def getById(self, id: int) -> ExerciceSession | None:
-        row = self._fetch_one(f"SELECT * FROM {self.TABLE} WHERE id = %s", (id,))
-        return self._to_model(row)
+        row = self._fetch_one(f"SELECT * FROM {self.TABLE} WHERE {self.ID_FIELD} = %s", (id,))
+        return ExerciceSession.from_dict(row)
 
     def getAll(self) -> list[ExerciceSession]:
         rows = self._fetch_all(f"SELECT * FROM {self.TABLE}")
-        return [self._to_model(row) for row in rows]
+        return [ExerciceSession.from_dict(row) for row in rows]
 
     def update(self, e: ExerciceSession) -> ExerciceSession:
         self._execute(
@@ -38,15 +39,15 @@ class ExerciceSessionsRepository(BaseRepository):
             avg_bpm = %s, resting_bpm = %s, session_duration_hours = %s, calories_burned = %s,
             workout_type = %s, fat_percentage = %s, water_intake_liters = %s,
             workout_frequency = %s, experience_level = %s, bmi = %s
-            WHERE id = %s""",
-            (e.age, e.gender, e.weightKg, e.heightCm, e.maxBPM, e.avgBPM, e.restingBPM,
-             e.sessionDurationHours, e.caloriesBurned, e.workoutType, e.fatPercentage,
-             e.waterIntakeLiters, e.workoutFrequency, e.experienceLevel, e.bmi, e.id)
+            WHERE {self.ID_FIELD} = %s""",
+            (e.age, e.gender, e.weight_kg, e.height_cm, e.max_bpm, e.avg_bpm, e.resting_bpm,
+             e.session_duration_hours, e.calories_burned, e.workout_type, e.fat_percentage,
+             e.water_intake_liters, e.workout_frequency, e.experience_level, e.bmi, e.id)
         )
         return e
     
     def delete(self, id: int) -> bool:
-        self._execute(f"DELETE FROM {self.TABLE} WHERE id = %s", (id,))
+        self._execute(f"DELETE FROM {self.TABLE} WHERE {self.ID_FIELD} = %s", (id,))
         return True
 
     def get_sport_distribution(self) -> list[dict]:
@@ -56,7 +57,7 @@ class ExerciceSessionsRepository(BaseRepository):
         query = f"""
             SELECT
                 wt.name AS type,
-                COUNT(es.id) AS sessions
+                COUNT(es.{self.ID_FIELD}) AS sessions
             FROM {self.TABLE} es
             JOIN workout_types wt ON es.workout_type = wt.id
             GROUP BY wt.name
@@ -80,13 +81,25 @@ class ExerciceSessionsRepository(BaseRepository):
         """Vide la table complètement (remise à zéro des IDs)."""
         self._execute(f"TRUNCATE TABLE {self.TABLE}")
 
+    def get_sessions_with_workout_names(self, limit: int = 50) -> list[dict]:
+        """Retourne les sessions avec le nom du type de sport (pour l'API)."""
+        query = f"""
+            SELECT es.*, wt.name as workout_type_name
+            FROM {self.TABLE} es
+            JOIN workout_types wt ON es.workout_type = wt.id
+            LIMIT %s
+        """
+        return self._fetch_all(query, (limit,))
+
     def get_kpis(self) -> dict:
         """Calcule les KPIs directement en SQL pour plus d'efficacité."""
         query = f"""
             SELECT
-                COUNT(id) as totalPatients,
+                COUNT({self.ID_FIELD}) as totalPatients,
                 AVG(calories_burned) as avgCaloriesBurned,
-                AVG(session_duration_hours) * 60 as avgSessionDuration
+                AVG(session_duration_hours) * 60 as avgSessionDuration,
+                SUM(calories_burned) as totalCalories,
+                SUM(session_duration_hours) * 60 as totalDuration
             FROM {self.TABLE}
         """
         kpis = self._fetch_one(query)
@@ -96,27 +109,27 @@ class ExerciceSessionsRepository(BaseRepository):
         
         return kpis
 
-    def _to_model(self, row: dict) -> ExerciceSession | None:
-        """Convertit un dictionnaire de la DB en objet ExerciseSession."""
-        if not row:
-            return None
+    # def _to_model(self, row: dict) -> ExerciceSession | None:
+    #     """Convertit un dictionnaire de la DB en objet ExerciseSession."""
+    #     if not row:
+    #         return None
         
-        session = ExerciceSession()
-        session.id = row.get('id')
-        session.age = row.get('age')
-        session.gender = row.get('gender')
-        session.weightKg = row.get('weight_kg')
-        session.heightCm = row.get('height_cm')
-        session.maxBPM = row.get('max_bpm')
-        session.avgBPM = row.get('avg_bpm')
-        session.restingBPM = row.get('resting_bpm')
-        session.sessionDurationHours = row.get('session_duration_hours')
-        session.caloriesBurned = row.get('calories_burned')
-        session.workoutType = row.get('workout_type')
-        session.fatPercentage = row.get('fat_percentage')
-        session.waterIntakeLiters = row.get('water_intake_liters')
-        session.workoutFrequency = row.get('workout_frequency')
-        session.experienceLevel = row.get('experience_level')
-        session.bmi = row.get('bmi')
-        return session
+    #     session = ExerciceSession()
+    #     session.id = row.get('id')
+    #     session.age = row.get('age')
+    #     session.gender = row.get('gender')
+    #     session.weightKg = row.get('weight_kg')
+    #     session.heightCm = row.get('height_cm')
+    #     session.maxBPM = row.get('max_bpm')
+    #     session.avgBPM = row.get('avg_bpm')
+    #     session.restingBPM = row.get('resting_bpm')
+    #     session.sessionDurationHours = row.get('session_duration_hours')
+    #     session.caloriesBurned = row.get('calories_burned')
+    #     session.workoutType = row.get('workout_type')
+    #     session.fatPercentage = row.get('fat_percentage')
+    #     session.waterIntakeLiters = row.get('water_intake_liters')
+    #     session.workoutFrequency = row.get('workout_frequency')
+    #     session.experienceLevel = row.get('experience_level')
+    #     session.bmi = row.get('bmi')
+    #     return session
 

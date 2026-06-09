@@ -6,38 +6,42 @@ from Models.Gender import Gender
 from Models.PhysicalActivityLevel import PhysicalActivityLevel
 from Models.PreferredCuisineType import PreferredCuisineType
 from Models.SeverityType import SeverityType
+from Models.IdNameTableGeneric import IdNameTableGeneric
 
-class DietRecommandation:
+
+class DietRecommandation(IdNameTableGeneric):
+
+    id_field = "id_diet_recommandations"
 
     def __init__(self,
-                 id: int= None,
-                 age : int= None,
-                 gender: Gender= None,
-                 height_cm : int = None,
+                 id: int = None,
+                 age: int = None,
+                 gender: Gender = None,
+                 height_cm: int = None,
                  current_weight_kg: float = None,
-                 BMI: float= None,
-                 disease_type: DiseaseType= None,
-                 severity: SeverityType= None,
-                 diet_recommandation: DietRecommandationType= None,
+                 bmi: float = None,
+                 disease_type: DiseaseType = None,
+                 severity: SeverityType = None,
+                 diet_recommandation: DietRecommandationType = None,
                  daily_caloric_target: int = None,
-                 activity_level: PhysicalActivityLevel= None,
-                 created_at: int= None,
-                 cholesterol_mg: float= None,
-                 blood_preassure_mmhg: int= None,
+                 activity_level: PhysicalActivityLevel = None,
+                 created_at: int = None,
+                 cholesterol_mg: float = None,
+                 blood_pressure_mmhg: int = None,
                  glucose_mg_dl: float = None,
-                 dietary_restrictions: DietaryRestriction= None,
-                 allergie: Allergie= None,
-                 preferred_cuisine: PreferredCuisineType= None,
-                 weekly_exercice_hours: float= None,
-                 adherence_to_diet_plan: float= None,
-                 dietary_nutrinent_imbalance_score: float= None,
-    ):
-        self.id = id
+                 dietary_restrictions: DietaryRestriction = None,
+                 allergy: Allergie = None,
+                 preferred_cuisine: PreferredCuisineType = None,
+                 weekly_exercise_hours: float = None,
+                 adherence_to_diet_plan: float = None,
+                 dietary_nutrient_imbalance_score: float = None,
+                 ):
+        super().__init__(id, None)
         self.age = age
         self.gender = gender
         self.height_cm = height_cm
         self.current_weight_kg = current_weight_kg
-        self.bmi = BMI
+        self.bmi = bmi
         self.disease_type = disease_type
         self.severity = severity
         self.diet_recommandation = diet_recommandation
@@ -45,165 +49,159 @@ class DietRecommandation:
         self.activity_level = activity_level
         self.created_at = created_at
         self.cholesterol_mg = cholesterol_mg
-        self.blood_pressure_mmhg = blood_preassure_mmhg
+        self.blood_pressure_mmhg = blood_pressure_mmhg
         self.glucose_mg_dl = glucose_mg_dl
         self.dietary_restrictions = dietary_restrictions
-        self.allergy = allergie
+        self.allergy = allergy
         self.preferred_cuisine = preferred_cuisine
-        self.weekly_exercise_hours = weekly_exercice_hours
+        self.weekly_exercise_hours = weekly_exercise_hours
         self.adherence_to_diet_plan = adherence_to_diet_plan
-        self.dietary_nutrient_imbalance_score = dietary_nutrinent_imbalance_score
+        self.dietary_nutrient_imbalance_score = dietary_nutrient_imbalance_score
 
-    @staticmethod
-    def to_model(row: dict):
-        if not row:
+    @classmethod
+    def from_dict(cls, data: dict):
+        if not data:
             return None
-        return DietRecommandation(
-            id=row['id'],
-            age=row['age'],
-            gender=row['gender'],
-            height_cm=row['height_cm'],
-            current_weight_kg=row['current_weight_kg'],
-            BMI=row['bmi'],
-            disease_type=row['disease_type'],
-            severity=row['severity'],
-            diet_recommandation=row['diet_recommandation'],
-            daily_caloric_target=row['daily_caloric_target'],
-            activity_level=row['activity_level'],
-            created_at=row['created_at'],
-            cholesterol_mg=row['cholesterol_mg'],
-            blood_pressure_mmhg=row['blood_pressure_mmhg'],
-            glucose_mg_dl=row['glucose_mg_dl'],
-            dietary_restrictions=row['dietary_restrictions'],
-            allergie=row['allergy'],
-            preferred_cuisine=row['preferred_cuisine'],
-            weekly_exercice_hours=row['weekly_exercise_hours'],
-            adherence_to_diet_plan=row['adherence_to_diet_plan'],
-            dietary_nutrinent_imbalance_score=row['dietary_nutrient_imbalance_score '],
+        return cls(
+            id=data.get(cls.id_field),
+            age=data.get('age'),
+            gender=data.get('gender'),
+            height_cm=data.get('height_cm'),
+            current_weight_kg=data.get('current_weight_kg'),
+            bmi=data.get('bmi'),
+            disease_type=data.get('disease_type'),
+            severity=data.get('severity'),
+            diet_recommandation=data.get('diet_recommandation'),
+            daily_caloric_target=data.get('daily_caloric_target'),
+            activity_level=data.get('activity_level'),
+            created_at=data.get('created_at'),
+            cholesterol_mg=data.get('cholesterol_mg'),
+            blood_pressure_mmhg=data.get('blood_pressure_mmhg'),
+            glucose_mg_dl=data.get('glucose_mg_dl'),
+            dietary_restrictions=data.get('dietary_restrictions'),
+            allergy=data.get('allergy'),
+            preferred_cuisine=data.get('preferred_cuisine'),
+            weekly_exercise_hours=data.get('weekly_exercise_hours'),
+            adherence_to_diet_plan=data.get('adherence_to_diet_plan'),
+            dietary_nutrient_imbalance_score=data.get('dietary_nutrient_imbalance_score'),
         )
 
-    def getId(self):
-        return self._id
-
-    def setId(self, value):
-        self._id = value
-
     def getAge(self):
-        return self._age
+        return self.age
 
     def setAge(self, value):
-        self._age = value
+        self.age = value
 
     def getGender(self):
-        return self._gender
+        return self.gender
 
     def setGender(self, value):
-        self._gender = value
+        self.gender = value
 
     def getHeightCm(self):
-        return self._height_cm
+        return self.height_cm
 
     def setHeightCm(self, value):
-        self._height_cm = value
+        self.height_cm = value
 
     def getCurrentWeightKg(self):
-        return self._current_weight_kg
+        return self.current_weight_kg
 
     def setCurrentWeightKg(self, value):
-        self._current_weight_kg = value
+        self.current_weight_kg = value
 
-    def getBMI(self):
-        return self._BMI
+    def getBmi(self):
+        return self.bmi
 
-    def setBMI(self, value):
-        self._BMI = value
+    def setBmi(self, value):
+        self.bmi = value
 
     def getDiseaseType(self):
-        return self._disease_type
+        return self.disease_type
 
     def setDiseaseType(self, value):
-        self._disease_type = value
+        self.disease_type = value
 
     def getSeverity(self):
-        return self._severity
+        return self.severity
 
     def setSeverity(self, value):
-        self._severity = value
+        self.severity = value
 
     def getDietRecommandation(self):
-        return self._diet_recommandation
+        return self.diet_recommandation
 
     def setDietRecommandation(self, value):
-        self._diet_recommandation = value
+        self.diet_recommandation = value
 
     def getDailyCaloricTarget(self):
-        return self._daily_caloric_target
+        return self.daily_caloric_target
 
     def setDailyCaloricTarget(self, value):
-        self._daily_caloric_target = value
+        self.daily_caloric_target = value
 
     def getActivityLevel(self):
-        return self._activity_level
+        return self.activity_level
 
     def setActivityLevel(self, value):
-        self._activity_level = value
+        self.activity_level = value
 
     def getCreatedAt(self):
-        return self._created_at
+        return self.created_at
 
     def setCreatedAt(self, value):
-        self._created_at = value
+        self.created_at = value
 
     def getCholesterolMg(self):
-        return self._cholesterol_mg
+        return self.cholesterol_mg
 
     def setCholesterolMg(self, value):
-        self._cholesterol_mg = value
+        self.cholesterol_mg = value
 
-    def getBloodPreassureMmhg(self):
-        return self._blood_preassure_mmhg
+    def getBloodPressureMmhg(self):
+        return self.blood_pressure_mmhg
 
-    def setBloodPreassureMmhg(self, value):
-        self._blood_preassure_mmhg = value
+    def setBloodPressureMmhg(self, value):
+        self.blood_pressure_mmhg = value
 
     def getGlucoseMgDl(self):
-        return self._glucose_mg_dl
+        return self.glucose_mg_dl
 
     def setGlucoseMgDl(self, value):
-        self._glucose_mg_dl = value
+        self.glucose_mg_dl = value
 
     def getDietaryRestrictions(self):
-        return self._dietary_restrictions
+        return self.dietary_restrictions
 
     def setDietaryRestrictions(self, value):
-        self._dietary_restrictions = value
+        self.dietary_restrictions = value
 
-    def getAllergie(self):
-        return self._allergie
+    def getAllergy(self):
+        return self.allergy
 
-    def setAllergie(self, value):
-        self._allergie = value
+    def setAllergy(self, value):
+        self.allergy = value
 
     def getPreferredCuisine(self):
-        return self._preferred_cuisine
+        return self.preferred_cuisine
 
     def setPreferredCuisine(self, value):
-        self._preferred_cuisine = value
+        self.preferred_cuisine = value
 
-    def getWeeklyExerciceHours(self):
-        return self._weekly_exercice_hours
+    def getWeeklyExerciseHours(self):
+        return self.weekly_exercise_hours
 
-    def setWeeklyExerciceHours(self, value):
-        self._weekly_exercice_hours = value
+    def setWeeklyExerciseHours(self, value):
+        self.weekly_exercise_hours = value
 
     def getAdherenceToDietPlan(self):
-        return self._adherence_to_diet_plan
+        return self.adherence_to_diet_plan
 
     def setAdherenceToDietPlan(self, value):
-        self._adherence_to_diet_plan = value
+        self.adherence_to_diet_plan = value
 
-    def getDietaryNutrinentImbalanceScore(self):
-        return self._dietary_nutrinent_imbalance_score
+    def getDietaryNutrientImbalanceScore(self):
+        return self.dietary_nutrient_imbalance_score
 
-    def setDietaryNutrinentImbalanceScore(self, value):
-        self._dietary_nutrinent_imbalance_score = value
+    def setDietaryNutrientImbalanceScore(self, value):
+        self.dietary_nutrient_imbalance_score = value

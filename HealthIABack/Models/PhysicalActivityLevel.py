@@ -3,5 +3,4 @@ from Models.IdNameTableGeneric import IdNameTableGeneric
 
 class PhysicalActivityLevel(IdNameTableGeneric):
 
-    def __init__(self, id: int = None, name: str = None):
-        super().__init__(id, name)
+    id_field = "id_physical_activity_levels"

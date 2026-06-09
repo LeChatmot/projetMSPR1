@@ -7,3 +7,8 @@ gunicorn
 pyway
 apache-airflow
 pandas
+mysql-connector-python
+pytest
+pytest-cov
+pytest-mock
+werkzeug

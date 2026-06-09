@@ -4,16 +4,13 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt \
-    && pip install pyway mysql-connector-python \
-    && apt-get update \
-    && apt-get install -y netcat-openbsd
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 COPY schema /app/resources
 
 RUN chmod +x start.sh
 
-EXPOSE 8000
+EXPOSE 5000
 
 CMD ["sh","./start.sh"]
