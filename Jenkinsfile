@@ -7,7 +7,7 @@ pipeline {
         SONAR_HOST_URL = 'http://192.168.1.81:9000'
         SONAR_PROJECT_KEY = 'Mspr'
         PYTHON_VENV = 'venv'
-        NODE_VERSION = '18'
+        NODE_VERSION = '20'
         DOCKER_COMPOSE_VERSION = '2.23.0'
     }
 
