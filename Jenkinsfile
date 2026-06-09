@@ -143,7 +143,7 @@ pipeline {
                 script {
                     sh """
                         set -e
-                        docker-compose -f docker-compose.yml build --no-cache
+                        docker compose -f docker-compose.yml build --no-cache
                     """
                 }
             }
@@ -157,12 +157,12 @@ pipeline {
                 script {
                     sh """
                         set -e
-                        if docker-compose -f docker-compose.yml ps | grep -q "app"; then
-                            docker-compose -f docker-compose.yml up -d --build --force-recreate
+                        if docker compose -f docker-compose.yml ps | grep -q "app"; then
+                            docker compose -f docker-compose.yml up -d --build --force-recreate
                         else
-                            docker-compose -f docker-compose.yml up -d --build
+                            docker compose -f docker-compose.yml up -d --build
                         fi
-                        docker-compose -f docker-compose.yml ps
+                        docker compose -f docker-compose.yml ps
                     """
                 }
             }
