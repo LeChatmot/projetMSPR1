@@ -59,7 +59,7 @@ class ExerciceSessionsRepository(BaseRepository):
                 wt.name AS type,
                 COUNT(es.{self.ID_FIELD}) AS sessions
             FROM {self.TABLE} es
-            JOIN workout_types wt ON es.workout_type = wt.id
+            JOIN workout_types wt ON es.workout_type = wt.id_workout_types
             GROUP BY wt.name
             ORDER BY sessions DESC
         """
@@ -86,7 +86,7 @@ class ExerciceSessionsRepository(BaseRepository):
         query = f"""
             SELECT es.*, wt.name as workout_type_name
             FROM {self.TABLE} es
-            JOIN workout_types wt ON es.workout_type = wt.id
+            JOIN workout_types wt ON es.workout_type = wt.id_workout_types
             LIMIT %s
         """
         return self._fetch_all(query, (limit,))

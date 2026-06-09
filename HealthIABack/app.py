@@ -191,7 +191,7 @@ def get_sport_sessions():
         sessions = repo.get_sessions_with_workout_names(limit=50)
         sessions_data = [
             {
-                "id": f"S{row['id']}",
+                "id": f"S{row['id_exercice_sessions']}",
                 "date": "2024-05-20",
                 "type": row['workout_type_name'],
                 "duration": round(row['session_duration_hours'] * 60),
@@ -274,7 +274,7 @@ def get_nutrition_plans():
         # Nous adaptons nos données à ce format.
         plans_data = [
             {
-                "id": p['id'],
+                "id": p['id_diet_recommandation_types'],
                 "name": p['name'],
                 "description": f"Un plan de régime de type {p['name']} pour améliorer votre santé.",
                 "targetAudience": "Tous publics"

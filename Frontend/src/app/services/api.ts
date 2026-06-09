@@ -7,7 +7,7 @@ import type { ApiResponse } from "../types";
 
 // Configuration de l'API
 const API_CONFIG = {
-  baseURL: "http://localhost:5000/api", // URL du backend Flask
+  baseURL: "/api",
   timeout: 5000,
   retries: 1,
 };

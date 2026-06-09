@@ -5,7 +5,7 @@ from Repositories.BaseRepository import BaseRepository
 class DietRecommandationsRepository(BaseRepository):
 
     TABLE = 'diet_recommendations'
-    ID_FIELD = 'id_diet_recommandations'
+    ID_FIELD = 'id_diet_recommendations'
 
     def __init__(self):
         super().__init__()
@@ -39,14 +39,14 @@ class DietRecommandationsRepository(BaseRepository):
                drestr.name AS restriction_name,
                pct.name  AS cuisine_name
         FROM {table} dr
-        LEFT JOIN genders g                  ON dr.gender               = g.id
-        LEFT JOIN disease_types dt           ON dr.disease_type         = dt.id
-        LEFT JOIN severity_types st          ON dr.severity             = st.id
-        LEFT JOIN allergies a                ON dr.allergy              = a.id
-        LEFT JOIN diet_recommandation_types drt ON dr.diet_recommendation = drt.id
-        LEFT JOIN physical_activity_levels pal  ON dr.activity_level    = pal.id
-        LEFT JOIN dietary_restrictions drestr   ON dr.dietary_restrictions = drestr.id
-        LEFT JOIN preferred_cuisine_types pct   ON dr.preferred_cuisine = pct.id
+        LEFT JOIN genders g                  ON dr.gender               = g.id_genders
+        LEFT JOIN disease_types dt           ON dr.disease_type         = dt.id_disease_types
+        LEFT JOIN severity_types st          ON dr.severity             = st.id_severity_types
+        LEFT JOIN allergies a                ON dr.allergy              = a.id_allergies
+        LEFT JOIN diet_recommandation_types drt ON dr.diet_recommendation = drt.id_diet_recommandation_types
+        LEFT JOIN physical_activity_levels pal  ON dr.activity_level    = pal.id_physical_activity_levels
+        LEFT JOIN dietary_restrictions drestr   ON dr.dietary_restrictions = drestr.id_dietary_restrictions
+        LEFT JOIN preferred_cuisine_types pct   ON dr.preferred_cuisine = pct.id_preferred_cuisine_types
     """
 
     def getAll(self) -> list[dict]:
@@ -63,7 +63,7 @@ class DietRecommandationsRepository(BaseRepository):
         return self._fetch_all(query, (per_page, offset))
 
     def getById(self, id: int) -> dict | None:
-        query = self.JOINED_QUERY.format(table=self.TABLE) + " WHERE dr.id = %s"
+        query = self.JOINED_QUERY.format(table=self.TABLE) + f" WHERE dr.{self.ID_FIELD} = %s"
         return self._fetch_one(query, (id,))
 
     def update(self, id: int, d) -> None:
@@ -75,7 +75,7 @@ class DietRecommandationsRepository(BaseRepository):
                 blood_pressure_mmhg=%s, glucose_mg_dl=%s, dietary_restrictions=%s,
                 allergy=%s, preferred_cuisine=%s, weekly_exercise_hours=%s,
                 adherence_to_diet_plan=%s, dietary_nutrient_imbalance_score=%s
-                WHERE id=%s""",
+                WHERE {self.ID_FIELD}=%s""",
             (d.age, d.gender, d.height_cm, d.current_weight_kg, d.bmi,
              d.disease_type, d.severity, d.diet_recommandation,
              d.daily_caloric_target, d.activity_level, d.cholesterol_mg,
@@ -100,7 +100,7 @@ class DietRecommandationsRepository(BaseRepository):
                 drt.name AS name,
                 COUNT(dr.{self.ID_FIELD}) AS value
             FROM {self.TABLE} dr
-            JOIN diet_recommandation_types drt ON dr.diet_recommendation = drt.id
+            JOIN diet_recommandation_types drt ON dr.diet_recommendation = drt.id_diet_recommandation_types
             GROUP BY drt.name
             ORDER BY value DESC
         """
