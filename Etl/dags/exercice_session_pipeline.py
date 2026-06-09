@@ -175,7 +175,7 @@ with DAG(
                 age=row["Age"],
                 gender=gender_id,
                 weight_kg=row["Weight (kg)"],
-                height_cm=row["Height (m)"] * 100 # Conversion m en cm,
+                height_cm=row["Height (m)"] * 100, # Conversion m en cm,
                 max_bpm=row["Max_BPM"],
                 avg_bpm=row["Avg_BPM"],
                 resting_bpm=row["Resting_BPM"],
