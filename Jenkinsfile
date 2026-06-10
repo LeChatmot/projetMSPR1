@@ -175,7 +175,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                        sleep 30
+                        sleep 60
                         curl -f http://localhost:5000/api/health || exit 1
                         curl -f http://localhost:5173 || exit 1
                     """
