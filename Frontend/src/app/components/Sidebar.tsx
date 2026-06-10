@@ -1,8 +1,8 @@
 import {
   Bot,
-  Database,
   Dumbbell,
   Home,
+  Info,
   LogOut,
   MessageSquare,
   Settings,
@@ -26,12 +26,12 @@ const NAV_ITEMS = [
   { path: "/sport", label: "Sport", icon: Dumbbell },
   { path: "/coach-ia", label: "Coach IA", icon: Bot },
   { path: "/community", label: "Communauté", icon: MessageSquare },
+  { path: "/data", label: "À propos", icon: Info },
 ];
 
 const ADMIN_ITEMS = [
   { path: "/admin-nutrition", label: "Admin Nutrition", icon: Shield },
   { path: "/settings", label: "Paramètres", icon: Settings },
-  { path: "/data", label: "Données ETL", icon: Database },
 ];
 
 export function Sidebar({ isOpen, onClose }: Readonly<SidebarProps>) {
