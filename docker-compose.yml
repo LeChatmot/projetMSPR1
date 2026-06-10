@@ -11,7 +11,7 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
@@ -43,7 +43,7 @@ services:
       mysql:
         condition: service_healthy
     ports:
-      - "8081:8081"
+      - "8081:8080"
     volumes:
       - ./Etl/dags:/opt/airflow/dags
       - ./Datasets:/opt/airflow/Datasets
