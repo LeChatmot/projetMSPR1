@@ -91,7 +91,9 @@ class DietRecommandationsRepository(BaseRepository):
 
     def truncate(self) -> None:
         """Vide la table"""
+        self._execute("SET FOREIGN_KEY_CHECKS = 0")
         self._execute(f"TRUNCATE TABLE {self.TABLE}")
+        self._execute("SET FOREIGN_KEY_CHECKS = 1")
 
     def get_diet_distribution(self) -> list[dict]:
         """Calcule la répartition des régimes recommandés."""

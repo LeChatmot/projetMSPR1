@@ -239,7 +239,13 @@ with DAG(
         }
 
         # Chargement des caches
-        caches = {key: {r['name']: r['id'] for r in repo_ref.getAll()} for key, repo_ref in refs.items()}
+        caches = {
+            key: {
+                r['name']: next(v for k, v in r.items() if k.startswith('id_') or k == 'id')
+                for r in repo_ref.getAll()
+            }
+            for key, repo_ref in refs.items()
+        }
 
         # Vidage et Import
         repo.truncate()
@@ -249,25 +255,25 @@ with DAG(
             for row in reader:
                 d = DietRecommandation()
                 d.age = safe_int(row.get('Age'))
-                d.height_cm = safe_int(row.get('Height (cm)')) or safe_int(row.get('Height'))
-                d.current_weight_kg = safe_float(row.get('Weight (kg)')) or safe_float(row.get('Weight'))
+                d.height_cm = safe_int(row.get('Height_cm'))
+                d.current_weight_kg = safe_float(row.get('Weight_kg'))
                 d.bmi = safe_float(row.get('BMI'))
-                d.daily_caloric_target = safe_int(row.get('Daily Caloric Target'))
-                d.cholesterol_mg = safe_float(row.get('Cholesterol (mg)'))
-                d.blood_pressure_mmhg = safe_int(row.get('Blood Pressure (mmHg)'))
-                d.glucose_mg_dl = safe_float(row.get('Glucose (mg/dL)'))
-                d.weekly_exercise_hours = safe_float(row.get('Weekly Exercise Hours'))
-                d.adherence_to_diet_plan = safe_float(row.get('Adherence to Diet Plan (%)'))
-                d.dietary_nutrient_imbalance_score = safe_float(row.get('Dietary Nutrient Imbalance Score'))
+                d.daily_caloric_target = safe_int(row.get('Daily_Caloric_Intake'))
+                d.cholesterol_mg = safe_float(row.get('Cholesterol_mg/dL'))
+                d.blood_pressure_mmhg = safe_int(row.get('Blood_Pressure_mmHg'))
+                d.glucose_mg_dl = safe_float(row.get('Glucose_mg/dL'))
+                d.weekly_exercise_hours = safe_float(row.get('Weekly_Exercise_Hours'))
+                d.adherence_to_diet_plan = safe_float(row.get('Adherence_to_Diet_Plan'))
+                d.dietary_nutrient_imbalance_score = safe_float(row.get('Dietary_Nutrient_Imbalance_Score'))
 
                 d.gender = get_or_create_id(refs['gender'], caches['gender'], row.get('Gender'))
-                d.disease_type = get_or_create_id(refs['disease'], caches['disease'], row.get('Disease'))
+                d.disease_type = get_or_create_id(refs['disease'], caches['disease'], row.get('Disease_Type'))
                 d.severity = get_or_create_id(refs['severity'], caches['severity'], row.get('Severity'))
-                d.diet_recommandation = get_or_create_id(refs['diet_type'], caches['diet_type'], row.get('Diet Recommendation'))
-                d.activity_level = get_or_create_id(refs['activity'], caches['activity'], row.get('Activity Level'))
-                d.dietary_restrictions = get_or_create_id(refs['restriction'], caches['restriction'], row.get('Dietary Restriction'))
-                d.allergy = get_or_create_id(refs['allergy'], caches['allergy'], row.get('Allergy'))
-                d.preferred_cuisine = get_or_create_id(refs['cuisine'], caches['cuisine'], row.get('Preferred Cuisine'))
+                d.diet_recommandation = get_or_create_id(refs['diet_type'], caches['diet_type'], row.get('Diet_Recommendation'))
+                d.activity_level = get_or_create_id(refs['activity'], caches['activity'], row.get('Physical_Activity_Level'))
+                d.dietary_restrictions = get_or_create_id(refs['restriction'], caches['restriction'], row.get('Dietary_Restrictions'))
+                d.allergy = get_or_create_id(refs['allergy'], caches['allergy'], row.get('Allergies'))
+                d.preferred_cuisine = get_or_create_id(refs['cuisine'], caches['cuisine'], row.get('Preferred_Cuisine'))
 
                 repo.create(d)
 
