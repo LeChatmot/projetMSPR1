@@ -5,7 +5,7 @@ import { AdminNutritionPage } from "./components/AdminNutritionPage";
 import { CoachIAPage } from "./components/CoachIAPage";
 import { CommunityPage } from "./components/CommunityPage";
 import { Dashboard } from "./components/Dashboard";
-import { DataManagement } from "./components/DataManagement";
+import { AboutPage } from "./components/AboutPage";
 import { Header } from "./components/Header";
 import { LoginPage } from "./components/LoginPage";
 import { ProfilePage } from "./components/ProfilePage";
@@ -46,7 +46,7 @@ function AppLayout() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/admin-nutrition" element={<AdminRoute><AdminNutritionPage /></AdminRoute>} />
               <Route path="/settings" element={<AdminRoute><SettingsPage /></AdminRoute>} />
-              <Route path="/data" element={<AdminRoute><DataManagement /></AdminRoute>} />
+              <Route path="/data" element={<AboutPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>

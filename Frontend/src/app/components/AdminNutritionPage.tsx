@@ -238,7 +238,7 @@ export function AdminNutritionPage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100 mb-1">Recommandations Nutritionnelles</h1>
+          <h1 className="text-2xl font-bold text-slate-100 mb-1">Suivi des Régimes Patients</h1>
           <p className="text-slate-400 text-sm">{total} enregistrements · accès administrateur</p>
         </div>
         <button
@@ -252,7 +252,52 @@ export function AdminNutritionPage() {
         </button>
       </div>
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+      {/* Vue mobile : cards */}
+      <div className="grid grid-cols-2 gap-3 md:hidden">
+        {recommendations.map((rec) => (
+          <div
+            key={rec.id}
+            className="bg-slate-800 rounded-xl border border-slate-700 p-3"
+          >
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <p className="text-xs font-semibold text-slate-100">#{rec.id}</p>
+                <p className="text-xs text-slate-400">{rec.age}a · {rec.gender_name ?? rec.gender}</p>
+              </div>
+              <p className="text-xs font-bold text-slate-300">{rec.bmi}</p>
+            </div>
+            <div className="space-y-1.5 mb-3">
+              <span className="block px-2 py-0.5 rounded-full text-xs bg-red-500/10 text-red-400 border border-red-500/20 truncate text-center">
+                {rec.disease_name ?? "—"}
+              </span>
+              <span className="block px-2 py-0.5 rounded-full text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 truncate text-center">
+                {rec.diet_name ?? "—"}
+              </span>
+            </div>
+            <div className="flex items-center justify-end gap-1 border-t border-slate-700 pt-2">
+              <button
+                type="button"
+                onClick={() => setEditingRec(rec)}
+                className="p-1.5 rounded-lg text-slate-500 hover:bg-blue-500/10 hover:text-blue-400 transition-all"
+                title="Modifier"
+              >
+                <Edit2 size={14} />
+              </button>
+              <button
+                type="button"
+                onClick={() => { void deleteRecommendation(rec.id); }}
+                className="p-1.5 rounded-lg text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all"
+                title="Supprimer"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Vue desktop : tableau */}
+      <div className="hidden md:block bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>

@@ -26,8 +26,8 @@ export function useForum(user: AuthUser | null): UseForumReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadPublications = useCallback(async () => {
-    setLoading(true);
+  const loadPublications = useCallback(async (showLoader = true) => {
+    if (showLoader) setLoading(true);
     setError(null);
     try {
       const data = await forumService.getPublications();
@@ -35,12 +35,14 @@ export function useForum(user: AuthUser | null): UseForumReturn {
     } catch (err) {
       setError("Impossible de charger les publications.");
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    void loadPublications();
+    void loadPublications(true);
+    const pollingInterval = setInterval(() => { void loadPublications(false); }, 30000);
+    return () => clearInterval(pollingInterval);
   }, [loadPublications]);
 
   const selectPublication = useCallback(async (publication: ForumPublication) => {
