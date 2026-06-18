@@ -29,7 +29,7 @@ class DietRecommandationsRepository(BaseRepository):
         return d
 
     JOINED_QUERY = """
-        SELECT dr.id_diet_recommendations AS id, dr.*,
+        SELECT dr.*,
                g.name    AS gender_name,
                dt.name   AS disease_name,
                st.name   AS severity_name,

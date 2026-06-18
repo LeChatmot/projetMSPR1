@@ -1,5 +1,5 @@
 import { Bell, Menu } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 interface HeaderProps {
@@ -16,13 +16,12 @@ const PAGE_TITLES: Record<string, string> = {
   "/profile": "Mon profil",
   "/admin-nutrition": "Admin — Nutrition",
   "/settings": "Paramètres",
-  "/data": "À propos & Démo",
+  "/data": "Gestion des données",
 };
 
 export function Header({ onMenuToggle }: Readonly<HeaderProps>) {
   const { user } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const pageTitle = PAGE_TITLES[location.pathname] ?? "Santé & Fit";
 
@@ -62,25 +61,20 @@ export function Header({ onMenuToggle }: Readonly<HeaderProps>) {
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-400 rounded-full" />
           </button>
 
-          <button
-            type="button"
-            onClick={() => navigate("/settings")}
-            className="flex items-center gap-2.5 pl-3 border-l border-slate-700 hover:opacity-80 transition-opacity"
-            aria-label="Paramètres"
-          >
+          <div className="flex items-center gap-2.5 pl-3 border-l border-slate-700">
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
               style={{ backgroundColor: user?.avatarColor ?? "#10b981" }}
             >
               {initials}
             </div>
-            <div className="hidden sm:block text-left">
+            <div className="hidden sm:block">
               <p className="text-sm font-medium text-slate-100 leading-none">{user?.name}</p>
               <p className="text-xs text-slate-500 mt-0.5">
                 {user?.role === "admin" ? "Administrateur" : "Utilisateur"}
               </p>
             </div>
-          </button>
+          </div>
         </div>
       </div>
     </header>

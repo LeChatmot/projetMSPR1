@@ -52,13 +52,13 @@ export function NutritionPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {STAT_CARDS.map((card) => {
           const Icon = card.icon;
           return (
             <div
               key={card.label}
-              className="bg-slate-800 rounded-xl border border-slate-700 p-4 md:p-6 hover:border-slate-600 hover:-translate-y-1 transition-all duration-200"
+              className="bg-slate-800 rounded-xl border border-slate-700 p-6 hover:border-slate-600 hover:-translate-y-1 transition-all duration-200"
             >
               <div className={`${card.bg} w-11 h-11 rounded-xl flex items-center justify-center mb-3`}>
                 <Icon className={`w-5 h-5 ${card.color}`} />

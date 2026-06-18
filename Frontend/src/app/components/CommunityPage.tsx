@@ -5,11 +5,7 @@ import { useForum } from "../hooks/useForum";
 import type { ForumCommentaire } from "../types";
 
 function formatDate(isoString: string): string {
-  // MySQL returns "2024-06-10 10:30:00" without timezone — force UTC to avoid 2h offset
-  const utcString = isoString.endsWith("Z") || /[+-]\d{2}:\d{2}$/.test(isoString)
-    ? isoString
-    : `${isoString.replace(" ", "T")}Z`;
-  const date = new Date(utcString);
+  const date = new Date(isoString);
   const diffMin = Math.floor((Date.now() - date.getTime()) / 60000);
   if (diffMin < 1) return "À l'instant";
   if (diffMin < 60) return `il y a ${diffMin} min`;

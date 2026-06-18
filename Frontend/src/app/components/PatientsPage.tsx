@@ -289,42 +289,46 @@ function AdminPatientsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {patients.map((patient) => (
           <button
             key={patient.id}
             type="button"
             onClick={() => setSelectedPatient(patient)}
-            className="text-left bg-slate-800 rounded-xl border border-slate-700 p-3 md:p-5 hover:border-emerald-500/50 hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+            className="text-left bg-slate-800 rounded-xl border border-slate-700 p-5 hover:border-emerald-500/50 hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
           >
-            <div className="flex items-start justify-between mb-2 md:mb-3">
+            <div className="flex items-start justify-between mb-3">
               <div>
-                <p className="font-semibold text-slate-100 text-xs md:text-sm">#{patient.id}</p>
+                <p className="font-semibold text-slate-100 text-sm">Patient #{patient.id}</p>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  {patient.age}a · {patient.gender_name ?? (patient.gender === 1 ? "M" : "F")}
+                  {patient.age} ans · {patient.gender_name ?? (patient.gender === 1 ? "Homme" : "Femme")}
                 </p>
               </div>
-              <span className={`text-xs md:text-sm font-bold ${getBmiColor(patient.bmi)}`}>
-                {patient.bmi}
+              <span className={`text-sm font-bold ${getBmiColor(patient.bmi)}`}>
+                IMC {patient.bmi}
               </span>
             </div>
 
-            <div className="space-y-1.5 pt-2 border-t border-slate-700">
-              <div className="flex items-center justify-between gap-1">
-                <span className="text-xs text-slate-500 shrink-0">Maladie</span>
-                <span className="text-xs font-medium text-orange-400 truncate text-right">
+            <div className="space-y-2 pt-3 border-t border-slate-700">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-500">Maladie</span>
+                <span className="text-xs font-medium text-orange-400 truncate max-w-[55%] text-right">
                   {patient.disease_name ?? "—"}
                 </span>
               </div>
-              <div className="flex items-center justify-between gap-1">
-                <span className="text-xs text-slate-500 shrink-0">Régime</span>
-                <span className="px-1.5 py-0.5 rounded-full text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 truncate max-w-[60%]">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-500">Régime</span>
+                <span className="px-2 py-0.5 rounded-full text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 truncate max-w-[55%]">
                   {patient.diet_name ?? "—"}
                 </span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-500">Allergie</span>
+                <span className="text-xs text-slate-300">{patient.allergy_name ?? "—"}</span>
+              </div>
             </div>
 
-            <p className="text-xs text-emerald-500 mt-2 text-right">Dossier →</p>
+            <p className="text-xs text-emerald-500 mt-3 text-right">Voir le dossier →</p>
           </button>
         ))}
       </div>

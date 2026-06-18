@@ -53,13 +53,13 @@ function PersonalDashboard() {
       </div>
 
       {/* KPIs personnels */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {personalCards.map((card) => {
           const Icon = card.icon;
           return (
             <div
               key={card.title}
-              className="bg-slate-800 rounded-xl border border-slate-700 p-4 md:p-6 hover:border-slate-600 hover:-translate-y-1 transition-all duration-200"
+              className="bg-slate-800 rounded-xl border border-slate-700 p-6 hover:border-slate-600 hover:-translate-y-1 transition-all duration-200"
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -162,13 +162,13 @@ function AdminDashboard() {
         <p className="text-slate-400 text-sm">Vue d'ensemble globale — données de tous les patients</p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpiCards.map((kpi) => {
           const Icon = kpi.icon;
           return (
             <div
               key={kpi.title}
-              className="bg-slate-800 rounded-xl border border-slate-700 p-4 md:p-6 hover:border-slate-600 hover:-translate-y-1 transition-all duration-200"
+              className="bg-slate-800 rounded-xl border border-slate-700 p-6 hover:border-slate-600 hover:-translate-y-1 transition-all duration-200"
             >
               <div className="flex items-start justify-between">
                 <div>

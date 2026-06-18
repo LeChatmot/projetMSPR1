@@ -60,13 +60,13 @@ function PersonalSportPage() {
       </div>
 
       {/* KPIs personnels */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {personalCards.map((card) => {
           const Icon = card.icon;
           return (
             <div
               key={card.label}
-              className="bg-slate-800 rounded-xl border border-slate-700 p-4 md:p-6 hover:border-slate-600 hover:-translate-y-1 transition-all duration-200"
+              className="bg-slate-800 rounded-xl border border-slate-700 p-6 hover:border-slate-600 hover:-translate-y-1 transition-all duration-200"
             >
               <div className={`${card.bg} w-11 h-11 rounded-xl flex items-center justify-center mb-3`}>
                 <Icon className={`w-5 h-5 ${card.color}`} />
@@ -179,7 +179,7 @@ function AdminSportPage() {
         <p className="text-slate-400 text-sm">Vue d'ensemble de toutes les séances — accès administrateur</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
           { icon: Dumbbell, bg: "bg-blue-500/10", color: "text-blue-400", value: stats.totalSessions, label: "Sessions Totales" },
           { icon: Flame, bg: "bg-orange-500/10", color: "text-orange-400", value: stats.totalCalories.toLocaleString(), label: "Calories Brûlées" },
@@ -190,7 +190,7 @@ function AdminSportPage() {
           return (
             <div
               key={card.label}
-              className="bg-slate-800 rounded-xl border border-slate-700 p-4 md:p-6 hover:border-slate-600 hover:-translate-y-1 transition-all duration-200"
+              className="bg-slate-800 rounded-xl border border-slate-700 p-6 hover:border-slate-600 hover:-translate-y-1 transition-all duration-200"
             >
               <div className={`${card.bg} w-11 h-11 rounded-xl flex items-center justify-center mb-3`}>
                 <Icon className={`w-5 h-5 ${card.color}`} />
