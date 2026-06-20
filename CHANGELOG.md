@@ -19,11 +19,6 @@ Format : `[version] — date` avec les catégories `Ajouté`, `Modifié`, `Corri
 - **Documentation gestion de projet** : `docs/gestion_projet.md` — méthodologie Agile,
   outils, cadence, répartition des rôles, gestion des risques
 
-### Modifié
-- **Jenkinsfile** : ajout des rapports JUnit (tendance des tests), health check par retry
-  (12 tentatives × 10s) au lieu d'un sleep fixe, `allowMissing: true` sur les rapports HTML
-- **pytest.ini** : génération rapport JUnit XML (`test-report.xml`) aligné avec Jenkins,
-  rapport HTML dans `htmlcov/` cohérent avec la configuration CI
 
 ### Corrigé
 - **Sécurité CORS** : `CORS(app)` remplacé par origines restreintes via variable
