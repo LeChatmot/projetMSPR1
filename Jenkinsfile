@@ -71,13 +71,8 @@ pipeline {
                                 sh '''
                                    . venv/bin/activate
                                    cd HealthIABack
-                                   pytest -v
+                                   pytest --cov=./ --cov-report=xml:coverage.xml --cov-report=html:htmlcov -v
                                '''
-                            }
-                            post {
-                                always {
-                                    junit allowEmptyResults: true, testResults: 'HealthIABack/test-report.xml'
-                                }
                             }
                         }
                     }
@@ -106,13 +101,8 @@ pipeline {
                                     . "\$NVM_DIR/nvm.sh"
                                     nvm use ${NODE_VERSION}
                                     cd Frontend
-                                    npx vitest run --coverage --reporter=junit --outputFile=test-report.xml
+                                    npx vitest run --coverage
                                 """
-                            }
-                            post {
-                                always {
-                                    junit allowEmptyResults: true, testResults: 'Frontend/test-report.xml'
-                                }
                             }
                         }
                     }
@@ -125,7 +115,7 @@ pipeline {
             steps {
                 script {
                     publishHTML(target: [
-                        allowMissing: true,
+                        allowMissing: false,
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
                         reportDir: 'Frontend/coverage/lcov-report',
@@ -133,7 +123,7 @@ pipeline {
                         reportName: 'Frontend Coverage'
                     ])
                     publishHTML(target: [
-                        allowMissing: true,
+                        allowMissing: false,
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
                         reportDir: 'HealthIABack/htmlcov',
@@ -184,13 +174,11 @@ pipeline {
             }
             steps {
                 script {
-                    // Retry toutes les 10s pendant 2 minutes au lieu d'un sleep fixe
-                    retry(12) {
-                        sleep(10)
-                        sh 'curl -sf http://localhost:5000/api/health'
-                    }
-                    sh 'curl -sf http://localhost:5173'
-                    echo "✅ Tous les services sont opérationnels"
+                    sh """
+                        sleep 30
+                        curl -f http://localhost:5000/api/health || exit 1
+                        curl -f http://localhost:5173 || exit 1
+                    """
                 }
             }
         }
