@@ -3,7 +3,7 @@
 ## 1. Objectifs
 
 Valider le bon fonctionnement de l'application HealthIA sur trois niveaux :
-- **Unitaire** : chaque composant isolé (repositories, logique métier)
+- **Unitaire** : chaque repository Python isolé via mocks
 - **Intégration** : les routes HTTP de l'API Flask
 - **Fonctionnel** : les composants React (rendu, interactions utilisateur)
 

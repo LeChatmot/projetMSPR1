@@ -96,7 +96,7 @@ Pour le développement local (sans Docker) :
 
 ```bash
 # 1. Cloner le dépôt
-git clone <url-du-repo>
+git clone <https://github.com/LeChatmot/projetMSPR1>
 cd projetMSPR1
 
 # 2. Configurer les variables d'environnement (voir section dédiée)
@@ -189,6 +189,8 @@ Fichier : `HealthIABack/.env`
 | `DB_USER` | Utilisateur MySQL | `healthia` |
 | `DB_PASSWORD` | Mot de passe MySQL | *(à définir)* |
 | `DB_NAME` | Nom de la base de données | `health_ia_db` |
+| `FLASK_HOST` | Adresse d'écoute du serveur Flask | `127.0.0.1` (local) / `0.0.0.0` (Docker) |
+| `CORS_ALLOWED_ORIGINS` | Origines autorisées pour les requêtes cross-origin | `http://localhost:5173` |
 | `MISTRAL_API_KEY` | Clé API Mistral AI | *(obligatoire pour le Coach IA)* |
 
 > **Sécurité** : Le fichier `.env` est listé dans `.gitignore` et ne doit jamais être commité.
@@ -224,7 +226,7 @@ cd HealthIABack
 pytest
 ```
 
-Génère un rapport HTML de couverture dans : `HealthIABack/coverage_report/index.html`
+Génère un rapport HTML de couverture dans : `HealthIABack/htmlcov/index.html`
 
 Voir [docs/plan_de_tests.md](docs/plan_de_tests.md) pour le plan de tests complet.
 

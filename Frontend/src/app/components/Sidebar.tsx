@@ -83,7 +83,7 @@ export function Sidebar({ isOpen, onClose }: Readonly<SidebarProps>) {
         </div>
 
         {/* Navigation principale */}
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <nav aria-label="Navigation principale" className="flex-1 p-4 space-y-1 overflow-y-auto">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
@@ -91,6 +91,7 @@ export function Sidebar({ isOpen, onClose }: Readonly<SidebarProps>) {
               <button
                 key={item.path}
                 onClick={() => handleNavigate(item.path)}
+                aria-current={active ? "page" : undefined}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group ${
                   active
                     ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
@@ -122,6 +123,7 @@ export function Sidebar({ isOpen, onClose }: Readonly<SidebarProps>) {
                   <button
                     key={item.path}
                     onClick={() => handleNavigate(item.path)}
+                    aria-current={active ? "page" : undefined}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 ${
                       active
                         ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/20"
