@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timezone
 
 from flask import Flask, jsonify, request
@@ -20,9 +21,10 @@ load_dotenv()
 # Initialisation de l'application Flask
 app = Flask(__name__)
 
-# Configuration de CORS pour autoriser les requêtes depuis le frontend
-# Permet à http://localhost:5173 de communiquer avec http://localhost:5000
-CORS(app)
+# CORS restreint aux origines déclarées dans CORS_ALLOWED_ORIGINS
+# Valeur par défaut : frontend Vite en développement local
+_allowed_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173").split(",")
+CORS(app, origins=_allowed_origins)
 
 
 def create_api_response(data, success=True, message=""):
@@ -232,8 +234,53 @@ def get_sport_distribution_direct():
         print(f"❌ ERREUR API /sport/distribution: {e}")
         return create_api_response([], success=False, message=str(e)), 500
 
-# La route /api/sport/distribution existe déjà via /api/dashboard/sport-distribution
-# On peut la réutiliser ou créer un alias si nécessaire.
+# --- EVOLUTION FONCTIONNELLE : Recherche et filtres sur les sessions sport ---
+
+@app.route("/api/sport/search", methods=["GET"])
+def search_sport_sessions():
+    """Recherche paginée avec filtres sur les sessions de sport.
+
+    Paramètres de requête (tous optionnels) :
+      - workout_type      : int   — ID du type de sport
+      - experience_level  : int   — Niveau d'expérience (1, 2 ou 3)
+      - min_calories      : float — Calories brûlées minimum
+      - max_calories      : float — Calories brûlées maximum
+      - page              : int   — Numéro de page (défaut : 1)
+      - per_page          : int   — Résultats par page (défaut : 20, max : 100)
+    """
+    def _parse_int(value):
+        try:
+            return int(value) if value is not None else None
+        except (ValueError, TypeError):
+            return None
+
+    def _parse_float(value):
+        try:
+            return float(value) if value is not None else None
+        except (ValueError, TypeError):
+            return None
+
+    workout_type     = _parse_int(request.args.get("workout_type"))
+    experience_level = _parse_int(request.args.get("experience_level"))
+    min_calories     = _parse_float(request.args.get("min_calories"))
+    max_calories     = _parse_float(request.args.get("max_calories"))
+    page             = max(1, _parse_int(request.args.get("page")) or 1)
+    per_page         = min(100, max(5, _parse_int(request.args.get("per_page")) or 20))
+
+    try:
+        repo = ExerciceSessionsRepository()
+        result = repo.search(
+            workout_type=workout_type,
+            experience_level=experience_level,
+            min_calories=min_calories,
+            max_calories=max_calories,
+            page=page,
+            per_page=per_page,
+        )
+        return create_api_response(result)
+    except Exception as e:
+        print(f"❌ ERREUR API /sport/search: {e}")
+        return create_api_response({}, success=False, message=str(e)), 500
 
 # --- ROUTES POUR LA PAGE NUTRITION (PUBLIQUE) ---
 @app.route("/api/nutrition/distribution", methods=["GET"])
@@ -649,5 +696,7 @@ def update_utilisateur_password(user_id):
 
 
 if __name__ == "__main__":
-    # Lance le serveur en mode debug sur le port 5000
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # FLASK_HOST vaut "0.0.0.0" dans Docker (nécessaire pour exposer le port du conteneur)
+    # et "127.0.0.1" en développement local pour limiter l'exposition réseau
+    flask_host = os.getenv("FLASK_HOST", "127.0.0.1")
+    app.run(host=flask_host, port=5000, debug=True)

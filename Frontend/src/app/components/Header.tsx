@@ -59,7 +59,9 @@ export function Header({ onMenuToggle }: Readonly<HeaderProps>) {
             aria-label="Notifications"
           >
             <Bell size={18} />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-400 rounded-full" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-400 rounded-full">
+              <span className="sr-only">Nouvelle notification</span>
+            </span>
           </button>
 
           <button

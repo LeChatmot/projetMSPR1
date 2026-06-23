@@ -33,6 +33,8 @@ services:
       DB_USER: healthia
       DB_PASSWORD: 123456
       DB_NAME: health_ia_db
+      FLASK_HOST: "0.0.0.0"
+      CORS_ALLOWED_ORIGINS: "http://localhost:5173"
 
   airflow:
     build:

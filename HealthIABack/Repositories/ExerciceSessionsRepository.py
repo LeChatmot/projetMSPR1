@@ -91,6 +91,50 @@ class ExerciceSessionsRepository(BaseRepository):
         """
         return self._fetch_all(query, (limit,))
 
+    def search(self, workout_type: int | None, experience_level: int | None,
+               min_calories: float | None, max_calories: float | None,
+               page: int, per_page: int) -> dict:
+        """Recherche paginée avec filtres optionnels sur les sessions de sport."""
+        conditions = []
+        params = []
+
+        if workout_type is not None:
+            conditions.append("es.workout_type = %s")
+            params.append(workout_type)
+        if experience_level is not None:
+            conditions.append("es.experience_level = %s")
+            params.append(experience_level)
+        if min_calories is not None:
+            conditions.append("es.calories_burned >= %s")
+            params.append(min_calories)
+        if max_calories is not None:
+            conditions.append("es.calories_burned <= %s")
+            params.append(max_calories)
+
+        where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+
+        count_query = f"SELECT COUNT(*) AS total FROM {self.TABLE} es {where_clause}"
+        total = self._fetch_one(count_query, tuple(params))["total"]
+
+        offset = (page - 1) * per_page
+        data_query = f"""
+            SELECT es.*, wt.name AS workout_type_name
+            FROM {self.TABLE} es
+            JOIN workout_types wt ON es.workout_type = wt.id_workout_types
+            {where_clause}
+            ORDER BY es.calories_burned DESC
+            LIMIT %s OFFSET %s
+        """
+        items = self._fetch_all(data_query, tuple(params) + (per_page, offset))
+
+        return {
+            "items": items,
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "total_pages": max(1, -(-total // per_page)),
+        }
+
     def get_kpis(self) -> dict:
         """Calcule les KPIs directement en SQL pour plus d'efficacité."""
         query = f"""
