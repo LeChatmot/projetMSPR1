@@ -40,3 +40,21 @@ Frontend/coverage/
 __pycache__/
 *.pyc
 Datasets/*.csv
+
+coach.db
+.pytest_cache/
+*.egg-info/
+
+# AI models
+ollama-models/
+*.bin
+*.gguf
+
+# ETL / Airflow
+Etl/dags/__pycache__/
+airflow-logs/
+
+data/
+Datasets/
+*.parquet
+*.jsonl

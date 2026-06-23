@@ -12,3 +12,14 @@ pytest
 pytest-cov
 pytest-mock
 werkzeug
+transformers
+torch
+Pillow
+pillow
+requests
+matplotlib
+fastapi
+uvicorn[standard]
+requests
+scikit-learn
+pymongo
