@@ -11,6 +11,7 @@ Frontend/build/
 .env
 .env.local
 .env.*.local
+.env.example
 
 # IDE
 .idea/
@@ -58,3 +59,6 @@ data/
 Datasets/
 *.parquet
 *.jsonl
+
+# notebooks checkpoint
+.ipynb_checkpoints/

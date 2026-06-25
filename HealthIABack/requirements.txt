@@ -1,7 +1,6 @@
 Flask
 Flask-Cors
 uvicorn
-PyMySQL
 python-dotenv
 gunicorn
 pyway
@@ -23,3 +22,5 @@ uvicorn[standard]
 requests
 scikit-learn
 pymongo
+SQLAlchemy
+pymysql
