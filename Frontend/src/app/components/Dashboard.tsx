@@ -1,11 +1,12 @@
 import { Activity, AlertTriangle, Clock, Flame, Scale, TrendingUp, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   Bar, BarChart, CartesianGrid, Legend, Line, LineChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 import { useAuth } from "../context/AuthContext";
 import { useDashboard } from "../hooks/useDashboard";
-import { useUserProfile } from "../hooks/useUserProfile";
+import { profileService, type ProfilSanteData } from "../services/profileService";
 
 const CHART_TOOLTIP_STYLE = {
   backgroundColor: "#1e293b",
@@ -14,28 +15,66 @@ const CHART_TOOLTIP_STYLE = {
   color: "#f1f5f9",
 };
 
+function getBmiStatus(imc: number | null): { label: string; color: string } {
+  if (imc === null) return { label: "Non renseigné", color: "text-slate-400" };
+  if (imc < 18.5) return { label: "Insuffisance pondérale", color: "text-blue-400" };
+  if (imc < 25) return { label: "Poids normal", color: "text-emerald-400" };
+  if (imc < 30) return { label: "Surpoids", color: "text-orange-400" };
+  return { label: "Obésité", color: "text-red-400" };
+}
+
+const FALLBACK_PROFIL_SANTE: ProfilSanteData = {
+  profil: { age: 25, height_cm: 175, weight_kg: 70, id_gender: 1, id_activity_level: 2, experience_level: 2, objectif: "maintien" },
+  imc: 22.9,
+  imc_categorie: "Poids normal",
+  tdee_kcal: 2200,
+  allergies: [],
+  pathologies: [],
+  blessures: [],
+};
+
 // ─── Vue personnelle (utilisateur classique) ───────────────────────────────
+
+const ACTIVITY_LABELS: Record<number, string> = {
+  1: "Sédentaire", 2: "Légèrement actif", 3: "Modérément actif", 4: "Très actif", 5: "Extrêmement actif",
+};
+
+const OBJECTIF_LABELS: Record<string, string> = {
+  perte_de_poids: "Perte de poids", prise_de_masse: "Prise de masse",
+  maintien: "Maintien", endurance: "Endurance", flexibilite: "Flexibilité",
+};
 
 function PersonalDashboard() {
   const { user } = useAuth();
-  const { profile, recentSessions, sportStats } = useUserProfile(user);
+  const [profilSante, setProfilSante] = useState<ProfilSanteData | null>(null);
 
-  const bmiStatus =
-    profile.bmi < 18.5 ? { label: "Insuffisance pondérale", color: "text-blue-400" }
-    : profile.bmi < 25   ? { label: "Poids normal", color: "text-emerald-400" }
-    : profile.bmi < 30   ? { label: "Surpoids", color: "text-orange-400" }
-                         : { label: "Obésité", color: "text-red-400" };
+  useEffect(() => {
+    if (!user) return;
+    void profileService.getProfilSante(user.backendId)
+      .then(setProfilSante)
+      .catch(() => setProfilSante(FALLBACK_PROFIL_SANTE));
+  }, [user]);
+
+  const imc = profilSante?.imc ?? null;
+  const poids = profilSante?.profil.weight_kg ?? null;
+  const taille = profilSante?.profil.height_cm ?? null;
+  const age = profilSante?.profil.age ?? null;
+  const activite = profilSante?.profil.id_activity_level
+    ? ACTIVITY_LABELS[profilSante.profil.id_activity_level] ?? "—"
+    : "—";
+  const objectif = profilSante?.profil.objectif
+    ? (OBJECTIF_LABELS[profilSante.profil.objectif] ?? profilSante.profil.objectif)
+    : "—";
+  const pathologie = profilSante?.pathologies[0]?.name ?? "Aucune";
+
+  const bmiStatus = getBmiStatus(imc);
 
   const personalCards = [
-    { title: "Mon poids", value: `${profile.weightKg} kg`, icon: Scale, bg: "bg-blue-500/10", color: "text-blue-400" },
-    { title: "IMC", value: profile.bmi, icon: Activity, bg: "bg-emerald-500/10", color: "text-emerald-400" },
-    { title: "Séances ce mois", value: sportStats.totalSessionsThisMonth, icon: TrendingUp, bg: "bg-indigo-500/10", color: "text-indigo-400" },
-    { title: "Calories brûlées", value: `${sportStats.totalCaloriesThisMonth} kcal`, icon: Flame, bg: "bg-orange-500/10", color: "text-orange-400" },
+    { title: "Mon poids", value: poids ? `${poids} kg` : "—", icon: Scale, bg: "bg-blue-500/10", color: "text-blue-400" },
+    { title: "IMC", value: imc ?? "—", icon: Activity, bg: "bg-emerald-500/10", color: "text-emerald-400" },
+    { title: "Besoins caloriques", value: profilSante?.tdee_kcal ? `${profilSante.tdee_kcal} kcal` : "—", icon: Flame, bg: "bg-orange-500/10", color: "text-orange-400" },
+    { title: "Objectif", value: objectif, icon: TrendingUp, bg: "bg-indigo-500/10", color: "text-indigo-400" },
   ];
-
-  const SESSION_EMOJI: Record<string, string> = {
-    Cardio: "🏃", Strength: "💪", Yoga: "🧘", HIIT: "🔥",
-  };
 
   return (
     <div className="space-y-6">
@@ -81,11 +120,11 @@ function PersonalDashboard() {
         <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 space-y-4">
           <h3 className="text-slate-100 font-semibold">Mon profil santé</h3>
           {[
-            { label: "Taille", value: `${profile.heightCm} cm` },
-            { label: "Âge", value: `${profile.age} ans` },
-            { label: "Niveau d'activité", value: profile.activityLevel },
-            { label: "Plan nutritionnel", value: profile.dietPlan },
-            { label: "Risque détecté", value: profile.riskDisease === "None" ? "Aucun" : profile.riskDisease },
+            { label: "Taille", value: taille ? `${taille} cm` : "—" },
+            { label: "Âge", value: age ? `${age} ans` : "—" },
+            { label: "Niveau d'activité", value: activite },
+            { label: "Objectif", value: objectif },
+            { label: "Pathologie détectée", value: pathologie },
           ].map((row) => (
             <div key={row.label} className="flex items-center justify-between py-2 border-b border-slate-700 last:border-0">
               <span className="text-sm text-slate-400">{row.label}</span>
@@ -98,36 +137,30 @@ function PersonalDashboard() {
           </div>
         </div>
 
-        {/* Dernières séances */}
+        {/* Allergies */}
         <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
-          <h3 className="text-slate-100 font-semibold mb-4">Mes dernières séances</h3>
-          <div className="space-y-2">
-            {recentSessions.map((session) => (
-              <div
-                key={session.id}
-                className="flex items-center justify-between p-3 bg-slate-700/50 rounded-xl"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">{SESSION_EMOJI[session.type] ?? "🏋️"}</span>
-                  <div>
-                    <p className="text-sm font-medium text-slate-200">{session.type}</p>
-                    <p className="text-xs text-slate-500">
-                      {new Date(session.date).toLocaleDateString("fr-FR")}
-                    </p>
-                  </div>
+          <h3 className="text-slate-100 font-semibold mb-4">Mes allergies &amp; TDEE</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between py-2 border-b border-slate-700">
+              <span className="text-sm text-slate-400">Besoins caloriques estimés</span>
+              <span className="text-sm font-semibold text-emerald-400">
+                {profilSante?.tdee_kcal ? `${profilSante.tdee_kcal} kcal / jour` : "—"}
+              </span>
+            </div>
+            <div>
+              <p className="text-sm text-slate-400 mb-2">Allergies déclarées</p>
+              {profilSante?.allergies && profilSante.allergies.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {profilSante.allergies.map((a) => (
+                    <span key={a.id} className="px-2 py-1 bg-red-500/10 border border-red-500/30 text-red-400 text-xs rounded-lg">
+                      {a.name}
+                    </span>
+                  ))}
                 </div>
-                <div className="flex items-center gap-4 text-right">
-                  <div>
-                    <p className="text-xs text-slate-500">Durée</p>
-                    <p className="text-sm font-medium text-slate-200">{session.durationMin} min</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500">Calories</p>
-                    <p className="text-sm font-medium text-emerald-400">{session.caloriesBurned} kcal</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+              ) : (
+                <span className="text-sm text-slate-500">Aucune allergie déclarée</span>
+              )}
+            </div>
           </div>
         </div>
       </div>

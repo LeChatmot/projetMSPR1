@@ -7,12 +7,13 @@ interface RegisterForm {
   prenom: string;
   pseudo: string;
   email: string;
+  date_of_birth: string;
   mot_de_passe: string;
   confirmation: string;
 }
 
 const EMPTY_FORM: RegisterForm = {
-  nom: "", prenom: "", pseudo: "", email: "", mot_de_passe: "", confirmation: "",
+  nom: "", prenom: "", pseudo: "", email: "", date_of_birth: "", mot_de_passe: "", confirmation: "",
 };
 
 export function RegisterPage() {
@@ -50,6 +51,7 @@ export function RegisterPage() {
         pseudo: form.pseudo.trim(),
         email: form.email.trim().toLowerCase(),
         mot_de_passe: form.mot_de_passe,
+        date_of_birth: form.date_of_birth || undefined,
       });
       navigate("/", { replace: true });
     } catch (err) {
@@ -83,10 +85,11 @@ export function RegisterPage() {
             <div className="grid grid-cols-2 gap-3">
               {(["prenom", "nom"] as const).map((field) => (
                 <div key={field}>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5 capitalize">
+                  <label htmlFor={field} className="block text-sm font-medium text-slate-300 mb-1.5 capitalize">
                     {field === "prenom" ? "Prénom" : "Nom"}
                   </label>
                   <input
+                    id={field}
                     type="text"
                     value={form[field]}
                     onChange={updateField(field)}
@@ -97,22 +100,39 @@ export function RegisterPage() {
               ))}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Pseudo</label>
-              <input
-                type="text"
-                value={form.pseudo}
-                onChange={updateField("pseudo")}
-                placeholder="jean_fit"
-                className="w-full px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-xl text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="pseudo" className="block text-sm font-medium text-slate-300 mb-1.5">Pseudo</label>
+                <input
+                  id="pseudo"
+                  type="text"
+                  value={form.pseudo}
+                  onChange={updateField("pseudo")}
+                  placeholder="jean_fit"
+                  className="w-full px-3 py-2.5 bg-slate-700 border border-slate-600 rounded-xl text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor="date_of_birth" className="block text-sm font-medium text-slate-300 mb-1.5">
+                  Date de naissance
+                </label>
+                <input
+                  id="date_of_birth"
+                  type="date"
+                  value={form.date_of_birth}
+                  onChange={updateField("date_of_birth")}
+                  max={new Date().toISOString().split("T")[0]}
+                  className="w-full px-3 py-2.5 bg-slate-700 border border-slate-600 rounded-xl text-slate-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1.5">
                 Adresse e-mail
               </label>
               <input
+                id="email"
                 type="email"
                 value={form.email}
                 onChange={updateField("email")}
@@ -123,10 +143,11 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label htmlFor="mot_de_passe" className="block text-sm font-medium text-slate-300 mb-1.5">
                 Mot de passe
               </label>
               <input
+                id="mot_de_passe"
                 type="password"
                 value={form.mot_de_passe}
                 onChange={updateField("mot_de_passe")}
@@ -137,10 +158,11 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label htmlFor="confirmation" className="block text-sm font-medium text-slate-300 mb-1.5">
                 Confirmer le mot de passe
               </label>
               <input
+                id="confirmation"
                 type="password"
                 value={form.confirmation}
                 onChange={updateField("confirmation")}

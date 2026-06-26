@@ -16,7 +16,7 @@ function formatTime(date: Date): string {
 
 export function CoachIAPage() {
   const { user } = useAuth();
-  const { messages, isTyping, sendMessage, clearConversation } = useCoachIA();
+  const { messages, isTyping, sendMessage, clearConversation } = useCoachIA(user?.backendId);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

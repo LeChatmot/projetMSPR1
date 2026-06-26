@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { CoachMessage } from "../types";
+import { apiCall } from "../services/api";
 
 const WELCOME_MESSAGE: CoachMessage = {
   id: "welcome",
@@ -62,18 +63,53 @@ function generateId(): string {
   return `msg_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
+interface BackendMessage {
+  id: number;
+  role: string;
+  content: string;
+  created_at: string;
+}
+
 interface UseCoachIAReturn {
   messages: CoachMessage[];
   isTyping: boolean;
-  sendMessage: (content: string) => void;
-  clearConversation: () => void;
+  sendMessage: (content: string, userId?: number) => void;
+  clearConversation: (userId?: number) => void;
 }
 
-export function useCoachIA(): UseCoachIAReturn {
+async function fetchMistralReply(content: string, userId?: number): Promise<string> {
+  const response = await apiCall<{ reply: string }>("/coach/chat", {
+    method: "POST",
+    body: JSON.stringify({ message: content, user_id: userId }),
+  });
+  return response.reply;
+}
+
+function backendMessageToCoachMessage(msg: BackendMessage): CoachMessage {
+  return {
+    id: `db_${msg.id}`,
+    role: msg.role as "user" | "assistant",
+    content: msg.content,
+    timestamp: new Date(msg.created_at),
+  };
+}
+
+export function useCoachIA(userId?: number): UseCoachIAReturn {
   const [messages, setMessages] = useState<CoachMessage[]>([WELCOME_MESSAGE]);
   const [isTyping, setIsTyping] = useState(false);
 
-  const sendMessage = useCallback((content: string) => {
+  useEffect(() => {
+    if (!userId) return;
+    void apiCall<BackendMessage[]>(`/coach/history/${userId}`)
+      .then((history) => {
+        if (history.length === 0) return;
+        setMessages([WELCOME_MESSAGE, ...history.map(backendMessageToCoachMessage)]);
+      })
+      .catch(() => null);
+  }, [userId]);
+
+  const sendMessage = useCallback((content: string, userIdOverride?: number) => {
+    const effectiveUserId = userIdOverride ?? userId;
     const trimmed = content.trim();
     if (!trimmed) return;
 
@@ -87,23 +123,27 @@ export function useCoachIA(): UseCoachIAReturn {
     setMessages((prev) => [...prev, userMessage]);
     setIsTyping(true);
 
-    // Délai simulé pour l'effet "le coach réfléchit"
-    const delay = 900 + Math.random() * 800;
-    setTimeout(() => {
-      const assistantMessage: CoachMessage = {
-        id: generateId(),
-        role: "assistant",
-        content: buildAIReply(trimmed),
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-      setIsTyping(false);
-    }, delay);
-  }, []);
+    void fetchMistralReply(trimmed, effectiveUserId)
+      .catch(() => buildAIReply(trimmed))
+      .then((replyContent) => {
+        const assistantMessage: CoachMessage = {
+          id: generateId(),
+          role: "assistant",
+          content: replyContent,
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+        setIsTyping(false);
+      });
+  }, [userId]);
 
-  const clearConversation = useCallback(() => {
+  const clearConversation = useCallback((userIdOverride?: number) => {
+    const effectiveUserId = userIdOverride ?? userId;
+    if (effectiveUserId) {
+      void apiCall(`/coach/history/${effectiveUserId}`, { method: "DELETE" }).catch(() => null);
+    }
     setMessages([WELCOME_MESSAGE]);
-  }, []);
+  }, [userId]);
 
   return { messages, isTyping, sendMessage, clearConversation };
 }
