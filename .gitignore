@@ -11,6 +11,7 @@ Frontend/build/
 .env
 .env.local
 .env.*.local
+.env.example
 
 # IDE
 .idea/
@@ -53,3 +54,23 @@ Datasets/*.csv
 # Claude AI
 CLAUDE.md
 .claude/
+=======
+coach.db
+*.egg-info/
+
+# AI models
+ollama-models/
+*.bin
+*.gguf
+
+# ETL / Airflow
+Etl/dags/__pycache__/
+airflow-logs/
+
+data/
+Datasets/
+*.parquet
+*.jsonl
+
+# notebooks checkpoint
+.ipynb_checkpoints/

@@ -1,7 +1,6 @@
 Flask
 Flask-Cors
 uvicorn
-PyMySQL
 python-dotenv
 gunicorn
 pyway
@@ -14,3 +13,14 @@ pytest-mock
 werkzeug
 scikit-learn
 mistralai
+transformers
+torch
+pillow
+requests
+matplotlib
+fastapi
+uvicorn[standard]
+requests
+pymongo
+SQLAlchemy
+pymysql
