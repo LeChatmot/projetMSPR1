@@ -24,7 +24,7 @@ class Utilisateur:
             "pseudo": self.pseudo,
             "email": self.email,
             "role": self.role,
-            "date_of_birth": self.date_of_birth.isoformat() if self.date_of_birth else None,
+            "date_of_birth": str(self.date_of_birth) if self.date_of_birth else None,
             "height_cm": self.height_cm,
             "weight_kg": float(self.weight_kg) if self.weight_kg else None,
             "id_gender": self.id_gender,

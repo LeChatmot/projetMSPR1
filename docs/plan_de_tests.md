@@ -115,7 +115,18 @@ Composants testés :
 | COACH-03 | Historique chargé | GET /api/coach/history/3 | 200 + tableau de messages |
 | COACH-04 | Historique effacé | DELETE /api/coach/history/3 | 200 + historique vide |
 
-### 4.8 Repositories (unitaires)
+### 4.8 Sessions Sportives Personnelles
+
+| ID | Description | Entrée | Résultat attendu |
+|---|---|---|---|
+| SESSION-01 | Récupérer sessions utilisateur | GET /api/user/sessions/3 | 200 + tableau de séances |
+| SESSION-02 | Utilisateur sans séances | GET /api/user/sessions/999 | 200 + tableau vide |
+| SESSION-03 | Créer séance valide | POST /api/user/sessions + payload complet | 201 + séance créée |
+| SESSION-04 | Créer séance sans workout_type | POST sans workout_type | 400 |
+| SESSION-05 | Séance apparaît dans stats du mois | POST séance mois courant puis GET sessions | stats mois mises à jour |
+| SESSION-06 | Coach IA cite les séances | POST /api/coach/chat après SESSION-03 | reply mentionne le workout_type enregistré |
+
+### 4.9 Repositories (unitaires)
 
 | ID | Description | Résultat attendu |
 |---|---|---|
@@ -124,6 +135,8 @@ Composants testés :
 | REPO-03 | Email inexistant | Retourne False |
 | REPO-04 | Création recommandation nutrition | ID assigné |
 | REPO-05 | Pagination recommandations | Liste de la bonne taille |
+| REPO-06 | Création séance personnelle | ID assigné, workout_type, duration_min, calories_burned stockés |
+| REPO-07 | Récupération séances par user | Retourne uniquement les séances du bon user_id |
 
 ---
 

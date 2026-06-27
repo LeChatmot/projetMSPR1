@@ -400,3 +400,48 @@ Retourne les 50 derniers messages Coach IA de l'utilisateur (triés par date ASC
 Efface tout l'historique Coach IA de l'utilisateur.
 
 **Réponse 200 :** `{ "message": "Historique effacé" }`
+
+---
+
+## Sessions Sportives Personnelles
+
+### `GET /user/sessions/<user_id>`
+Retourne les 50 dernières séances sportives enregistrées par l'utilisateur (triées par date DESC).
+
+**Réponse 200 :**
+```json
+[
+  {
+    "id": 1,
+    "user_id": 3,
+    "workout_type": "Cardio",
+    "duration_min": 30,
+    "calories_burned": 450,
+    "session_date": "2026-06-27",
+    "created_at": "2026-06-27 21:16:00"
+  }
+]
+```
+
+---
+
+### `POST /user/sessions`
+Enregistre une nouvelle séance sportive pour l'utilisateur connecté.
+
+**Corps :**
+```json
+{
+  "user_id": 3,
+  "workout_type": "Cardio",
+  "duration_min": 30,
+  "calories_burned": 450,
+  "session_date": "2026-06-27"
+}
+```
+
+**Réponses :**
+| Code | Description |
+|---|---|
+| 201 | Séance créée — retourne les données de la séance |
+| 400 | Champ(s) manquant(s) |
+| 500 | Erreur serveur |

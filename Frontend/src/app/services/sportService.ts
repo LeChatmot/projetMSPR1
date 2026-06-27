@@ -1,8 +1,3 @@
-/**
- * Service pour la gestion des données sportives
- * Gère les appels API vers le backend avec fallback vers les mocks
- */
-
 import {
   calculateSportStats,
   getSportDistribution,
@@ -11,10 +6,24 @@ import {
 import type { SportDistribution, SportSession, SportStats } from "../types";
 import { apiCall } from "./api";
 
+export interface UserSession {
+  id: number;
+  user_id: number;
+  workout_type: string;
+  duration_min: number;
+  calories_burned: number;
+  session_date: string;
+}
+
+export interface NewSessionPayload {
+  user_id: number;
+  workout_type: string;
+  duration_min: number;
+  calories_burned: number;
+  session_date: string;
+}
+
 export const sportService = {
-  /**
-   * Récupère toutes les sessions sportives
-   */
   async getSessions(): Promise<SportSession[]> {
     return apiCall<SportSession[]>("/sport/sessions", {}, async () => {
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -22,9 +31,6 @@ export const sportService = {
     });
   },
 
-  /**
-   * Récupère la distribution des sports
-   */
   async getDistribution(): Promise<SportDistribution[]> {
     return apiCall<SportDistribution[]>("/sport/distribution", {}, async () => {
       await new Promise((resolve) => setTimeout(resolve, 300));
@@ -32,9 +38,6 @@ export const sportService = {
     });
   },
 
-  /**
-   * Récupère les stats sportives
-   */
   async getStats(): Promise<SportStats> {
     return apiCall<SportStats>("/sport/stats", {}, async () => {
       await new Promise((resolve) => setTimeout(resolve, 300));
@@ -42,24 +45,20 @@ export const sportService = {
     });
   },
 
-  /**
-   * Ajoute une nouvelle session
-   */
-  async addSession(session: Omit<SportSession, "id">): Promise<SportSession> {
-    return apiCall<SportSession>(
-      "/sport/sessions",
-      {
-        method: "POST",
-        body: JSON.stringify(session),
-      },
-      async () => {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const newSession: SportSession = {
-          ...session,
-          id: `S${String(mockSportSessions.length + 1).padStart(3, "0")}`,
-        };
-        return newSession;
-      },
-    );
+  async getUserSessions(userId: number): Promise<UserSession[]> {
+    const response = await fetch(`/api/user/sessions/${userId}`);
+    const json = await response.json() as { success: boolean; data: UserSession[] };
+    return json.success ? json.data : [];
+  },
+
+  async addUserSession(payload: NewSessionPayload): Promise<UserSession> {
+    const response = await fetch("/api/user/sessions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const json = await response.json() as { success: boolean; data: UserSession };
+    if (!json.success) throw new Error("Erreur lors de l'ajout de la séance");
+    return json.data;
   },
 };
