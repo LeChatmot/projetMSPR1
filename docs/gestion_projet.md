@@ -49,9 +49,10 @@ Le projet HealthIA a été conduit selon une méthodologie **Agile inspirée de 
 ```
 main              ← branche stable, déployée en prod
 │
-├── feat/coach-ia-mistral       ← intégration LLM Mistral
-├── feat/fix-responsive-ui      ← améliorations UI/UX
-└── fix/tests-deploiement-qualite ← tests, CI/CD, documentation
+├── feat---Ajout-infoUser           ← profil santé, Coach IA Mistral, historique IA, date de naissance
+├── feat/coach-ia-mistral           ← intégration LLM Mistral (mergée)
+├── feat/fix-responsive-ui          ← améliorations UI/UX (mergée)
+└── fix/tests-deploiement-qualite   ← tests, CI/CD, documentation (mergée)
 ```
 
 **Convention de nommage :**
@@ -84,7 +85,7 @@ main              ← branche stable, déployée en prod
 
 | Risque | Probabilité | Impact | Mitigation |
 |---|---|---|---|
-| Indisponibilité de l'API Mistral | Faible | Élevé | Clé API via variable d'environnement, fallback documenté |
+| Indisponibilité de l'API Mistral | Faible | Élevé | Clé API via variable d'environnement, fallback réponses locales côté frontend |
 | Régression après merge | Moyen | Moyen | Tests automatisés + CI bloquant si tests échouent |
-| Désynchronisation base de données | Faible | Élevé | Migrations Flyway versionnées (V1_01 → V1_35) |
+| Désynchronisation base de données | Faible | Élevé | Migrations Pyway versionnées (V1_01 → V1_42) — jamais modifiées, uniquement ajoutées |
 | Conflit de merge entre branches | Moyen | Faible | Convention de nommage + PR obligatoires |

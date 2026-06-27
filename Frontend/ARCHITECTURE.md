@@ -1,141 +1,75 @@
-# Architecture Frontend - MSPR Santé & Fitness
+# Architecture Frontend — HealthIA
 
 ## Vue d'ensemble
 
-Cette architecture a été refactorisée pour faciliter l'intégration avec le backend tout en préservant le visuel existant.
+Application React + TypeScript construite avec Vite. Le frontend communique exclusivement avec le backend Flask via un proxy Vite (`/api/*` → `http://localhost:5000`).
 
 ## Structure des dossiers
 
 ```
 src/app/
-├── components/       # Composants UI (inchangés visuellement)
-│   ├── Dashboard.tsx
+├── components/       # Pages et composants UI
+│   ├── Dashboard.tsx       — KPIs réels + profil santé personnel
+│   ├── CoachIAPage.tsx     — Chat Mistral AI avec historique persisté
+│   ├── ProfilePage.tsx     — Profil santé (IMC, TDEE, date de naissance)
+│   ├── RegisterPage.tsx    — Inscription avec date de naissance
 │   ├── PatientsPage.tsx
 │   ├── NutritionPage.tsx
 │   ├── SportPage.tsx
 │   └── ...
-├── hooks/           # Hooks React pour la gestion des données
+├── hooks/            # Hooks React — logique métier
+│   ├── useCoachIA.ts       — Mistral + historique chargé au mount
 │   ├── useDashboard.ts
 │   ├── usePatients.ts
 │   ├── useSport.ts
 │   └── useNutrition.ts
-├── services/        # Couche d'abstraction API
-│   ├── api.ts          # Configuration HTTP + fallback
+├── services/         # Couche d'appels API
+│   ├── api.ts              — apiCall() centralisé
+│   ├── profileService.ts   — profil santé + références
 │   ├── patientService.ts
 │   ├── sportService.ts
 │   └── nutritionService.ts
-├── types/          # Types TypeScript centralisés
-│   └── index.ts
-└── data/           # Mock data + fonctions de calcul
-    └── mockData.ts
+├── context/
+│   └── AuthContext.tsx     — Session utilisateur (backendId, nom, role...)
+└── types/
+    └── index.ts            — Types TypeScript centralisés
 ```
 
-## Comment ça marche
+## Principes clés
 
-### 1. Les hooks (useXxx)
+### Appels API
+Tous les appels passent par `apiCall()` dans `services/api.ts`. Le proxy Vite redirige `/api/*` vers le backend Flask (configurable via `VITE_API_TARGET` dans `.env.local`).
 
-Chaque page utilise un hook dédié qui:
+### Hooks
+Chaque page a son hook dédié qui gère `loading`, `error` et les données. Les composants restent "dumb" — ils affichent uniquement ce que le hook retourne.
 
-- Gère le chargement (`loading`)
-- Gère les erreurs (`error`)
-- Retourne les données prêtes à afficher
+### Coach IA
+`useCoachIA(userId)` charge l'historique depuis `GET /api/coach/history/<id>` au montage. Chaque échange est persisté en base via `POST /api/coach/chat`. Le bouton "Nouvelle conversation" appelle `DELETE /api/coach/history/<id>`.
 
-```tsx
-// Exemple d'utilisation dans un composant
-const { patients, stats, loading, error } = usePatients();
-
-if (loading) return <Spinner />;
-if (error) return <Error message={error} />;
-
-return <div>{patients.map(p => ...)}</div>;
-```
-
-### 2. Les services
-
-Chaque service (patient, sport, nutrition) propose des fonctions comme:
-
-- `getXxx()` - Récupérer les données
-- `createXxx()` - Créer une entrée
-- `updateXxx()` - Modifier une entrée
-- `deleteXxx()` - Supprimer une entrée
-
-### 3. Le fallback automatique
-
-Le système détecte automatiquement si le backend est disponible:
-
-- **Backend OK** → Appels API réels
-- **Backend KO** → Utilisation des mock data
-
-```
-ts
-// Dans api.ts
-async function apiCall<T>(endpoint, options, mockFallback) {
-  if (await checkBackendHealth()) {
-    // Appel HTTP réel
-    return fetchRealData();
-  }
-  // Fallback vers mock
-  return mockFallback();
-}
-```
-
-## Connexion au Backend
-
-### Configuration de l'URL
-
-Dans `services/api.ts`, modifier la constante:
-
-```
-ts
-const API_CONFIG = {
-  baseURL: 'http://localhost:5000/api', // ← Changer ici
-};
-```
-
-### Endpoints attendus par le backend
-
-| Service   | Endpoint              | Méthodes  |
-| --------- | --------------------- | --------- |
-| Patients  | `/api/patients`       | GET, POST |
-| Sport     | `/api/sport/sessions` | GET, POST |
-| Nutrition | `/api/nutrition/*`    | GET, POST |
-
-### Format de réponse attendu
-
-```
-json
-{
-  "data": [...],
-  "success": true,
-  "message": "...",
-  "timestamp": "2024-01-01T00:00:00Z"
-}
-```
-
-## Ajout d'une nouvelle page
-
-1. **Créer le service** dans `services/`
-2. **Créer le hook** dans `hooks/`
-3. **Importer le hook** dans le composant
-4. **Ajouter la route** dans `App.tsx`
+### Profil santé
+L'âge n'est jamais stocké manuellement — il est calculé côté backend depuis `date_of_birth` et retourné dans `GET /api/profile/<id>`.
 
 ## Commandes utiles
 
-```
-bash
+```bash
 # Installer les dépendances
 npm install
 
-# Lancer le frontend
+# Lancer le frontend (dev)
 npm run dev
 
-# Lancer le backend (Python)
-python backend.py
+# Lancer les tests
+npm run test
+
+# Build de production
+npm run build
 ```
 
-## Bonnes pratiques
+## Configuration proxy
 
-1. **Toujours utiliser les hooks** plutôt que d'importer directement les mock data
-2. **Les composants restent "dumb"** - ils ne font qu'afficher les données
-3. **La logique métier** est dans les hooks et services
-4. **Les types** sont centralisés dans `types/index.ts`
+`.env.local` (gitignored) :
+```
+VITE_API_TARGET=http://localhost:5000
+```
+
+En Docker, `VITE_API_TARGET` n'est pas défini — le proxy utilise `http://backend:5000` par défaut.

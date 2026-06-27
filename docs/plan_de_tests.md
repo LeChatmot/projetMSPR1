@@ -96,7 +96,26 @@ Composants testés :
 |---|---|---|---|
 | NUT-01 | Stats nutrition | GET /api/nutrition/stats | 200 + statistiques |
 
-### 4.6 Repositories (unitaires)
+### 4.6 Profil Santé
+
+| ID | Description | Entrée | Résultat attendu |
+|---|---|---|---|
+| SANTE-01 | Récupérer profil santé | GET /api/profile/3 | 200 + imc + age calculé + tdee_kcal |
+| SANTE-02 | Profil utilisateur inexistant | GET /api/profile/999 | 404 |
+| SANTE-03 | Mise à jour profil santé | PUT /api/profile/3/sante avec date_of_birth | 200 + IMC et TDEE recalculés |
+| SANTE-04 | Calcul âge depuis date de naissance | date_of_birth = "2000-03-20" | age = 26 |
+| SANTE-05 | Références santé disponibles | GET /api/references/sante | 200 + allergies + genders + activity_levels |
+
+### 4.7 Coach IA (Mistral)
+
+| ID | Description | Entrée | Résultat attendu |
+|---|---|---|---|
+| COACH-01 | Envoi message valide | POST /api/coach/chat + message | 200 + reply non vide |
+| COACH-02 | Message vide | POST /api/coach/chat + message="" | 400 |
+| COACH-03 | Historique chargé | GET /api/coach/history/3 | 200 + tableau de messages |
+| COACH-04 | Historique effacé | DELETE /api/coach/history/3 | 200 + historique vide |
+
+### 4.8 Repositories (unitaires)
 
 | ID | Description | Résultat attendu |
 |---|---|---|

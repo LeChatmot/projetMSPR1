@@ -8,6 +8,14 @@ from Repositories.ExerciceSessionsRepository import ExerciceSessionsRepository
 from Repositories.DietRecommandationsRepository import DietRecommandationsRepository
 from Repositories.DietRecommandationTypesRepository import DietRecommandationTypesRepository
 from Repositories.UtilisateursRepository import UtilisateursRepository
+from Repositories.UtilisateursAllergiesRepository import UtilisateursAllergiesRepository
+from Repositories.UtilisateursPathologiesRepository import UtilisateursPathologiesRepository
+from Repositories.UtilisateursBlessuresRepository import UtilisateursBlessuresRepository
+from Repositories.ReferencesRepository import ReferencesRepository
+from Repositories.CoachMessagesRepository import CoachMessagesRepository
+from Services.sante_calculator import calculate_imc, get_imc_categorie, calculate_tdee, calculate_age_from_dob
+
+MSG_UTILISATEUR_INTROUVABLE = "Utilisateur introuvable"
 from Repositories.PublicationsRepository import PublicationsRepository
 from Repositories.CommentairesRepository import CommentairesRepository
 from Models.Utilisateur import Utilisateur
@@ -336,7 +344,7 @@ def get_nutrition_plans():
 
 @app.route("/api/auth/register", methods=["POST"])
 def register():
-    """Crée un nouveau compte utilisateur."""
+    """Crée un nouveau compte utilisateur avec son profil santé optionnel."""
     body = request.get_json(silent=True) or {}
     nom = (body.get("nom") or "").strip()
     prenom = (body.get("prenom") or "").strip()
@@ -360,8 +368,26 @@ def register():
         nouvel_utilisateur.pseudo = pseudo
         nouvel_utilisateur.email = email
         nouvel_utilisateur.mot_de_passe = mot_de_passe
+        nouvel_utilisateur.date_of_birth = body.get("date_of_birth")
+        nouvel_utilisateur.height_cm = body.get("height_cm")
+        nouvel_utilisateur.weight_kg = body.get("weight_kg")
+        nouvel_utilisateur.id_gender = body.get("id_gender")
+        nouvel_utilisateur.id_activity_level = body.get("id_activity_level")
+        nouvel_utilisateur.experience_level = body.get("experience_level")
+        nouvel_utilisateur.objectif = body.get("objectif")
 
         repo.create(nouvel_utilisateur)
+
+        allergie_ids = body.get("allergie_ids") or []
+        if allergie_ids:
+            allergies_repo = UtilisateursAllergiesRepository()
+            allergies_repo.replace_all(nouvel_utilisateur.id, allergie_ids)
+
+        pathologie_ids = body.get("pathologie_ids") or []
+        if pathologie_ids:
+            pathologies_repo = UtilisateursPathologiesRepository()
+            pathologies_repo.replace_all(nouvel_utilisateur.id, pathologie_ids)
+
         return create_api_response(nouvel_utilisateur.to_public_dict(), message="Compte créé avec succès"), 201
     except Exception as e:
         print(f"❌ ERREUR API /auth/register: {e}")
@@ -639,6 +665,101 @@ def delete_admin_nutrition(rec_id):
 
 # --- ROUTES PROFIL UTILISATEUR ---
 
+@app.route("/api/profile/<int:user_id>", methods=["GET"])
+def get_profil_sante(user_id):
+    """Retourne le profil santé complet avec IMC, TDEE, allergies, pathologies et blessures."""
+    try:
+        utilisateur = UtilisateursRepository().find_by_id(user_id)
+        if not utilisateur:
+            return create_api_response({}, success=False, message=MSG_UTILISATEUR_INTROUVABLE), 404
+
+        profil = utilisateur.to_public_dict()
+
+        imc = None
+        imc_categorie = None
+        tdee_kcal = None
+
+        if utilisateur.weight_kg and utilisateur.height_cm:
+            imc = calculate_imc(utilisateur.weight_kg, utilisateur.height_cm)
+            imc_categorie = get_imc_categorie(imc)
+
+        age_calcule = calculate_age_from_dob(utilisateur.date_of_birth) if utilisateur.date_of_birth else None
+
+        if utilisateur.weight_kg and utilisateur.height_cm and age_calcule and utilisateur.id_gender and utilisateur.id_activity_level:
+            tdee_kcal = calculate_tdee(
+                utilisateur.weight_kg, utilisateur.height_cm,
+                age_calcule, utilisateur.id_gender, utilisateur.id_activity_level
+            )
+
+        allergies = UtilisateursAllergiesRepository().find_by_user(user_id)
+        pathologies = UtilisateursPathologiesRepository().find_by_user(user_id)
+        blessures = UtilisateursBlessuresRepository().find_by_user(user_id)
+
+        return create_api_response({
+            "profil": profil,
+            "age": age_calcule,
+            "imc": imc,
+            "imc_categorie": imc_categorie,
+            "tdee_kcal": tdee_kcal,
+            "allergies": allergies,
+            "pathologies": pathologies,
+            "blessures": blessures,
+        })
+    except Exception as e:
+        print(f"❌ ERREUR API GET /profile/{user_id}: {e}")
+        return create_api_response({}, success=False, message=str(e)), 500
+
+@app.route("/api/profile/<int:user_id>/sante", methods=["PUT"])
+def update_sante_utilisateur(user_id):
+    """Met à jour les données de santé d'un utilisateur."""
+    body = request.get_json(silent=True) or {}
+    try:
+        repo = UtilisateursRepository()
+        if not repo.find_by_id(user_id):
+            return create_api_response({}, success=False, message=MSG_UTILISATEUR_INTROUVABLE), 404
+
+        repo.update_profil_sante(
+            user_id,
+            body.get("date_of_birth"),
+            body.get("height_cm"),
+            body.get("weight_kg"),
+            body.get("id_gender"),
+            body.get("id_activity_level"),
+            body.get("experience_level"),
+            body.get("objectif"),
+        )
+
+        allergie_ids = body.get("allergie_ids")
+        if allergie_ids is not None:
+            UtilisateursAllergiesRepository().replace_all(user_id, allergie_ids)
+
+        pathologie_ids = body.get("pathologie_ids")
+        if pathologie_ids is not None:
+            UtilisateursPathologiesRepository().replace_all(user_id, pathologie_ids)
+
+        utilisateur_updated = repo.find_by_id(user_id)
+        return create_api_response(utilisateur_updated.to_public_dict(), message="Profil santé mis à jour")
+    except Exception as e:
+        print(f"❌ ERREUR API PUT /profile/{user_id}/sante: {e}")
+        return create_api_response({}, success=False, message=str(e)), 500
+
+
+@app.route("/api/references/sante", methods=["GET"])
+def get_sante_references():
+    """Retourne les listes de référence pour le profil santé."""
+    try:
+        ref = ReferencesRepository()
+        return create_api_response({
+            "allergies": ref.get_allergies(),
+            "disease_types": ref.get_disease_types(),
+            "genders": ref.get_genders(),
+            "activity_levels": ref.get_activity_levels(),
+        })
+    except Exception as e:
+        print(f"❌ ERREUR API GET /references/sante: {e}")
+        return create_api_response({}, success=False, message=str(e)), 500
+
+
 @app.route("/api/utilisateurs/<int:user_id>", methods=["PUT"])
 def update_utilisateur(user_id):
     """Met à jour le nom, prénom et email d'un utilisateur."""
@@ -654,7 +775,7 @@ def update_utilisateur(user_id):
         repo = UtilisateursRepository()
         utilisateur = repo.find_by_id(user_id)
         if not utilisateur:
-            return create_api_response({}, success=False, message="Utilisateur introuvable"), 404
+            return create_api_response({}, success=False, message=MSG_UTILISATEUR_INTROUVABLE), 404
         if repo.email_exists_for_other(email, user_id):
             return create_api_response({}, success=False, message="Cet email est déjà utilisé"), 409
 
@@ -684,7 +805,7 @@ def update_utilisateur_password(user_id):
         repo = UtilisateursRepository()
         utilisateur = repo.find_by_id(user_id)
         if not utilisateur:
-            return create_api_response({}, success=False, message="Utilisateur introuvable"), 404
+            return create_api_response({}, success=False, message=MSG_UTILISATEUR_INTROUVABLE), 404
         if not repo.verify_password(utilisateur, ancien_mot_de_passe):
             return create_api_response({}, success=False, message="Mot de passe actuel incorrect"), 401
 
@@ -692,6 +813,86 @@ def update_utilisateur_password(user_id):
         return create_api_response({}, message="Mot de passe mis à jour")
     except Exception as e:
         print(f"❌ ERREUR API PUT /utilisateurs/{user_id}/password: {e}")
+        return create_api_response({}, success=False, message=str(e)), 500
+
+
+MISTRAL_SYSTEM_PROMPT = """Tu es un coach sportif et nutritionnel personnalisé intégré à l'application Santé & Fit.
+Tu fournis des conseils courts, bienveillants et adaptés au profil de l'utilisateur.
+Réponds toujours en français. Maximum 150 mots par réponse."""
+
+
+@app.route("/api/coach/chat", methods=["POST"])
+def coach_chat():
+    """Envoie un message au Coach IA Mistral et retourne sa réponse."""
+    body = request.get_json(silent=True) or {}
+    user_message = (body.get("message") or "").strip()
+    user_id = body.get("user_id")
+
+    if not user_message:
+        return create_api_response({}, success=False, message="Message requis"), 400
+
+    mistral_api_key = os.getenv("MISTRAL_API_KEY", "")
+    if not mistral_api_key:
+        return create_api_response({}, success=False, message="MISTRAL_API_KEY non configurée"), 503
+
+    try:
+        import requests as http_requests
+
+        system_prompt = MISTRAL_SYSTEM_PROMPT
+        if user_id:
+            profil = UtilisateursRepository().find_by_id(int(user_id))
+            if profil and profil.weight_kg and profil.height_cm:
+                imc = calculate_imc(profil.weight_kg, profil.height_cm)
+                system_prompt += f"\n\nProfil utilisateur : IMC {imc} ({get_imc_categorie(imc)}), objectif : {profil.objectif or 'non renseigné'}, expérience : niveau {profil.experience_level or 'non renseigné'}."
+
+        mistral_response = http_requests.post(
+            "https://api.mistral.ai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {mistral_api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": os.getenv("MISTRAL_MODEL", "mistral-small-latest"),
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message},
+                ],
+            },
+            timeout=30,
+        )
+        mistral_response.raise_for_status()
+        reply = mistral_response.json()["choices"][0]["message"]["content"]
+
+        if user_id:
+            coach_repo = CoachMessagesRepository()
+            coach_repo.save_message(int(user_id), "user", user_message)
+            coach_repo.save_message(int(user_id), "assistant", reply)
+
+        return create_api_response({"reply": reply})
+    except Exception as e:
+        print(f"❌ ERREUR API /coach/chat: {e}")
+        return create_api_response({}, success=False, message=str(e)), 500
+
+
+@app.route("/api/coach/history/<int:user_id>", methods=["GET"])
+def get_coach_history(user_id):
+    """Retourne l'historique des messages du Coach IA pour un utilisateur."""
+    try:
+        messages = CoachMessagesRepository().find_by_user(user_id)
+        return create_api_response(messages)
+    except Exception as e:
+        print(f"❌ ERREUR API GET /coach/history/{user_id}: {e}")
+        return create_api_response({}, success=False, message=str(e)), 500
+
+
+@app.route("/api/coach/history/<int:user_id>", methods=["DELETE"])
+def clear_coach_history(user_id):
+    """Efface l'historique des messages du Coach IA pour un utilisateur."""
+    try:
+        CoachMessagesRepository().clear_history(user_id)
+        return create_api_response({}, message="Historique effacé")
+    except Exception as e:
+        print(f"❌ ERREUR API DELETE /coach/history/{user_id}: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 

@@ -16,13 +16,13 @@ graph TB
 
     subgraph Backend["Serveur Backend"]
         API["API REST Flask\nPython 3.12\nlocalhost:5000"]
-        Mistral["Coach IA\nMistral API"]
+        Mistral["Coach IA\nMistral AI API\nmistral-small-latest"]
     end
 
     subgraph Data["Couche Données"]
         DB[("MySQL 8\nhealth_ia_db\nlocalhost:3306")]
         ETL["Pipeline ETL\nApache Airflow"]
-        CSV["Datasets CSV\n3 fichiers sources"]
+        CSV["Datasets CSV\n(exercice_sessions, diet_recommendations,\ndaily_food, gym_members)"]
     end
 
     subgraph CI["Intégration Continue"]
@@ -32,7 +32,7 @@ graph TB
 
     UI -->|"HTTP REST /api/*"| API
     API -->|"Repository Pattern\nSQL queries"| DB
-    API -->|"HTTP POST /chat"| Mistral
+    API -->|"POST /v1/chat/completions\nHTTPS"| Mistral
     CSV -->|"Extraction\nTransformation"| ETL
     ETL -->|"Chargement\n(INSERT)"| DB
     Jenkins -->|"Analyse statique"| Sonar
@@ -56,17 +56,24 @@ graph TB
 - CORS restreint via variable d'environnement `CORS_ALLOWED_ORIGINS`
 - Binding configurable `FLASK_HOST` (127.0.0.1 local, 0.0.0.0 Docker)
 
-### Coach IA — Mistral
-- Intégration via API Mistral (clé `MISTRAL_API_KEY`)
-- Génération de conseils personnalisés basés sur le profil utilisateur
+### Coach IA — Mistral AI
+- Modèle : `mistral-small-latest` via l'API REST Mistral AI (`https://api.mistral.ai/v1/chat/completions`)
+- Clé API configurée via variable d'environnement `MISTRAL_API_KEY`
+- Prompt système personnalisé dynamiquement avec le profil santé de l'utilisateur (IMC, objectif, niveau d'expérience)
+- Endpoints Flask :
+  - `POST /api/coach/chat` — reçoit le message utilisateur, appelle Mistral, persiste l'échange en base, retourne la réponse
+  - `GET /api/coach/history/<user_id>` — charge l'historique des 50 derniers messages
+  - `DELETE /api/coach/history/<user_id>` — efface l'historique (bouton "Nouvelle conversation")
+- Historique persisté en base (`coach_messages`) : rechargé automatiquement à chaque connexion
+- Fallback frontend : si le backend est injoignable, réponses contextuelles locales
 
 ### Base de données — MySQL 8
-- 35 migrations versionnées (Flyway/Pyway V1_01 → V1_35)
-- Tables principales : `utilisateurs`, `exercice_sessions`, `diet_recommendations`, `publications`, `workout_types`
-- Repository Pattern pour l'accès aux données (20+ repositories)
+- 41 migrations versionnées (Pyway V1_01 → V1_41)
+- Tables principales : `utilisateurs`, `exercice_sessions`, `diet_recommendations`, `publications`, `workout_types`, `utilisateurs_allergies`, `utilisateurs_pathologies`, `utilisateurs_blessures`, `coach_messages`
+- Repository Pattern pour l'accès aux données (25 repositories)
 
 ### Pipeline ETL — Apache Airflow
-- 3 DAGs pour l'ingestion des données CSV sources
+- 4 DAGs de production pour l'ingestion des données CSV sources (exercice_sessions, diet_recommendations, daily_food, food_categories)
 - Transformation et nettoyage avant chargement en base
 - Planification automatique des imports
 
@@ -113,3 +120,5 @@ sequenceDiagram
 | MySQL vs NoSQL | Données relationnelles structurées (patients ↔ sessions ↔ recommandations) |
 | Vite vs Create React App | Build 10× plus rapide, HMR natif, standard actuel de l'écosystème React |
 | Docker Compose | Orchestration locale reproductible — même commande pour tous les environnements |
+| Mistral AI vs OpenAI | LLM européen (RGPD-friendly), API REST simple, modèle `mistral-small-latest` performant et économique |
+| Appel HTTP direct vs SDK mistralai | Évite les dépendances instables — `requests` est déjà présent dans l'environnement Flask |

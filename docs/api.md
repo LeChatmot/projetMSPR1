@@ -40,7 +40,8 @@ Crée un nouveau compte utilisateur.
   "prenom": "Jean",
   "pseudo": "jdupont",
   "email": "jean@example.com",
-  "mot_de_passe": "motdepasse123"
+  "mot_de_passe": "motdepasse123",
+  "date_of_birth": "2000-03-20"
 }
 ```
 
@@ -295,3 +296,107 @@ Met à jour nom, prénom et email.
 
 ### `PUT /utilisateurs/<id>/password`
 Change le mot de passe (vérifie l'ancien avant d'enregistrer le nouveau hashé).
+
+---
+
+## Profil Santé
+
+### `GET /profile/<id>`
+Retourne le profil santé complet d'un utilisateur.
+
+**Réponse 200 :**
+```json
+{
+  "profil": {
+    "date_of_birth": "2000-03-20",
+    "height_cm": 178,
+    "weight_kg": 80.0,
+    "id_gender": 1,
+    "id_activity_level": 2,
+    "experience_level": 2,
+    "objectif": "Perte de poids"
+  },
+  "age": 26,
+  "imc": 25.2,
+  "imc_categorie": "Surpoids",
+  "tdee_kcal": 2606,
+  "allergies": [{ "id": 1, "name": "Gluten" }],
+  "pathologies": [],
+  "blessures": []
+}
+```
+
+---
+
+### `PUT /profile/<id>/sante`
+Met à jour les données de santé (date de naissance, mesures, allergies, pathologies).
+
+**Corps :**
+```json
+{
+  "date_of_birth": "2000-03-20",
+  "height_cm": 178,
+  "weight_kg": 80.0,
+  "id_gender": 1,
+  "id_activity_level": 2,
+  "experience_level": 2,
+  "objectif": "Perte de poids",
+  "allergie_ids": [1, 3],
+  "pathologie_ids": []
+}
+```
+
+---
+
+### `GET /references/sante`
+Retourne les listes de référence pour le formulaire santé.
+
+**Réponse 200 :**
+```json
+{
+  "allergies": [{ "id": 1, "name": "Gluten" }],
+  "disease_types": [{ "id": 1, "name": "Diabetes" }],
+  "genders": [{ "id": 1, "name": "Male" }],
+  "activity_levels": [{ "id": 1, "name": "Sedentary" }]
+}
+```
+
+---
+
+## Coach IA (Mistral)
+
+### `POST /coach/chat`
+Envoie un message au Coach IA Mistral et retourne sa réponse. Persiste l'échange en base si `user_id` fourni.
+
+**Corps :**
+```json
+{
+  "message": "Comment améliorer ma nutrition ?",
+  "user_id": 3
+}
+```
+
+**Réponse 200 :**
+```json
+{ "reply": "Voici mes conseils personnalisés..." }
+```
+
+| Code | Description |
+|---|---|
+| 200 | Réponse Mistral retournée |
+| 400 | Message vide |
+| 503 | MISTRAL_API_KEY non configurée |
+
+---
+
+### `GET /coach/history/<id>`
+Retourne les 50 derniers messages Coach IA de l'utilisateur (triés par date ASC).
+
+**Réponse 200 :** tableau de `{ id, role, content, created_at }`
+
+---
+
+### `DELETE /coach/history/<id>`
+Efface tout l'historique Coach IA de l'utilisateur.
+
+**Réponse 200 :** `{ "message": "Historique effacé" }`

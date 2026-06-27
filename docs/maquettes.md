@@ -126,7 +126,7 @@ Le projet cible deux types d'utilisateurs :
 | Vue d'ensemble | `/` | ✅ | ✅ Implémenté |
 | Suivi activités | `/nutrition` | ✅ | ✅ Implémenté |
 | Statistiques | `/sport` + `/patients` | ✅ | ✅ Implémenté |
-| Coach IA | `/coach-ia` | ✅ | 🔄 En cours |
+| Coach IA | `/coach-ia` | ✅ | ✅ Implémenté (Mistral AI + historique persisté) |
 | Communauté | `/community` | ✅ | ✅ Implémenté |
 | Profil utilisateur | `/profile` | ✅ | ✅ Implémenté |
 
