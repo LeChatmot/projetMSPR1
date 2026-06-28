@@ -16,18 +16,54 @@ function formatTime(date: Date): string {
 
 export function CoachIAPage() {
   const { user } = useAuth();
-  const { messages, isTyping, sendMessage, clearConversation } = useCoachIA(user?.backendId);
+  const { messages, isTyping, sendMessage, sendMessageWithFile, clearConversation } = useCoachIA(user?.backendId);
   const [inputValue, setInputValue] = useState("");
+  const [file, setFile] = useState(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  // const handleSubmit = (e: FormEvent) => {
+  //   e.preventDefault();
+  //   sendMessage(inputValue);
+  //   setInputValue("");
+  // };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   const formData = new FormData();
+  //   formData.append("message", inputValue);
+
+  //   if (file) {
+  //     formData.append("file", file);
+  //   }
+
+  //   await fetch("/api/chat", {
+  //     method: "POST",
+  //     body: formData,
+  //   });
+
+  //   setInputValue("");
+  //   setFile(null);
+  // };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    sendMessage(inputValue);
+    if (!inputValue.trim() && !file) return;
+
+    await sendMessageWithFile(inputValue, file);
+
     setInputValue("");
+    setFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = ""; // ← reset
   };
 
   const handleQuickQuestion = (question: string) => {
@@ -149,7 +185,19 @@ export function CoachIAPage() {
 
         {/* Zone de saisie */}
         <div className="border-t border-slate-700 p-4">
-          <form onSubmit={handleSubmit} className="flex gap-3">
+          <form onSubmit={handleSubmit} className="flex gap-3 items-center">
+
+            {/* bouton upload */}
+            <label className="cursor-pointer text-slate-300 hover:text-emerald-400">
+              📎
+              <input
+                type="file"
+                className="hidden"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+              />
+            </label>
+
             <input
               type="text"
               value={inputValue}
@@ -158,14 +206,23 @@ export function CoachIAPage() {
               disabled={isTyping}
               className="flex-1 px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-sm transition-all disabled:opacity-50"
             />
+
             <button
               type="submit"
-              disabled={!inputValue.trim() || isTyping}
+              // disabled={!inputValue.trim() || isTyping}
               className="px-4 py-3 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-700 disabled:text-slate-600 text-white rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:shadow-none"
             >
               <Send size={18} />
             </button>
+
           </form>
+
+          {/* preview fichier */}
+          {file && (
+            <div className="mt-2 text-sm text-slate-400">
+              📄 Fichier sélectionné : {file.name}
+            </div>
+          )}
         </div>
       </div>
     </div>
