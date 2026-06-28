@@ -67,8 +67,7 @@ ollama-models/
 Etl/dags/__pycache__/
 airflow-logs/
 
-data/
-Datasets/
+data/ollama/
 *.parquet
 *.jsonl
 
