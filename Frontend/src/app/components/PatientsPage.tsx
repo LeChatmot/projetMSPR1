@@ -20,11 +20,14 @@ function PersonalProfilePage() {
 
   const bmiColor = getBmiColor(profile.bmi);
 
+  const formatOrEmpty = (val: number, suffix: string) =>
+    val > 0 ? `${val} ${suffix}` : "Non renseigné";
+
   const rows = [
-    { label: "Âge", value: `${profile.age} ans` },
-    { label: "Taille", value: `${profile.heightCm} cm` },
-    { label: "Poids actuel", value: `${profile.weightKg} kg` },
-    { label: "IMC", value: profile.bmi.toString(), valueClass: bmiColor },
+    { label: "Âge", value: formatOrEmpty(profile.age, "ans") },
+    { label: "Taille", value: formatOrEmpty(profile.heightCm, "cm") },
+    { label: "Poids actuel", value: formatOrEmpty(profile.weightKg, "kg") },
+    { label: "IMC", value: profile.bmi > 0 ? profile.bmi.toString() : "Non renseigné", valueClass: profile.bmi > 0 ? bmiColor : "text-slate-400" },
     { label: "Niveau d'activité", value: profile.activityLevel },
     { label: "Plan nutritionnel", value: profile.dietPlan },
     { label: "Allergie / Restriction", value: "Aucune" },

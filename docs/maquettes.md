@@ -15,19 +15,53 @@ Réalisés manuellement pour cadrer les besoins utilisateurs avant le développe
 
 Fichiers source draw.io : [Accéder aux fichiers draw.io (Google Drive)](https://drive.google.com/drive/folders/1IHREqZHPMFyAHUeclpHm3qw6ngtKIWbG?usp=drive_link)
 
+### Connexion
+![Wireframe Connexion](maquettes/Maquette%20HealthIA%20Coach%20-%20pages%20test-5-Connexion.drawio.png)
+
+**Éléments représentés :**
+- Logo centré + titre "Connexion à votre compte"
+- Champ email + champ mot de passe
+- Bouton principal "Se connecter"
+- Lien "Pas encore de compte ? S'inscrire"
+
+---
+
+### Inscription
+![Wireframe Inscription](maquettes/Maquette%20HealthIA%20Coach%20-%20pages%20test-6-Inscription.drawio.png)
+
+**Éléments représentés :**
+- Formulaire 2 colonnes : Prénom/Nom puis Pseudo/Date de naissance
+- Champs email, mot de passe, confirmation
+- Bouton "Créer mon compte"
+- Lien "Déjà un compte ? Se connecter"
+
+---
+
 ### Dashboard
-![Wireframe Dashboard](maquettes/maquette%20Version%201-1-Dashboard.drawio.png)
+![Wireframe Dashboard](maquettes/Maquette%20HealthIA%20Coach%20-%20pages%20test-1-Dashboard.drawio.png)
 
 **Éléments représentés :**
 - Sidebar de navigation avec tous les modules
-- 4 cards KPI : Calories, IMC, Sessions, Objectif
-- Graphique en barres — activité de la semaine
-- Bloc profil médical (régime, allergies)
+- 4 cards KPI : Poids, IMC, Besoins caloriques, Objectif
+- Bloc profil santé (taille, âge, niveau d'activité, objectif)
+- Bloc allergies & TDEE
+
+---
+
+### Sport & Activités
+![Wireframe Sport](maquettes/Maquette%20HealthIA%20Coach%20-%20pages%20test-7-Sport.drawio.png)
+
+**Éléments représentés :**
+- 4 KPI : Séances ce mois, Calories brûlées, Minutes totales, Sport favori
+- Bouton "+ Ajouter une séance" en haut à droite
+- Graphique en barres (répartition par type de sport)
+- Liste des dernières séances avec durée et calories
+- Modal d'ajout : type d'activité, durée, calories, date
 
 ---
 
 ### Communauté (Forum)
-![Wireframe Communauté](maquettes/maquette%20Version%201-2-Communaute.drawio.png)
+![Wireframe Communauté](maquettes/Maquette%20HealthIA%20Coach%20-%20pages%20test-2-Communaute.drawio.png)
 
 **Éléments représentés :**
 - Formulaire de nouvelle publication (champ texte + bouton Publier)
@@ -37,98 +71,155 @@ Fichiers source draw.io : [Accéder aux fichiers draw.io (Google Drive)](https:/
 ---
 
 ### Profil utilisateur
-![Wireframe Profil](maquettes/maquette%20Version%201-3-Profil.drawio%281%29.png)
+![Wireframe Profil](maquettes/Maquette%20HealthIA%20Coach%20-%20pages%20test-3-Profil.drawio.png)
 
 **Éléments représentés :**
-- Photo de profil + nom + email
-- Formulaire de modification (nom d'affichage, email, mot de passe)
-- Bouton "Enregistrer" + bouton "Déconnexion"
+- Informations du compte (nom, email, modification)
+- Données de santé (date de naissance → âge calculé, taille, poids, genre, niveau d'activité, objectif)
+- Section sécurité (changement de mot de passe)
 
 ---
 
 ### Coach IA
-![Wireframe Coach IA](maquettes/maquette%20Version%201-4-CoachIA.drawio.png)
+![Wireframe Coach IA](maquettes/Maquette%20HealthIA%20Coach%20-%20pages%20test-4-CoachIA.drawio.png)
 
 **Éléments représentés :**
 - Interface de chat : bulles utilisateur (droite) et réponses IA (gauche)
 - Champ de saisie "Posez votre question..." + bouton "Envoyer"
 - Historique de conversation scrollable
+- Bouton "Nouvelle conversation"
 
 ---
 
 ## Niveau 2 — Maquettes haute fidélité (Figma)
 
-[Ouvrir les maquettes Figma](https://www.figma.com/make/6fjDfOK09Fm4P8VDkx5R7d/Patient-Dashboard-Code-Generation?t=5LEvR8QVw9ISh9E0-1)
+[Ouvrir les maquettes Figma](https://www.figma.com/make/6fjDfOK09Fm4P8VDkx5R7d/Patient-Dashboard-Code-Generation?t=ybgALo6vNqVNDnsZ-1)
 
 Les captures statiques sont disponibles dans le dossier [`docs/maquettes/`](maquettes/).
 
 ---
 
-## Contexte de conception
+### Écran 1 — Connexion
+![Page de connexion](maquettes/Page%20de%20connexion.png)
 
-Les maquettes ont été réalisées en amont du développement pour cadrer les besoins utilisateurs et valider l'architecture visuelle avant de coder. Le branding "HealthTrack" visible dans les maquettes Figma a été adapté en "Santé & Fit" lors du développement, suite à une décision d'équipe pour mieux refléter le positionnement du produit final. La structure des écrans et les fonctionnalités représentées ont été conservées.
+**Fonctionnalités représentées :**
+- Formulaire de connexion centré (email + mot de passe)
+- Bouton principal "Se connecter"
+- Lien vers la page d'inscription
 
-Le projet cible deux types d'utilisateurs :
-- **Utilisateur standard** : consulte son tableau de bord santé, ses données d'activité et accède au Coach IA
-- **Administrateur** : gère les recommandations nutritionnelles et les données patients
+**User stories couvertes :**
+- En tant qu'utilisateur, je veux me connecter avec mon email et mon mot de passe
 
 ---
 
-### Écran 1 — Vue d'ensemble (Dashboard)
-![Vue d'ensemble](maquettes/Dashboard.png)
+### Écran 2 — Vue d'ensemble (Dashboard)
+![Dashboard](maquettes/Dashboard%20Figma.png)
 
 **Fonctionnalités représentées :**
-- KPIs santé en temps réel : objectif calorique, sommeil, hydratation, poids
-- Graphique hebdomadaire des calories brûlées
-- Profil médical rapide : régime assigné, allergies connues, état de santé
+- KPIs santé en temps réel : poids, IMC, besoins caloriques, objectif
+- Bloc profil santé (taille, âge, niveau d'activité, statut IMC)
+- Bloc allergies & TDEE estimés
 - Navigation latérale avec accès à tous les modules
 
 **User stories couvertes :**
 - En tant qu'utilisateur, je veux voir mes indicateurs de santé clés en un coup d'œil
-- En tant qu'utilisateur, je veux visualiser l'évolution de mon activité sur la semaine
 - En tant qu'utilisateur, je veux accéder à mon profil médical depuis le tableau de bord
 
 ---
 
-### Écran 2 — Suivi des activités
-![Suivi Activité](maquettes/Suivi%20Activité.png)
+### Écran 3 — Mes Activités Sportives
+![Mes activités](maquettes/Mes%20activités%20Figma.png)
 
 **Fonctionnalités représentées :**
-- Bilan calorique journalier (consommé / brûlé / solde net)
-- Historique chronologique des repas et séances d'entraînement
-- Ajout d'une nouvelle entrée (repas ou activité)
-- Filtres par date
+- 4 KPIs : séances ce mois, calories brûlées, minutes totales, sport favori
+- Graphique en barres de répartition par type de sport
+- Liste des dernières séances avec durée et calories
+- Bouton "+ Ajouter une séance" + modal de saisie
 
 **User stories couvertes :**
-- En tant qu'utilisateur, je veux enregistrer mes repas et activités au quotidien
-- En tant qu'utilisateur, je veux voir mon bilan calorique du jour en temps réel
+- En tant qu'utilisateur, je veux enregistrer mes séances sportives et visualiser mes stats du mois
 
 ---
 
-### Écran 3 — Statistiques personnelles
-![Statistiques](maquettes/Statistique%20personnel.png)
+### Écran 4 — Nutrition
+![Nutrition](maquettes/Nutrition%20Figma.png)
 
 **Fonctionnalités représentées :**
-- KPIs de progression : perte de poids, calories brûlées, adhésion au régime, qualité du sommeil
-- Graphique d'évolution du poids sur 6 semaines
-- Bilan calorique hebdomadaire (consommées vs brûlées)
+- KPIs : types de régimes, plans actifs, calories moyennes/jour, recettes disponibles
+- Graphique en camembert de la distribution des régimes
+- Liste des plans alimentaires disponibles avec exemples de repas
 
 **User stories couvertes :**
-- En tant qu'utilisateur, je veux suivre ma progression santé sur le long terme
-- En tant qu'utilisateur, je veux comparer mes calories consommées et brûlées par semaine
+- En tant qu'utilisateur, je veux consulter les recommandations nutritionnelles adaptées à mon profil
+
+---
+
+### Écran 5 — Coach IA
+![Coach IA](maquettes/Coach%20IA%20Figma.png)
+
+**Fonctionnalités représentées :**
+- Interface de chat avec bulles utilisateur (droite) et réponses IA (gauche)
+- Champ de saisie + bouton envoyer
+- Historique de conversation scrollable
+- Bouton "Nouvelle conversation"
+
+**User stories couvertes :**
+- En tant qu'utilisateur, je veux poser des questions à un coach IA personnalisé qui connaît mon profil et mes séances
+
+---
+
+### Écran 6 — Communauté (Forum)
+![Forum](maquettes/Forum%20Figma.png)
+
+**Fonctionnalités représentées :**
+- Zone de création de publication (texte + bouton Publier)
+- Fil de publications avec avatar, pseudo, date, contenu
+- Système de commentaires par publication
+
+**User stories couvertes :**
+- En tant qu'utilisateur, je veux partager mes expériences et interagir avec la communauté
+
+---
+
+### Écran 7 — Profil & Santé
+![Profil](maquettes/Profils%20Figma.png)
+
+**Fonctionnalités représentées :**
+- Informations du compte (nom, prénom, email)
+- Données de santé (date de naissance → âge calculé automatiquement, taille, poids, genre, niveau d'activité, objectif)
+- Section sécurité (changement de mot de passe)
+
+**User stories couvertes :**
+- En tant qu'utilisateur, je veux mettre à jour mon profil santé pour que le Coach IA et les calculs (IMC, TDEE) soient précis
+
+---
+
+## Contexte de conception
+
+Les maquettes ont été réalisées en amont du développement pour cadrer les besoins utilisateurs et valider l'architecture visuelle avant de coder. Certains ajustements ont été faits en cours de développement :
+
+- Le branding "HealthIA" des wireframes a évolué vers "Santé & Fit" lors du développement, suite à une décision d'équipe pour mieux refléter le positionnement du produit final.
+- La couleur primaire a été affinée de teal (#14b8a6) vers emerald (#10b981) pour une meilleure lisibilité.
+- Les KPIs du Dashboard ont été réorganisés de 2×2 (maquette) vers 1×4 (implémentation) pour une meilleure exploitation de l'espace sur grand écran.
+
+Le projet cible deux types d'utilisateurs :
+- **Utilisateur standard** : consulte son tableau de bord santé, enregistre ses séances sportives, interagit avec le Coach IA
+- **Administrateur** : gère les recommandations nutritionnelles et les données patients
 
 ---
 
 ## Correspondance maquette → implémentation
 
-| Écran maquetté | Route implémentée | Wireframe | Statut |
-|---|---|---|---|
-| Vue d'ensemble | `/` | ✅ | ✅ Implémenté |
-| Suivi activités | `/nutrition` | ✅ | ✅ Implémenté |
-| Statistiques | `/sport` + `/patients` | ✅ | ✅ Implémenté |
-| Coach IA | `/coach-ia` | ✅ | ✅ Implémenté (Mistral AI + historique persisté) |
-| Communauté | `/community` | ✅ | ✅ Implémenté |
-| Profil utilisateur | `/profile` | ✅ | ✅ Implémenté |
+| Écran maquetté | Route implémentée | Wireframe | Maquette HF | Statut |
+|---|---|---|---|---|
+| Connexion | `/login` | ✅ | ✅ | ✅ Implémenté |
+| Inscription | `/register` | ✅ | ✅ | ✅ Implémenté (avec date de naissance) |
+| Vue d'ensemble | `/` | ✅ | ✅ | ✅ Implémenté |
+| Activités sportives | `/sport` | ✅ | ✅ | ✅ Implémenté (enregistrement séances + stats) |
+| Nutrition | `/nutrition` | ✅ | ✅ | ✅ Implémenté |
+| Coach IA | `/coach-ia` | ✅ | ✅ | ✅ Implémenté (Mistral AI + historique + contexte séances) |
+| Communauté | `/community` | ✅ | ✅ | ✅ Implémenté |
+| Profil & Santé | `/profile` | ✅ | ✅ | ✅ Implémenté (date naissance → âge calculé, IMC, TDEE) |
 
 ---
 
@@ -140,3 +231,5 @@ Le projet cible deux types d'utilisateurs :
 | Thème sombre (slate-800) | Réduction de la fatigue visuelle pour usage prolongé |
 | Couleur emerald pour les actions | Identité "santé/nature", différenciation claire des éléments interactifs |
 | Cards KPI en haut de page | Les métriques clés sont visibles sans scroll |
+| Modal pour l'ajout de séances | Ne quitte pas la page courante, expérience fluide |
+| Date de naissance plutôt qu'âge | Calcul automatique côté serveur, évite les données obsolètes |

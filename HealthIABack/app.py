@@ -13,6 +13,7 @@ from Repositories.UtilisateursPathologiesRepository import UtilisateursPathologi
 from Repositories.UtilisateursBlessuresRepository import UtilisateursBlessuresRepository
 from Repositories.ReferencesRepository import ReferencesRepository
 from Repositories.CoachMessagesRepository import CoachMessagesRepository
+from Repositories.UserSessionsRepository import UserSessionsRepository
 from Services.sante_calculator import calculate_imc, get_imc_categorie, calculate_tdee, calculate_age_from_dob
 
 MSG_UTILISATEUR_INTROUVABLE = "Utilisateur introuvable"
@@ -25,6 +26,7 @@ from Models.DietRecommandation import DietRecommandation
 
 # Charge les variables d'environnement depuis le fichier .env
 load_dotenv()
+load_dotenv(".env.local", override=True)
 
 # Initialisation de l'application Flask
 app = Flask(__name__)
@@ -241,6 +243,41 @@ def get_sport_distribution_direct():
     except Exception as e:
         print(f"❌ ERREUR API /sport/distribution: {e}")
         return create_api_response([], success=False, message=str(e)), 500
+
+# --- SESSIONS PERSONNELLES UTILISATEUR ---
+
+@app.route("/api/user/sessions/<int:user_id>", methods=["GET"])
+def get_user_sessions(user_id: int):
+    try:
+        repo = UserSessionsRepository()
+        sessions = repo.get_by_user(user_id)
+        return create_api_response(sessions)
+    except Exception as e:
+        print(f"❌ ERREUR API /user/sessions/{user_id}: {e}")
+        return create_api_response([], success=False, message=str(e)), 500
+
+
+@app.route("/api/user/sessions", methods=["POST"])
+def create_user_session():
+    try:
+        body = request.get_json()
+        user_id = body.get("user_id")
+        workout_type = body.get("workout_type")
+        duration_min = body.get("duration_min")
+        calories_burned = body.get("calories_burned")
+        session_date = body.get("session_date")
+
+        if not all([user_id, workout_type, duration_min, calories_burned, session_date]):
+            return create_api_response({}, success=False, message="Champs manquants"), 400
+
+        repo = UserSessionsRepository()
+        nouvelle_session = repo.create(user_id, workout_type, int(duration_min),
+                                       int(calories_burned), session_date)
+        return create_api_response(nouvelle_session), 201
+    except Exception as e:
+        print(f"❌ ERREUR API POST /user/sessions: {e}")
+        return create_api_response({}, success=False, message=str(e)), 500
+
 
 # --- EVOLUTION FONCTIONNELLE : Recherche et filtres sur les sessions sport ---
 
@@ -844,6 +881,14 @@ def coach_chat():
             if profil and profil.weight_kg and profil.height_cm:
                 imc = calculate_imc(profil.weight_kg, profil.height_cm)
                 system_prompt += f"\n\nProfil utilisateur : IMC {imc} ({get_imc_categorie(imc)}), objectif : {profil.objectif or 'non renseigné'}, expérience : niveau {profil.experience_level or 'non renseigné'}."
+            sessions = UserSessionsRepository().get_by_user(int(user_id))
+            if sessions:
+                dernieres = sessions[:5]
+                resume = ", ".join(
+                    f"{s['workout_type']} {s['duration_min']}min ({s['calories_burned']} kcal) le {s['session_date']}"
+                    for s in dernieres
+                )
+                system_prompt += f"\n\nDernières séances enregistrées : {resume}."
 
         mistral_response = http_requests.post(
             "https://api.mistral.ai/v1/chat/completions",

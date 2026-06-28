@@ -59,7 +59,7 @@ graph TB
 ### Coach IA — Mistral AI
 - Modèle : `mistral-small-latest` via l'API REST Mistral AI (`https://api.mistral.ai/v1/chat/completions`)
 - Clé API configurée via variable d'environnement `MISTRAL_API_KEY`
-- Prompt système personnalisé dynamiquement avec le profil santé de l'utilisateur (IMC, objectif, niveau d'expérience)
+- Prompt système enrichi dynamiquement avec : profil santé (IMC, objectif, niveau d'expérience) + dernières séances sportives enregistrées par l'utilisateur
 - Endpoints Flask :
   - `POST /api/coach/chat` — reçoit le message utilisateur, appelle Mistral, persiste l'échange en base, retourne la réponse
   - `GET /api/coach/history/<user_id>` — charge l'historique des 50 derniers messages
@@ -68,9 +68,9 @@ graph TB
 - Fallback frontend : si le backend est injoignable, réponses contextuelles locales
 
 ### Base de données — MySQL 8
-- 41 migrations versionnées (Pyway V1_01 → V1_41)
-- Tables principales : `utilisateurs`, `exercice_sessions`, `diet_recommendations`, `publications`, `workout_types`, `utilisateurs_allergies`, `utilisateurs_pathologies`, `utilisateurs_blessures`, `coach_messages`
-- Repository Pattern pour l'accès aux données (25 repositories)
+- 44 migrations versionnées (Pyway V1_01 → V1_44)
+- Tables principales : `utilisateurs`, `exercice_sessions`, `diet_recommendations`, `publications`, `workout_types`, `utilisateurs_allergies`, `utilisateurs_pathologies`, `utilisateurs_blessures`, `coach_messages`, `user_sessions`
+- Repository Pattern pour l'accès aux données (16+ repositories)
 
 ### Pipeline ETL — Apache Airflow
 - 4 DAGs de production pour l'ingestion des données CSV sources (exercice_sessions, diet_recommendations, daily_food, food_categories)
