@@ -403,6 +403,40 @@ Efface tout l'historique Coach IA de l'utilisateur.
 
 ---
 
+## Recommandations ML
+
+### `GET /recommendations/<user_id>`
+Retourne les 5 exercices recommandés par le modèle Random Forest pour l'utilisateur.
+
+Le modèle utilise : objectif, IMC, âge, niveau d'expérience, poids, taille.  
+Un bonus est appliqué selon l'objectif (ex. Cardio × 1.5 si objectif = perte de poids).  
+Chaque recommandation est loguée dans MongoDB (`healthia_logs.recommendation_logs`).
+
+**Réponse 200 :**
+```json
+{
+  "user_id": 3,
+  "objectif": "perte_de_poids",
+  "recommendations": [
+    { "exercice": "Cardio",   "score": 0.9124 },
+    { "exercice": "HIIT",     "score": 0.7540 },
+    { "exercice": "Yoga",     "score": 0.5830 },
+    { "exercice": "Strength", "score": 0.4210 },
+    { "exercice": "Cycling",  "score": 0.3100 }
+  ]
+}
+```
+
+**Réponses :**
+| Code | Description |
+|---|---|
+| 200 | Recommandations retournées |
+| 404 | Utilisateur introuvable |
+| 503 | Modèle ML non chargé (fichier `.pkl` absent) |
+| 500 | Erreur serveur |
+
+---
+
 ## Sessions Sportives Personnelles
 
 ### `GET /user/sessions/<user_id>`

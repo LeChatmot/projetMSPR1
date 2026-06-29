@@ -1,5 +1,5 @@
-import { Clock, Dumbbell, Flame, Plus, Trophy, X } from "lucide-react";
-import { useState } from "react";
+import { Brain, Clock, Dumbbell, Flame, Plus, Trophy, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   Bar, BarChart, CartesianGrid, Legend,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
@@ -8,6 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import { useSport } from "../hooks/useSport";
 import { useUserProfile } from "../hooks/useUserProfile";
 import { sportService } from "../services/sportService";
+import { recommendationService, type ExerciseRecommendation } from "../services/recommendationService";
 
 const CHART_TOOLTIP_STYLE = {
   backgroundColor: "#1e293b",
@@ -45,12 +46,34 @@ const EMPTY_FORM: AddSessionForm = {
 
 // ─── Vue personnelle (utilisateur classique) ───────────────────────────────
 
+const SCORE_LABEL: Record<string, string> = {
+  Cardio:   "🏃 Cardio",
+  Strength: "💪 Musculation",
+  HIIT:     "🔥 HIIT",
+  Yoga:     "🧘 Yoga",
+  Cycling:  "🚴 Vélo",
+  Swimming: "🏊 Natation",
+  Running:  "👟 Course",
+  Boxing:   "🥊 Boxe",
+  CrossFit: "⚡ CrossFit",
+};
+
 function PersonalSportPage() {
   const { user } = useAuth();
   const { recentSessions, sportStats, refresh } = useUserProfile(user);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState<AddSessionForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [mlRecommendations, setMlRecommendations] = useState<ExerciseRecommendation[]>([]);
+  const [loadingRecs, setLoadingRecs] = useState(true);
+
+  useEffect(() => {
+    if (!user?.backendId) return;
+    void recommendationService.getRecommendations(user.backendId).then((recs) => {
+      setMlRecommendations(recs);
+      setLoadingRecs(false);
+    });
+  }, [user?.backendId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,8 +83,8 @@ function PersonalSportPage() {
       await sportService.addUserSession({
         user_id: user.backendId,
         workout_type: form.workout_type,
-        duration_min: parseInt(form.duration_min),
-        calories_burned: parseInt(form.calories_burned),
+        duration_min: Number.parseInt(form.duration_min),
+        calories_burned: Number.parseInt(form.calories_burned),
         session_date: form.session_date,
       });
       setShowModal(false);
@@ -202,6 +225,47 @@ function PersonalSportPage() {
             </div>
           );
         })}
+      </div>
+
+      {/* Recommandations IA */}
+      <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Brain className="w-5 h-5 text-emerald-400" />
+          <h3 className="text-slate-100 font-semibold">Recommandations IA</h3>
+          <span className="ml-auto text-xs text-slate-500">Basé sur votre profil · Random Forest</span>
+        </div>
+
+        {loadingRecs ? (
+          <div className="flex items-center gap-3 text-slate-500 text-sm py-4">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-500" />
+            Analyse de votre profil en cours...
+          </div>
+        ) : mlRecommendations.length === 0 ? (
+          <p className="text-slate-500 text-sm py-4">
+            Recommandations non disponibles — complétez votre profil santé pour les activer.
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-3">
+            {mlRecommendations.map((rec, index) => (
+              <div
+                key={rec.exercice}
+                className="flex items-center gap-2 bg-slate-700/60 border border-slate-600 rounded-xl px-4 py-2"
+              >
+                <span className="text-slate-400 text-xs font-bold w-4">#{index + 1}</span>
+                <span className="text-slate-200 font-medium text-sm">
+                  {SCORE_LABEL[rec.exercice] ?? rec.exercice}
+                </span>
+                <div className="ml-2 flex items-center gap-1">
+                  <div
+                    className="h-1.5 rounded-full bg-emerald-500"
+                    style={{ width: `${Math.round(rec.score * 60)}px` }}
+                  />
+                  <span className="text-xs text-slate-500">{Math.round(rec.score * 100)}%</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

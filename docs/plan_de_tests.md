@@ -115,7 +115,17 @@ Composants testés :
 | COACH-03 | Historique chargé | GET /api/coach/history/3 | 200 + tableau de messages |
 | COACH-04 | Historique effacé | DELETE /api/coach/history/3 | 200 + historique vide |
 
-### 4.8 Sessions Sportives Personnelles
+### 4.8 Recommandations ML
+
+| ID | Description | Entrée | Résultat attendu |
+|---|---|---|---|
+| ML-01 | Recommandations pour utilisateur avec profil complet | GET /api/recommendations/3 | 200 + 5 exercices triés par score |
+| ML-02 | Utilisateur introuvable | GET /api/recommendations/999 | 404 |
+| ML-03 | Bonus objectif appliqué | user.objectif = "perte_de_poids" | Cardio en position #1 (score × 1.5) |
+| ML-04 | Utilisateur sans profil santé | user sans weight_kg ni height_cm | 200 + recommandations avec valeurs par défaut |
+| ML-05 | Log MongoDB écrit | GET /api/recommendations/3 | Document inséré dans healthia_logs.recommendation_logs |
+
+### 4.9 Sessions Sportives Personnelles
 
 | ID | Description | Entrée | Résultat attendu |
 |---|---|---|---|
@@ -126,7 +136,7 @@ Composants testés :
 | SESSION-05 | Séance apparaît dans stats du mois | POST séance mois courant puis GET sessions | stats mois mises à jour |
 | SESSION-06 | Coach IA cite les séances | POST /api/coach/chat après SESSION-03 | reply mentionne le workout_type enregistré |
 
-### 4.9 Repositories (unitaires)
+### 4.10 Repositories (unitaires)
 
 | ID | Description | Résultat attendu |
 |---|---|---|

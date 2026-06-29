@@ -1015,6 +1015,128 @@ def chat():
     })
 
 
+# --- RECOMMANDATIONS ML (Random Forest multi-label) ---
+
+import pathlib
+import joblib
+import numpy as np
+import pandas as pd
+
+_ML_MODEL_DIR = pathlib.Path(__file__).parent / "app" / "models"
+_ml_model = None
+_ml_preprocessor = None
+_ml_meta = None
+
+
+def _load_ml_model():
+    global _ml_model, _ml_preprocessor, _ml_meta
+    if _ml_model is None:
+        try:
+            _ml_model = joblib.load(_ML_MODEL_DIR / "model.pkl")
+            _ml_preprocessor = joblib.load(_ML_MODEL_DIR / "preprocessor.pkl")
+            _ml_meta = joblib.load(_ML_MODEL_DIR / "meta.pkl")
+            print("✅ Modèle ML de recommandation chargé.")
+        except FileNotFoundError as load_error:
+            print(f"⚠️ Modèle ML introuvable : {load_error}")
+    return _ml_model, _ml_preprocessor, _ml_meta
+
+
+_OBJECTIF_NORMALIZATION = {
+    "perte de poids": "perte_de_poids",
+    "perte_de_poids": "perte_de_poids",
+    "prise de masse": "prise_de_masse",
+    "prise_de_masse": "prise_de_masse",
+    "maintien":       "maintien",
+    "endurance":      "endurance",
+}
+
+_BONUS_MAP = {
+    "perte_de_poids": {"Cardio": 1.5, "HIIT": 1.3, "Yoga": 1.1, "Strength": 0.8},
+    "prise_de_masse": {"Strength": 1.5, "HIIT": 1.1, "Cardio": 0.7, "Yoga": 0.9},
+    "endurance":      {"Cardio": 1.4, "HIIT": 1.3, "Yoga": 1.0, "Strength": 0.9},
+    "maintien":       {"Cardio": 1.1, "Yoga": 1.2, "Strength": 1.1, "HIIT": 1.0},
+}
+
+
+def _log_recommendation_to_mongo(user_id: int, recommendations: list):
+    """Persiste les recommandations ML dans MongoDB. Échoue silencieusement si MongoDB indisponible."""
+    try:
+        from pymongo import MongoClient
+        mongo_host = os.getenv("MONGO_HOST", "mongodb")
+        mongo_user = os.getenv("MONGO_USER", "healthia")
+        mongo_password = os.getenv("MONGO_PASSWORD", "healthia123")
+        client = MongoClient(
+            f"mongodb://{mongo_user}:{mongo_password}@{mongo_host}:27017/",
+            serverSelectionTimeoutMS=2000
+        )
+        client["healthia_logs"]["recommendation_logs"].insert_one({
+            "user_id": user_id,
+            "recommendations": recommendations,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+        client.close()
+    except Exception as mongo_error:
+        print(f"⚠️ MongoDB log ignoré : {mongo_error}")
+
+
+@app.route("/api/recommendations/<int:user_id>", methods=["GET"])
+def get_recommendations(user_id: int):
+    """Retourne les 5 exercices recommandés par le modèle ML pour un utilisateur."""
+    try:
+        utilisateur = UtilisateursRepository().find_by_id(user_id)
+        if not utilisateur:
+            return create_api_response({}, success=False, message=MSG_UTILISATEUR_INTROUVABLE), 404
+
+        model, preprocessor, meta = _load_ml_model()
+        if model is None:
+            return create_api_response({}, success=False, message="Modèle ML non disponible"), 503
+
+        objectif_raw = (utilisateur.objectif or "maintien").lower()
+        objectif_norm = _OBJECTIF_NORMALIZATION.get(objectif_raw, "maintien")
+
+        weight_kg = float(utilisateur.weight_kg or 70.0)
+        height_cm = float(utilisateur.height_cm or 170.0)
+        user_age = calculate_age_from_dob(utilisateur.date_of_birth) if utilisateur.date_of_birth else 30
+        experience_level = int(utilisateur.experience_level or 1)
+        imc = round(weight_kg / (height_cm / 100) ** 2, 2)
+
+        features = meta["features"]
+        mlb_classes = np.array(meta["mlb_classes"])
+
+        user_row = pd.DataFrame([{
+            "objectif":         objectif_norm,
+            "user_weight_kg":   weight_kg,
+            "user_height_cm":   height_cm,
+            "user_imc":         imc,
+            "user_age":         user_age,
+            "experience_level": experience_level,
+        }])[features]
+
+        x_encoded = preprocessor.transform(user_row)
+        probs = model.predict_proba(x_encoded)[0]
+        bonus = _BONUS_MAP.get(objectif_norm, {})
+
+        ranked_recommendations = sorted([
+            {
+                "exercice": str(mlb_classes[col_idx]),
+                "score":    round(float(probs[idx]) * bonus.get(str(mlb_classes[col_idx]), 1.0), 4),
+            }
+            for idx, col_idx in enumerate(model.classes_)
+        ], key=lambda r: r["score"], reverse=True)
+
+        top5 = ranked_recommendations[:5]
+        _log_recommendation_to_mongo(user_id, top5)
+
+        return create_api_response({
+            "user_id":         user_id,
+            "objectif":        objectif_norm,
+            "recommendations": top5,
+        })
+    except Exception as e:
+        print(f"❌ ERREUR API /recommendations/{user_id}: {e}")
+        return create_api_response({}, success=False, message=str(e)), 500
+
+
 if __name__ == "__main__":
     # FLASK_HOST vaut "0.0.0.0" dans Docker (nécessaire pour exposer le port du conteneur)
     # et "127.0.0.1" en développement local pour limiter l'exposition réseau
