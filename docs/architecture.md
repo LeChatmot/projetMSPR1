@@ -10,19 +10,31 @@ HealthIA est une application web full-stack composée de quatre couches distinct
 
 ```mermaid
 graph TB
-    subgraph Client["Navigateur"]
-        UI["Frontend React\nVite + TypeScript\nlocalhost:5173"]
+    subgraph Client["Navigateur (localhost:5173)"]
+        UI["Frontend React\nVite + TypeScript"]
     end
 
-    subgraph Backend["Serveur Backend"]
-        API["API REST Flask\nPython 3.12\nlocalhost:5000"]
-        Mistral["Coach IA\nMistral AI API\nmistral-small-latest"]
+    subgraph BackendGroup["Serveur Backend (localhost:5000)"]
+        API["API REST Flask\nPython 3.12"]
+        Mistral["Mistral AI API\nmistral-small-latest"]
     end
 
     subgraph Data["Couche Données"]
-        DB[("MySQL 8\nhealth_ia_db\nlocalhost:3306")]
-        ETL["Pipeline ETL\nApache Airflow"]
-        CSV["Datasets CSV\n(exercice_sessions, diet_recommendations,\ndaily_food, gym_members)"]
+        DB[("MySQL 8\nlocalhost:3306")]
+        Mongo[("MongoDB\nlocalhost:27017")]
+        ETL["Apache Airflow\nlocalhost:8081"]
+        CSV["Datasets CSV"]
+    end
+
+    subgraph Vision["Vision IA"]
+        Ollama["Ollama LLaVA\nlocalhost:11434"]
+    end
+
+    subgraph Monitoring["Monitoring"]
+        Prometheus["Prometheus\nlocalhost:9090"]
+        Grafana["Grafana\nlocalhost:3000"]
+        CAdvisor["cAdvisor\nlocalhost:8082"]
+        MySQLExp["mysql-exporter\nlocalhost:9104"]
     end
 
     subgraph CI["Intégration Continue"]
@@ -31,13 +43,18 @@ graph TB
     end
 
     UI -->|"HTTP REST /api/*"| API
-    API -->|"Repository Pattern\nSQL queries"| DB
-    API -->|"POST /v1/chat/completions\nHTTPS"| Mistral
-    CSV -->|"Extraction\nTransformation"| ETL
-    ETL -->|"Chargement\n(INSERT)"| DB
-    Jenkins -->|"Analyse statique"| Sonar
-    Jenkins -->|"pytest + vitest"| Backend
-    Jenkins -->|"docker compose up"| Client
+    API -->|"Repository Pattern"| DB
+    API -->|"pymongo — logs ML"| Mongo
+    API -->|"HTTPS"| Mistral
+    API -->|"POST /analyze"| Ollama
+    CSV -->|"Extract + Transform"| ETL
+    ETL -->|"INSERT"| DB
+    MySQLExp -->|"scrape"| DB
+    CAdvisor -->|"métriques conteneurs"| Prometheus
+    MySQLExp -->|"métriques MySQL"| Prometheus
+    Prometheus -->|"datasource"| Grafana
+    Jenkins -->|"analyse statique"| Sonar
+    Jenkins -->|"pytest + vitest"| API
 ```
 
 ---
