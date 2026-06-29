@@ -74,6 +74,7 @@ interface UseCoachIAReturn {
   messages: CoachMessage[];
   isTyping: boolean;
   sendMessage: (content: string, userId?: number) => void;
+  sendMessageWithFile: (content: string, file?: File | null) => Promise<void>;
   clearConversation: (userId?: number) => void;
 }
 
@@ -137,6 +138,54 @@ export function useCoachIA(userId?: number): UseCoachIAReturn {
       });
   }, [userId]);
 
+  const sendMessageWithFile = useCallback(async (content: string, file?: File | null) => {
+    const trimmed = content.trim() || "Analyse cette image";
+
+    const userMessage: CoachMessage = {
+      id: generateId(),
+      role: "user",
+      content: file ? `${trimmed} 📎 ${file.name}` : trimmed,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setIsTyping(true);
+
+    try {
+      let replyContent: string;
+
+      if (file) {
+        // Appel avec image → /api/chat
+        const formData = new FormData();
+        formData.append("message", trimmed);
+        formData.append("file", file);
+
+        const res = await fetch("/api/chat", { method: "POST", body: formData });
+        const data = await res.json();
+        replyContent = data.response;
+      } else {
+        // Appel texte seul → /coach/chat (Mistral)
+        replyContent = await fetchMistralReply(trimmed, userId);
+      }
+
+      setMessages((prev) => [...prev, {
+        id: generateId(),
+        role: "assistant",
+        content: replyContent,
+        timestamp: new Date(),
+      }]);
+    } catch {
+      setMessages((prev) => [...prev, {
+        id: generateId(),
+        role: "assistant",
+        content: buildAIReply(trimmed),
+        timestamp: new Date(),
+      }]);
+    } finally {
+      setIsTyping(false);
+    }
+  }, [userId]);
+
   const clearConversation = useCallback((userIdOverride?: number) => {
     const effectiveUserId = userIdOverride ?? userId;
     if (effectiveUserId) {
@@ -145,5 +194,5 @@ export function useCoachIA(userId?: number): UseCoachIAReturn {
     setMessages([WELCOME_MESSAGE]);
   }, [userId]);
 
-  return { messages, isTyping, sendMessage, clearConversation };
+  return { messages, isTyping, sendMessage, sendMessageWithFile, clearConversation };
 }

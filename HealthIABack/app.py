@@ -1,4 +1,4 @@
-import os
+import os, json
 from datetime import datetime, timezone
 
 from flask import Flask, jsonify, request
@@ -30,6 +30,8 @@ load_dotenv(".env.local", override=True)
 
 # Initialisation de l'application Flask
 app = Flask(__name__)
+
+IA_SERVICE_URL = os.getenv("IA_SERVICE_URL", "http://ia_service:8001")
 
 # CORS restreint aux origines déclarées dans CORS_ALLOWED_ORIGINS
 # Valeur par défaut : frontend Vite en développement local
@@ -75,7 +77,7 @@ def get_dashboard_kpis():
 
         return create_api_response(kpis_data)
     except Exception as e:
-        print(f"❌ ERREUR API /dashboard/kpis: {e}")
+        print(f"ERREUR API /dashboard/kpis: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -87,7 +89,7 @@ def get_sport_distribution():
         distribution_data = repo.get_sport_distribution()
         return create_api_response(distribution_data)
     except Exception as e:
-        print(f"❌ ERREUR API /dashboard/sport-distribution: {e}")
+        print(f"ERREUR API /dashboard/sport-distribution: {e}")
         return create_api_response([], success=False, message=str(e)), 500
 
 
@@ -109,7 +111,7 @@ def get_weight_evolution():
             
         return create_api_response(formatted_data)
     except Exception as e:
-        print(f"❌ ERREUR API /dashboard/weight-evolution: {e}")
+        print(f"ERREUR API /dashboard/weight-evolution: {e}")
         return create_api_response([], success=False, message=str(e)), 500
 
 # --- ROUTES ADMIN / NUTRITION ---
@@ -122,7 +124,7 @@ def get_diet_recommendations():
         data = repo.getAll()
         return create_api_response(data)
     except Exception as e:
-        print(f"❌ ERREUR API /nutrition/recommendations: {e}")
+        print(f"ERREUR API /nutrition/recommendations: {e}")
         return create_api_response([], success=False, message=str(e)), 500
 
 @app.route("/api/nutrition/recommendations/<int:id>", methods=["DELETE"])
@@ -136,7 +138,7 @@ def delete_diet_recommendation(id):
         else:
             return create_api_response({}, success=False, message="Non trouvé"), 404
     except Exception as e:
-        print(f"❌ ERREUR API /nutrition/recommendations/DELETE: {e}")
+        print(f"ERREUR API /nutrition/recommendations/DELETE: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 # --- ROUTES POUR LES PATIENTS ---
@@ -173,7 +175,7 @@ def get_patients():
             
         return create_api_response(patients_data)
     except Exception as e:
-        print(f"❌ ERREUR API /patients: {e}")
+        print(f"ERREUR API /patients: {e}")
         return create_api_response([], success=False, message=str(e)), 500
 
 @app.route("/api/patients/stats", methods=["GET"])
@@ -190,7 +192,7 @@ def get_patient_stats():
         }
         return create_api_response(stats_data)
     except Exception as e:
-        print(f"❌ ERREUR API /patients/stats: {e}")
+        print(f"ERREUR API /patients/stats: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 # --- ROUTES POUR LA PAGE SPORT ---
@@ -212,7 +214,7 @@ def get_sport_sessions():
         ]
         return create_api_response(sessions_data)
     except Exception as e:
-        print(f"❌ ERREUR API /sport/sessions: {e}")
+        print(f"ERREUR API /sport/sessions: {e}")
         return create_api_response([], success=False, message=str(e)), 500
 
 @app.route("/api/sport/stats", methods=["GET"])
@@ -230,7 +232,7 @@ def get_sport_stats():
         }
         return create_api_response(stats_data)
     except Exception as e:
-        print(f"❌ ERREUR API /sport/stats: {e}")
+        print(f"ERREUR API /sport/stats: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 @app.route("/api/sport/distribution", methods=["GET"])
@@ -241,7 +243,7 @@ def get_sport_distribution_direct():
         distribution_data = repo.get_sport_distribution()
         return create_api_response(distribution_data)
     except Exception as e:
-        print(f"❌ ERREUR API /sport/distribution: {e}")
+        print(f"ERREUR API /sport/distribution: {e}")
         return create_api_response([], success=False, message=str(e)), 500
 
 # --- SESSIONS PERSONNELLES UTILISATEUR ---
@@ -253,7 +255,7 @@ def get_user_sessions(user_id: int):
         sessions = repo.get_by_user(user_id)
         return create_api_response(sessions)
     except Exception as e:
-        print(f"❌ ERREUR API /user/sessions/{user_id}: {e}")
+        print(f"ERREUR API /user/sessions/{user_id}: {e}")
         return create_api_response([], success=False, message=str(e)), 500
 
 
@@ -275,7 +277,7 @@ def create_user_session():
                                        int(calories_burned), session_date)
         return create_api_response(nouvelle_session), 201
     except Exception as e:
-        print(f"❌ ERREUR API POST /user/sessions: {e}")
+        print(f"ERREUR API POST /user/sessions: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -324,7 +326,7 @@ def search_sport_sessions():
         )
         return create_api_response(result)
     except Exception as e:
-        print(f"❌ ERREUR API /sport/search: {e}")
+        print(f"ERREUR API /sport/search: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 # --- ROUTES POUR LA PAGE NUTRITION (PUBLIQUE) ---
@@ -336,7 +338,7 @@ def get_nutrition_distribution():
         data = repo.get_diet_distribution()
         return create_api_response(data)
     except Exception as e:
-        print(f"❌ ERREUR API /nutrition/distribution: {e}")
+        print(f"ERREUR API /nutrition/distribution: {e}")
         return create_api_response([], success=False, message=str(e)), 500
 
 @app.route("/api/nutrition/stats", methods=["GET"])
@@ -353,7 +355,7 @@ def get_nutrition_stats_public():
         }
         return create_api_response(stats_data)
     except Exception as e:
-        print(f"❌ ERREUR API /nutrition/stats: {e}")
+        print(f"ERREUR API /nutrition/stats: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 @app.route("/api/nutrition/plans", methods=["GET"])
@@ -374,7 +376,7 @@ def get_nutrition_plans():
         ]
         return create_api_response(plans_data)
     except Exception as e:
-        print(f"❌ ERREUR API /nutrition/plans: {e}")
+        print(f"ERREUR API /nutrition/plans: {e}")
         return create_api_response([], success=False, message=str(e)), 500
 
 # --- ROUTES AUTHENTIFICATION ---
@@ -427,7 +429,7 @@ def register():
 
         return create_api_response(nouvel_utilisateur.to_public_dict(), message="Compte créé avec succès"), 201
     except Exception as e:
-        print(f"❌ ERREUR API /auth/register: {e}")
+        print(f"ERREUR API /auth/register: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -450,7 +452,7 @@ def login():
 
         return create_api_response(utilisateur.to_public_dict())
     except Exception as e:
-        print(f"❌ ERREUR API /auth/login: {e}")
+        print(f"ERREUR API /auth/login: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -463,7 +465,7 @@ def get_publications():
         repo = PublicationsRepository()
         return create_api_response(repo.getAll())
     except Exception as e:
-        print(f"❌ ERREUR API GET /publications: {e}")
+        print(f"ERREUR API GET /publications: {e}")
         return create_api_response([], success=False, message=str(e)), 500
 
 
@@ -489,7 +491,7 @@ def create_publication():
         publication_dict = repo.getById(nouvelle_publication.id)
         return create_api_response(publication_dict), 201
     except Exception as e:
-        print(f"❌ ERREUR API POST /publications: {e}")
+        print(f"ERREUR API POST /publications: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -504,7 +506,7 @@ def delete_publication(publication_id):
         repo.delete(publication_id)
         return create_api_response({"id": publication_id}, message="Publication supprimée")
     except Exception as e:
-        print(f"❌ ERREUR API DELETE /publications/{publication_id}: {e}")
+        print(f"ERREUR API DELETE /publications/{publication_id}: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -515,7 +517,7 @@ def get_commentaires(publication_id):
         repo = CommentairesRepository()
         return create_api_response(repo.get_by_publication(publication_id))
     except Exception as e:
-        print(f"❌ ERREUR API GET /publications/{publication_id}/commentaires: {e}")
+        print(f"ERREUR API GET /publications/{publication_id}/commentaires: {e}")
         return create_api_response([], success=False, message=str(e)), 500
 
 
@@ -544,7 +546,7 @@ def create_commentaire(publication_id):
         nouveau = next((c for c in tous_les_commentaires if c["id"] == nouveau_commentaire.id), None)
         return create_api_response(nouveau), 201
     except Exception as e:
-        print(f"❌ ERREUR API POST /publications/{publication_id}/commentaires: {e}")
+        print(f"ERREUR API POST /publications/{publication_id}/commentaires: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -567,7 +569,7 @@ def get_admin_patients():
             "total_pages": max(1, -(-total // per_page)),
         })
     except Exception as e:
-        print(f"❌ ERREUR API GET /admin/patients: {e}")
+        print(f"ERREUR API GET /admin/patients: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -588,7 +590,7 @@ def get_admin_nutrition():
             "total_pages": max(1, -(-total // per_page)),
         })
     except Exception as e:
-        print(f"❌ ERREUR API GET /admin/nutrition: {e}")
+        print(f"ERREUR API GET /admin/nutrition: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -609,7 +611,7 @@ def get_reference_data():
             "cuisine_types":         repo.readAllIdName("preferred_cuisine_types"),
         })
     except Exception as e:
-        print(f"❌ ERREUR API GET /admin/reference-data: {e}")
+        print(f"ERREUR API GET /admin/reference-data: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -644,7 +646,7 @@ def create_admin_nutrition():
         created = repo.getById(d.id)
         return create_api_response(created), 201
     except Exception as e:
-        print(f"❌ ERREUR API POST /admin/nutrition: {e}")
+        print(f"ERREUR API POST /admin/nutrition: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -682,7 +684,7 @@ def update_admin_nutrition(rec_id):
         repo.update(rec_id, d)
         return create_api_response(repo.getById(rec_id), message="Recommandation mise à jour")
     except Exception as e:
-        print(f"❌ ERREUR API PUT /admin/nutrition/{rec_id}: {e}")
+        print(f"ERREUR API PUT /admin/nutrition/{rec_id}: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -696,7 +698,7 @@ def delete_admin_nutrition(rec_id):
         repo.delete(rec_id)
         return create_api_response({"id": rec_id}, message="Recommandation supprimée")
     except Exception as e:
-        print(f"❌ ERREUR API DELETE /admin/nutrition/{rec_id}: {e}")
+        print(f"ERREUR API DELETE /admin/nutrition/{rec_id}: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -743,7 +745,7 @@ def get_profil_sante(user_id):
             "blessures": blessures,
         })
     except Exception as e:
-        print(f"❌ ERREUR API GET /profile/{user_id}: {e}")
+        print(f"ERREUR API GET /profile/{user_id}: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 @app.route("/api/profile/<int:user_id>/sante", methods=["PUT"])
@@ -777,7 +779,7 @@ def update_sante_utilisateur(user_id):
         utilisateur_updated = repo.find_by_id(user_id)
         return create_api_response(utilisateur_updated.to_public_dict(), message="Profil santé mis à jour")
     except Exception as e:
-        print(f"❌ ERREUR API PUT /profile/{user_id}/sante: {e}")
+        print(f"ERREUR API PUT /profile/{user_id}/sante: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -793,7 +795,7 @@ def get_sante_references():
             "activity_levels": ref.get_activity_levels(),
         })
     except Exception as e:
-        print(f"❌ ERREUR API GET /references/sante: {e}")
+        print(f"ERREUR API GET /references/sante: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -822,7 +824,7 @@ def update_utilisateur(user_id):
         utilisateur.email = email
         return create_api_response(utilisateur.to_public_dict(), message="Profil mis à jour")
     except Exception as e:
-        print(f"❌ ERREUR API PUT /utilisateurs/{user_id}: {e}")
+        print(f"ERREUR API PUT /utilisateurs/{user_id}: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -849,7 +851,7 @@ def update_utilisateur_password(user_id):
         repo.update_password(user_id, nouveau_mot_de_passe)
         return create_api_response({}, message="Mot de passe mis à jour")
     except Exception as e:
-        print(f"❌ ERREUR API PUT /utilisateurs/{user_id}/password: {e}")
+        print(f"ERREUR API PUT /utilisateurs/{user_id}/password: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -915,7 +917,7 @@ def coach_chat():
 
         return create_api_response({"reply": reply})
     except Exception as e:
-        print(f"❌ ERREUR API /coach/chat: {e}")
+        print(f"ERREUR API /coach/chat: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -926,7 +928,7 @@ def get_coach_history(user_id):
         messages = CoachMessagesRepository().find_by_user(user_id)
         return create_api_response(messages)
     except Exception as e:
-        print(f"❌ ERREUR API GET /coach/history/{user_id}: {e}")
+        print(f"ERREUR API GET /coach/history/{user_id}: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
 
 
@@ -937,8 +939,80 @@ def clear_coach_history(user_id):
         CoachMessagesRepository().clear_history(user_id)
         return create_api_response({}, message="Historique effacé")
     except Exception as e:
-        print(f"❌ ERREUR API DELETE /coach/history/{user_id}: {e}")
+        print(f"ERREUR API DELETE /coach/history/{user_id}: {e}")
         return create_api_response({}, success=False, message=str(e)), 500
+    
+# --- ROUTES ANALYSE IMAGES / MODELE IA (RECOMMANDATION) ---
+
+@app.route("/api/chat", methods=["POST"])
+def chat():
+    from flask import request
+    import requests
+
+    message = request.form.get("message")
+    file = request.files.get("file")
+
+    analysis = None
+
+    # 1. ANALYZE (si fichier)
+
+    if file:
+        analysis = requests.post(
+            "http://ia_service:8001/analyze",
+            files={"file": (file.filename, file.stream, file.mimetype)}
+        ).json()
+
+    # 2. MICRO SERVICE IA
+
+    recommendations = requests.post(
+        "http://ia_service:8001/recommander",
+        json={
+            "objectif":        request.form.get("objectif", "maintien"),
+            "user_weight_kg":  float(request.form.get("weight", 70)),
+            "user_height_cm":  float(request.form.get("height", 170)),
+            "user_age":        int(request.form.get("age", 30)),
+            "experience_level": int(request.form.get("experience_level", 1)),
+            "problemes":       request.form.get("problemes", ""),
+        }
+    ).json()
+
+    # 3. MISTRAL
+    
+    prompt = f"""
+    Message utilisateur: {message}
+
+    Analyse du repas photographié:
+    {json.dumps(analysis, ensure_ascii=False, indent=2) if analysis else "Pas d'image fournie."}
+
+    Exercices recommandés:
+    {json.dumps(recommendations, ensure_ascii=False, indent=2)}
+
+    En tant que coach, donne un conseil personnalisé qui tient compte du repas analysé et des exercices recommandés.
+    """
+
+    mistral_api_key = os.getenv("MISTRAL_API_KEY")
+
+    mistral_response = requests.post(
+        "https://api.mistral.ai/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {mistral_api_key}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": "mistral-small-latest",
+            "messages": [
+                {"role": "user", "content": prompt}
+            ],
+        }
+    )
+
+    reply = mistral_response.json()["choices"][0]["message"]["content"]
+
+    return jsonify({
+        "response": reply,
+        "analysis": analysis,
+        "recommendations": recommendations
+    })
 
 
 if __name__ == "__main__":
